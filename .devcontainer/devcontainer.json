@@ -1,8 +1,9 @@
 {
-  name: "Default",
+  name: "Digital Coach",
   build: {
     dockerfile: "Dockerfile"
   },
+  postCreateCommand: "bash .devcontainer/post-create.sh",
   customizations: {
     jetbrains: {
       backend: "WebStorm",
