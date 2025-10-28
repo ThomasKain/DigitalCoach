@@ -1,7 +1,12 @@
+# Store project root directory
+PROJECT=$PWD
+
 # Install frontend dependencies
-cd ./digital-coach-app
+cd "$PROJECT/digital-coach-app" || exit
+npm ci
+cd "$PROJECT/digital-coach-app/functions" || exit
 npm ci
 
 # Install backend dependencies
-cd ../mlapi
+cd "$PROJECT/mlapi" || exit
 uv sync

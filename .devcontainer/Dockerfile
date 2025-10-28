@@ -24,3 +24,7 @@ RUN npm install -g firebase-tools
 
 # Install NLTK's datasets
 RUN python3 -m nltk.downloader all
+
+# Expose ports used in development
+EXPOSE 3000/tcp
+EXPOSE 9005/tcp
