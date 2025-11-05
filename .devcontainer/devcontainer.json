@@ -3,7 +3,7 @@
   build: {
     dockerfile: "Dockerfile"
   },
-  postCreateCommand: "bash installDeps.sh",
+  postCreateCommand: "./installDeps.sh",
   customizations: {
     jetbrains: {
       backend: "WebStorm",

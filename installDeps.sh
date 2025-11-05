@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Store project root directory
 PROJECT=$PWD
 
