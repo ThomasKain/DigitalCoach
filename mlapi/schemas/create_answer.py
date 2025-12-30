@@ -1,7 +1,7 @@
 # Builds the final response schema
 from typing import List
 from pydantic import BaseModel, Field
-from schemas.feedback import BigFiveScoreResult, OverallCompetencyFeedback
+from schemas.feedback import OverallCompetencyFeedback
 from schemas.audio import HighlightData
 from schemas.jobs import JobStatus
 

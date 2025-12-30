@@ -21,6 +21,15 @@ from .constants import (
     MIN_OPTIMAL_WPM,
     MAX_OPTIMAL_WPM,
     WPM_PENALTY,
+    MAX_ENGAGEMENT_SCORE,
+    BASE_ENGAGEMENT_SCORE,
+    MONOTONE_PENALTY,
+    MIN_SENTIMENT_VARIETY_RATIO,
+    KEYWORD_BONUS_LIMIT,
+    SENTIMENT_BONUS_LIMIT,
+    SENTIMENT_VARIETY_BONUS_RATIO,
+    KEYWORD_REVELANCE_THRESHOLD,
+    KEYWORD_POINTS,
 )
 
 logger = get_logger(__name__)
@@ -128,6 +137,7 @@ def _analyze_communication_clarity(
     Returns:
         CompetencyFeedback: Score and evaluation on communication clarity
     """
+    logger.info("Analyzing communication clarity from interview transcript.")
     # Compute speech rate (words per minute)
     words = audio_analysis.transcript.split()
     duration_mins = max(audio_analysis.duration / 60.0, 0.5) # duration in minutes, avoid division by zero
@@ -153,6 +163,8 @@ def _analyze_communication_clarity(
         clarity_score = max(0, MAX_CLARITY_SCORE - deviation)
         result.evaluation = f"Your pacing was quite fast at {int(speech_rate)} WPM; consider slowing down to give the interviewer time to process your key points."
 
+    logger.info(f"Communication clarity analysis complete with score: {clarity_score}.")
+
     return result
 
 
@@ -160,60 +172,56 @@ def _analyze_engagement(
     audio_analysis: AudioAnalysisResult,
 ) -> CompetencyFeedback:
     """
-    Analyzes how engaging the response is likely to be to interviewers.
+    Analyzes how engaging the response is based on audio sentiment and keywords.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
+        audio_analysis (AudioAnalysisResult): Audio sentiment analysis results
 
     Returns:
         CompetencyFeedback: Score and specific feedback on engagement level
     """
-    result = CompetencyFeedback(
-        score=3.5,  # Default score for testing
-        strengths=[],
-        areas_for_improvement=[],
-        recommendations=[],
-    )
+    logger.info("Analyzing engagement from interview transcript.")
 
-    # # Count emotional variety if available
-    # emotion_variety = 0
-    # if facial_analysis and facial_analysis.emotion_sums:
-    #     emotion_data = facial_analysis.emotion_sums.dict()
-    #     emotion_variety = len([e for e, v in emotion_data.items() if v > 0.1])
+    # Check sentiment variety in audio segments, i.e. how many different sentiment types were expressed.
+    # Goal is to avoid NEUTRAL responses and have a mix of POSITIVE and NEGATIVE sentiments to keep the interviewer engaged. 
 
-    # Count keyword usage if available
-    keyword_usage = 0
-    if audio_analysis and audio_analysis.highlights:
-        for highlight in audio_analysis.highlights:
-            if highlight.rank > 0.5:
-                keyword_usage += 1
+    sentiments = [segment.sentiment for segment in audio_analysis.sentiment_analysis] # extract sentiments from interview's audio segments
+    total_segments = len(sentiments)
+    result = CompetencyFeedback(score = BASE_ENGAGEMENT_SCORE)
+    
+    # Compute variety of sentiments expresssed
+    if total_segments > 0:
+        # Compute percentage of non-neurtral segments
+        neutral_count = sentiments.count("NEUTRAL")
+        emotion_variety = 1.0 - (neutral_count / total_segments) # proportion of non-neutral segments
 
-        # Calculate engagement score
-        engagement_score = (
-            min(emotion_variety / 3, 1) * 0.3  # Normalize to max of 1
-            + min(keyword_usage / 10, 1) * 0.3
-        )
+        # Deduct points for monotone speech (i.e. mostly neutral sentiment)
+        if emotion_variety < MIN_SENTIMENT_VARIETY_RATIO:
+            result.score -= MONOTONE_PENALTY
+            result.evaluation = f"Your speech was quite monotone with {int((neutral_count / total_segments) * 100)}% of your responses being neutral. Try to vary your tone to keep the listener engaged."
+        # Add points for sentiment variety
+        else:
+            # Add points for sentiment variety if user was at most 40% expressive (i.e. 40% of responses are non-neutral)
+            variety_points = min(emotion_variety / SENTIMENT_VARIETY_BONUS_RATIO, 1) * SENTIMENT_BONUS_LIMIT
+            result.score += variety_points
+            result.evaluation = f"Great job varying your tone with {int(emotion_variety * 100)}% of your responses being expressive!"
 
-        result.score = round(min(engagement_score * 10, 10), 2)  # Scale to 0-10
+    # Compute keyword usage from highlights in audio analysis
+    high_value_keywords = [keyword for keyword in audio_analysis.highlights if keyword.rank > KEYWORD_REVELANCE_THRESHOLD]
 
-        # Generate feedback based on keyword usage
-        if keyword_usage > 3:
-            result.strengths.append("Good keyword usage")
-        elif keyword_usage < 3:
-            result.areas_for_improvement.append(
-                "Try to use more keywords related to the content."
-            )
-            result.recommendations.append(
-                "Practice adding emphasis to key points in your responses"
-            )
+    keyword_count = len(high_value_keywords)
+    # Add points for keyword usage capped at KEYWORD_BONUS_LIMIT
+    keyword_points = min(keyword_count * KEYWORD_POINTS, KEYWORD_BONUS_LIMIT)
+    result.score += keyword_points
 
-    # Always ensure we have at least one recommendation for testing
-    if not result.recommendations:
-        result.recommendations.append(
-            "Keep your audience engaged by varying your tone and pacing"
-        )
+    # Generate keyword usage feedback
+    if keyword_count <= 2:
+        result.evaluation += f" You only used {keyword_count} high-value keywords in your responses. Try to incorporate more relevant keywords to keep the interviewer engaged."
+    else:
+        result.evaluation += f" You used {keyword_count} high-value keywords effectively in your responses."
 
-    return result
+    result.score = round(min(max(result.score, 0), MAX_ENGAGEMENT_SCORE), 2) # ensure score is within bounds of maximum engagement score and rounded 2 decimal places
+    return result 
 
 
 def generate_competency_feedback(
