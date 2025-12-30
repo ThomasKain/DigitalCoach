@@ -19,12 +19,11 @@ class OverallCompetencyFeedback(BaseModel):
     Overall Competency Feedback
     """
 
-    communication_clarity: CompetencyFeedback  # Feedback on communication clarity
-    confidence: CompetencyFeedback # Feedback on confidence
-    engagement: CompetencyFeedback # Feedback on engagement
-    overall_score: float # Overall sscore
-    summary: str # Summary of overall performance
-    key_recommendations: List[str] = Field(default_factory=list) # Specific actions to take
+    communication_clarity: CompetencyFeedback  # Evaluation on communication clarity
+    confidence: CompetencyFeedback # Evaluation on confidence
+    engagement: CompetencyFeedback # Evaluation on engagement
+    overall_score: float # Overall score
+    summary: str # Summary of overall performance including evaluations for individual competencies
 
 
 class StarFeedbackRequest(BaseModel):

@@ -221,6 +221,9 @@ def _analyze_engagement(
         result.evaluation += f" You used {keyword_count} high-value keywords effectively in your responses."
 
     result.score = round(min(max(result.score, 0), MAX_ENGAGEMENT_SCORE), 2) # ensure score is within bounds of maximum engagement score and rounded 2 decimal places
+
+    logger.info(f"Engagement analysis complete with score: {result.score}.")
+
     return result 
 
 
@@ -228,7 +231,7 @@ def generate_competency_feedback(
     audio_analysis: AudioAnalysisResult,
 ) -> OverallCompetencyFeedback:
     """
-    Generates comprehensive competency-based feedback from all analysis components.
+    Generates comprehensive competency-based feedback from all analysis components, i.e. confidence, clarity, and engagement.
 
     Args:
         audio_analysis (AudioAnalysisResult): Audio sentiment analysis
@@ -236,36 +239,30 @@ def generate_competency_feedback(
     Returns:
         OverallCompetencyFeedback: Structured feedback on key interview competencies
     """
+
+    logger.info("Generating overall competency feedback.")
+
     # Generate individual competency feedback
     communication_clarity = _analyze_communication_clarity(audio_analysis)
     confidence = _analyze_confidence(audio_analysis)
     engagement = _analyze_engagement(audio_analysis)
 
-    # Calculate overall score
-    scores = [
-        communication_clarity.score,
-        confidence.score,
-        engagement.score,
-    ]
-    overall_score = sum(scores) / len(scores) if scores else 0
+    # Calculate overall competency score
+    overall_score = communication_clarity.score + confidence.score + engagement.score
 
-    # Collect all recommendations
-    strengths = []
-    improvements = []
-    all_recommendations = []
+    # Collect all evaluations
+    evaluations = ""
+    for eval in [communication_clarity, confidence, engagement]:
+        evaluations += eval.evaluation + "\n"
 
-    for feedback in [communication_clarity, confidence, engagement]:
-        strengths.extend(feedback.strengths)
-        improvements.extend(feedback.areas_for_improvement)
-        all_recommendations.extend(feedback.recommendations)
-
+    MAX_SCORE = MAX_CONFIDENCE_SCORE + MAX_CLARITY_SCORE + MAX_ENGAGEMENT_SCORE
     # Generate summary based on overall score
-    if overall_score >= 7:
-        summary = "Your response demonstrates strong interview skills with some specific areas to refine."
-    elif overall_score >= 5:
-        summary = "Your response has good elements but could benefit from targeted improvements."
-    else:
-        summary = "Your response needs development in several key areas to increase interview effectiveness."
+    if overall_score >= MAX_SCORE * 0.8:
+        summary = "Excellent performance! You demonstrated strong competencies across all areas."
+    elif MAX_SCORE * 0.5 < overall_score < MAX_SCORE * 0.8:
+        summary = "Good job! There are some areas for improvement to enhance your interview effectiveness."
+    else: # overall_score < MAX_SCORE * 0.5 
+        summary = "Needs improvement. Focus on developing your competencies to perform better in interviews."
 
     # Create the overall feedback
     feedback = OverallCompetencyFeedback(
@@ -273,8 +270,9 @@ def generate_competency_feedback(
         confidence=confidence,
         engagement=engagement,
         overall_score=round(overall_score, 2),
-        summary=summary,
-        key_recommendations=all_recommendations[:3],  # Top 3 recommendations
+        summary=summary + "\n\nEvaluations:\n" + evaluations.strip()
     )
+
+    logger.info("Overall competency feedback generation complete.")
 
     return feedback
