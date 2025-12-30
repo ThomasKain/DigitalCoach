@@ -43,7 +43,7 @@ class CompetencyFeedback(BaseModel):
     """
 
     score: float # Overall score
-    evaluations: List[str] = Field(default_factory=list) # States whether or not the user was compotent in some field 
+    evaluation: str # States whether or not the user was compotent in some field 
 
 class OverallCompetencyFeedback(BaseModel):
     """

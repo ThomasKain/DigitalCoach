@@ -10,3 +10,7 @@ FILLER_HEDGE_SENS = 0.8 # how much of a point is deducted for every filler/hedge
 FILLER_WEIGHT = 2 # magnitude for each filler word used
 HEDGE_WEIGHT = 1 # magnitude for each hedge phrase used
 MAX_CONFIDENCE_SCORE = 10 # base score for user's confidence
+MAX_CLARITY_SCORE = 10 # base score for user's communication clarity
+MIN_OPTIMAL_WPM = 120 # minimum words per minute for optimal pacing 
+MAX_OPTIMAL_WPM = 150 # maximum words per minute for optimal pacing
+WPM_PENALTY = 0.1 # points deducted per WPM outside optimal range

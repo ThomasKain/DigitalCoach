@@ -16,7 +16,11 @@ from .constants import (
     HEDGE_WEIGHT,
     FILLER_HEDGE_BUFF,
     FILLER_HEDGE_SENS,
-    MAX_CONFIDENCE_SCORE
+    MAX_CONFIDENCE_SCORE,
+    MAX_CLARITY_SCORE,
+    MIN_OPTIMAL_WPM,
+    MAX_OPTIMAL_WPM,
+    WPM_PENALTY,
 )
 
 logger = get_logger(__name__)
@@ -62,7 +66,7 @@ def _analyze_confidence(
         audio_analysis (AudioAnalysisResult): Results from audio sentiment analysis based on AudioAnalysisResult schema.
 
     Returns:
-        CompetencyFeedback: Score and specific feedback on perceived confidence
+        CompetencyFeedback: Score and evaluation on perceived confidence
 
     Raises:
         ValueError: If the transcript is empty or contains only whitespace.
@@ -103,10 +107,10 @@ def _analyze_confidence(
 
     # Provide feedback if the user's filler/hedge words per minute is +2 more than the FILLER_HEDGE_BUFFER
     if penalty_score > FILLER_HEDGE_BUFF + 2:
-        result.evaluations.append(f"You had approximately {int(penalty_score)} filler words or hedge phrases per minute.")
+        result.evaluation = f"You had approximately {int(penalty_score)} filler words or hedge phrases per minute."
     # User had strong confidence
     else:
-        result.evaluations.append("You projected strong confidence throughout your interview!")
+        result.evaluation = f"You had approximately {int(penalty_score)} filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!"
 
     logger.info(f"Confidence analysis complete with score: {score}.")
 
@@ -116,53 +120,40 @@ def _analyze_communication_clarity(
     audio_analysis: AudioAnalysisResult
 ) -> CompetencyFeedback:
     """
-    Analyzes communication clarity based on speech rate.
+    Analyzes communication clarity based on pacing (WPM). Could be extended in the future with grammar.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
+        audio_analysis (AudioAnalysisResult): Audio sentiment analysis results
 
     Returns:
-        CompetencyFeedback: Score and specific feedback on communication clarity
+        CompetencyFeedback: Score and evaluation on communication clarity
     """
-    result = CompetencyFeedback(
-        score=3.0,  # Default score for testing
-        strengths=[],
-        areas_for_improvement=[],
-        recommendations=[],
-    )
+    # Compute speech rate (words per minute)
+    words = audio_analysis.transcript.split()
+    duration_mins = max(audio_analysis.duration / 60.0, 0.5) # duration in minutes, avoid division by zero
+    speech_rate = len(words) / duration_mins # words per minute (WPM)
+    
+    # Generate evaluation
+    result = CompetencyFeedback(score=round(clarity_score, 2))
 
-    # Calculate speech rate (characters per second)
-    if text_analysis and audio_analysis:
-        speech_rate = len(text_analysis.output_text) / max(
-            audio_analysis.clip_length_seconds, 0.1
-        )
+    # Compute clarity score based on speech rate (and future metrics)
 
-        # Get text structure score
-        text_structure = text_analysis.prediction_score
-
-        # Calculate clarity score (weighted average)
-        clarity_score = speech_rate * 0.1 + text_structure * 0.9 / 10
-        clarity_score = round(min(clarity_score, 10), 2)  # Scale to 0-10
-
-        result.score = clarity_score
-
-        # Generate feedback based on score
-        if clarity_score > 5:
-            result.strengths.append("Well-structured and organized response")
-        elif clarity_score < 5:
-            result.areas_for_improvement.append("Response structure could be improved")
-            result.recommendations.append(
-                "Try using the STAR method (Situation, Task, Action, Result) for structuring your answers"
-            )
-
-    # Always ensure we have at least one recommendation for testing purposes
-    if not result.recommendations:
-        result.recommendations.append(
-            "Practice organizing your thoughts before speaking"
-        )
+    # speech rate within optimal range
+    if MIN_OPTIMAL_WPM <= speech_rate <= MAX_OPTIMAL_WPM:
+        clarity_score = MAX_CLARITY_SCORE
+        result.evaluation = f"Excellent pacing at {int(speech_rate)} WPM; your delivery was very clear and easy to follow."
+    # speech rate too slow
+    elif speech_rate < MIN_OPTIMAL_WPM:
+        deviation = (MIN_OPTIMAL_WPM - speech_rate) * WPM_PENALTY
+        clarity_score = max(0, MAX_CLARITY_SCORE - deviation)
+        result.evaluation = f"Your pacing was a bit slow at {int(speech_rate)} WPM; consider speaking a little faster."
+    # speech rate too fast
+    else: # speech_rate > MAX_OPTIMAL_WPM
+        deviation = (speech_rate - MAX_OPTIMAL_WPM) * WPM_PENALTY
+        clarity_score = max(0, MAX_CLARITY_SCORE - deviation)
+        result.evaluation = f"Your pacing was quite fast at {int(speech_rate)} WPM; consider slowing down to give the interviewer time to process your key points."
 
     return result
-
 
 
 def _analyze_engagement(
