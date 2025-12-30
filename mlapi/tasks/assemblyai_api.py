@@ -1,5 +1,5 @@
 from schemas import (
-    AudioSentimentResult,
+    AudioAnalysisResult,
     SentimentResult,
     HighlightData,
     TimestampData,
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 
 @job("high", connection=get_redis_con())
-def detect_audio_sentiment(video_url: str) -> AudioSentimentResult:
+def detect_audio_sentiment(video_url: str) -> AudioAnalysisResult:
     """
     Detects audio sentiment using the AssemblyAI API package
 
@@ -27,7 +27,7 @@ def detect_audio_sentiment(video_url: str) -> AudioSentimentResult:
     Returns:
         AudioSentimentResult: Sentiment analysis results
     """
-    result = AudioSentimentResult()
+    result = AudioAnalysisResult()
 
     try:
         # Initialize the AssemblyAI client
@@ -42,6 +42,7 @@ def detect_audio_sentiment(video_url: str) -> AudioSentimentResult:
             sentiment_analysis=True,
             auto_highlights=True,
             iab_categories=True,
+            disfluencies=True,
         )
 
         logger.info(f"Transcribing audio file: {video_url}")
@@ -114,12 +115,12 @@ def detect_audio_sentiment(video_url: str) -> AudioSentimentResult:
 
         # Set clip length if available
         if hasattr(transcript, "audio_duration"):
-            result.clip_length_seconds = (
+            result.duration = (
                 transcript.audio_duration / 1000.0
             )  # Convert ms to seconds
 
         logger.info(f"Transcript processing completed for {video_url}")
-        logger.info(f"transcript: {transcript.text}")
+        logger.info(f"Transcript: {transcript.text}")
 
     except Exception as e:
         logger.error(f"Exception in audio sentiment detection: {str(e)}")

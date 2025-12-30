@@ -1,29 +1,125 @@
 """
-Module for competency-based interview feedback analysis.
-Added in addition to Big Five scores to be more practical.
+Module for competency-based interview feedback analysis. Specifically focuses on the user's confidence, clarity, and engagement during their responses.
 """
 
-from schemas.create_answer import (
+from schemas import (
     CompetencyFeedback,
-    OverallCompetencyFeedback,
-    EmotionDetectionResult,
-    AudioSentimentResult,
-    TextStructureResult,
+    OverallCompetencyFeedback
 )
+from schemas.audio import AudioAnalysisResult
 from utils.logger_config import get_logger
+import re
+from .constants import (
+    FILLER_WORDS,
+    HEDGE_PHRASES,
+    FILLER_WEIGHT,
+    HEDGE_WEIGHT,
+    FILLER_HEDGE_BUFF,
+    FILLER_HEDGE_SENS,
+    MAX_CONFIDENCE_SCORE
+)
 
 logger = get_logger(__name__)
 
-
-def _analyze_communication_clarity(
-    text_analysis: TextStructureResult, audio_analysis: AudioSentimentResult
-) -> CompetencyFeedback:
+def _count_confidence_markers(transcript: str) -> dict :
     """
-    Analyzes communication clarity based on speech rate and text structure.
+    Counts filler words and hedge phrases in the transcript.
 
     Args:
-        text_analysis: Text structure analysis
-        audio_analysis: Audio sentiment analysis
+        transcript (str): The full transcript text.
+
+    Returns:
+        dict: A dictionary with counts of filler words and hedge phrases.
+    """
+    # Initialize counts for filler words and hedge phrases
+    counts = {
+        "filler_words": 0,
+        "hedge_phrases": 0
+    }
+
+    # Normalize transcript to lowercase for matching
+    transcript_lower = transcript.lower()
+    
+    # Construct regex patterns based on predefined sets of filler words and hedge phrases
+    filler_pattern = r"\b({})\b".format("|".join(re.escape(word) for word in FILLER_WORDS))
+    print(filler_pattern)
+    hedge_pattern = r"\b({})\b".format("|".join(re.escape(word) for word in HEDGE_PHRASES))
+    print(hedge_pattern)
+
+    # Compute filler words and hedge phrases frequencies
+    counts["filler_words"] = len(re.findall(filler_pattern, transcript_lower))
+    counts["hedge_phrases"] = len(re.findall(hedge_pattern, transcript_lower))
+
+    return counts
+
+def _analyze_confidence(
+    audio_analysis: AudioAnalysisResult
+) -> CompetencyFeedback:
+    """
+    Analyzes confidence level based on filler words and hedging phrases.
+
+    Args:
+        audio_analysis (AudioAnalysisResult): Results from audio sentiment analysis based on AudioAnalysisResult schema.
+
+    Returns:
+        CompetencyFeedback: Score and specific feedback on perceived confidence
+
+    Raises:
+        ValueError: If the transcript is empty or contains only whitespace.
+    """
+
+    logger.info("Analyzing confidence from interview transcript.")
+    # Reconstruct entire transcript text
+    try:
+        transcript = audio_analysis.transcript.lower()
+    
+        # Check if transcript is empty or whitespace
+        if not transcript or transcript.strip() == "":
+            logger.warning("Transcript is empty or contains only whitespace.")
+            raise ValueError("Transcript is empty or contains only whitespace.")
+    
+    except Exception as e:
+        logger.error(f"Error with confidence analysis: {str(e)}")
+        raise e
+    
+    # Count filler words and hedge phrases
+    counts = _count_confidence_markers(transcript)
+    
+    # Get duration of interview in minutes
+    duration_mins = max(audio_analysis.duration / 60.0, 0.5) # Avoid division by zero
+
+    # Compute the density of filler words and hedge phrases, i.e. filler/hedge words per minute 
+    # We weigh filler words heavier than hedge phrases
+    total_fillers_hedge = (counts["filler_words"] * FILLER_WEIGHT) + (counts["hedge_phrases"] * HEDGE_WEIGHT) 
+    penalty_score = total_fillers_hedge / duration_mins # penalty score based on fillers and hedge words used per minute
+
+    score = MAX_CONFIDENCE_SCORE # initialize confidence score
+    # deduct points based on how many filler/hedge words are used per minute
+    deduction = max(0, penalty_score - FILLER_HEDGE_BUFF) * FILLER_HEDGE_SENS
+    score = round(max(0, score - deduction), 2) # compute final confidence score
+
+    # Generate feedback for confidence
+    result = CompetencyFeedback(score=score)
+
+    # Provide feedback if the user's filler/hedge words per minute is +2 more than the FILLER_HEDGE_BUFFER
+    if penalty_score > FILLER_HEDGE_BUFF + 2:
+        result.evaluations.append(f"You had approximately {int(penalty_score)} filler words or hedge phrases per minute.")
+    # User had strong confidence
+    else:
+        result.evaluations.append("You projected strong confidence throughout your interview!")
+
+    logger.info(f"Confidence analysis complete with score: {score}.")
+
+    return result
+
+def _analyze_communication_clarity(
+    audio_analysis: AudioAnalysisResult
+) -> CompetencyFeedback:
+    """
+    Analyzes communication clarity based on speech rate.
+
+    Args:
+        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
 
     Returns:
         CompetencyFeedback: Score and specific feedback on communication clarity
@@ -68,68 +164,15 @@ def _analyze_communication_clarity(
     return result
 
 
-def _analyze_confidence(
-    facial_analysis: EmotionDetectionResult, audio_analysis: AudioSentimentResult
-) -> CompetencyFeedback:
-    """
-    Analyzes confidence level based on facial expressions and voice tone.
-
-    Args:
-        facial_analysis: Facial emotion analysis
-        audio_analysis: Audio sentiment analysis
-
-    Returns:
-        CompetencyFeedback: Score and specific feedback on perceived confidence
-    """
-    result = CompetencyFeedback(
-        score=4.0,  # Default score for testing
-        strengths=[],
-        areas_for_improvement=[],
-        recommendations=[],
-    )
-
-    # Calculate confidence from audio sentiment confidence values
-    if audio_analysis and audio_analysis.sentiment_analysis:
-        confidence_attr = 0
-        for sentiment in audio_analysis.sentiment_analysis:
-            confidence_attr += sentiment.confidence
-
-        # Scale to 0-10
-        confidence_score = round(min(confidence_attr, 10), 2)
-        result.score = confidence_score
-
-        # Generate feedback based on score
-        if confidence_score > 5:
-            result.strengths.append(
-                "Projected strong confidence throughout your response"
-            )
-        elif confidence_score < 5:
-            result.areas_for_improvement.append(
-                "Confidence level appears lower than optimal"
-            )
-            result.recommendations.append(
-                "Practice maintaining eye contact and speaking clearly"
-            )
-
-    # Always ensure we have at least one recommendation for testing
-    if not result.recommendations:
-        result.recommendations.append("Continue to work on speaking with confidence")
-
-    return result
-
 
 def _analyze_engagement(
-    facial_analysis: EmotionDetectionResult,
-    audio_analysis: AudioSentimentResult,
-    text_analysis: TextStructureResult,
+    audio_analysis: AudioAnalysisResult,
 ) -> CompetencyFeedback:
     """
     Analyzes how engaging the response is likely to be to interviewers.
 
     Args:
-        facial_analysis: Facial emotion analysis
-        audio_analysis: Audio sentiment analysis
-        text_analysis: Text structure analysis
+        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
 
     Returns:
         CompetencyFeedback: Score and specific feedback on engagement level
@@ -141,11 +184,11 @@ def _analyze_engagement(
         recommendations=[],
     )
 
-    # Count emotional variety if available
-    emotion_variety = 0
-    if facial_analysis and facial_analysis.emotion_sums:
-        emotion_data = facial_analysis.emotion_sums.dict()
-        emotion_variety = len([e for e, v in emotion_data.items() if v > 0.1])
+    # # Count emotional variety if available
+    # emotion_variety = 0
+    # if facial_analysis and facial_analysis.emotion_sums:
+    #     emotion_data = facial_analysis.emotion_sums.dict()
+    #     emotion_variety = len([e for e, v in emotion_data.items() if v > 0.1])
 
     # Count keyword usage if available
     keyword_usage = 0
@@ -183,27 +226,21 @@ def _analyze_engagement(
 
 
 def generate_competency_feedback(
-    facial_analysis: EmotionDetectionResult,
-    audio_analysis: AudioSentimentResult,
-    text_analysis: TextStructureResult,
+    audio_analysis: AudioAnalysisResult,
 ) -> OverallCompetencyFeedback:
     """
     Generates comprehensive competency-based feedback from all analysis components.
 
     Args:
-        facial_analysis: Facial emotion analysis
-        audio_analysis: Audio sentiment analysis
-        text_analysis: Text structure analysis
+        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
 
     Returns:
         OverallCompetencyFeedback: Structured feedback on key interview competencies
     """
     # Generate individual competency feedback
-    communication_clarity = _analyze_communication_clarity(
-        text_analysis, audio_analysis
-    )
-    confidence = _analyze_confidence(facial_analysis, audio_analysis)
-    engagement = _analyze_engagement(facial_analysis, audio_analysis, text_analysis)
+    communication_clarity = _analyze_communication_clarity(audio_analysis)
+    confidence = _analyze_confidence(audio_analysis)
+    engagement = _analyze_engagement(audio_analysis)
 
     # Calculate overall score
     scores = [

@@ -47,7 +47,7 @@ def add_task_to_queue(
             *args,
             depends_on=depends_on,
         )
-        logger.info(f"Task {task.__name__} enqueued with job ID: {job.id}")
+        logger.info(f"Task {task.__name__} enqueued with job ID: {job.get_id()}")
         return job
     except Exception as e:
         logger.error(f"Failed to enqueue task: {str(e)}")

@@ -13,15 +13,6 @@ class ASM_Sentiments(str, Enum):
     NEGATIVE = "NEGATIVE"
     NEUTRAL = "NEUTRAL"
 
-class SentimentResult(BaseModel):
-    """Individual sentiment analysis result for a text segment"""
-
-    text: str
-    sentiment: str  # "POSITIVE", "NEUTRAL", or "NEGATIVE"
-    confidence: float  # Confidence score 0.0-1.0
-    start: int  # Start time in milliseconds
-    end: int  # End time in milliseconds
-
 class TimestampData(BaseModel):
     """Timestamp info for keyword occurrences"""
 
@@ -50,15 +41,24 @@ class IABResult(BaseModel):
     text: str = ""  # Input text that was analyzed
     labels: List[IABLabel] = Field(default_factory=list)  # Detected category labels
 
-class AudioSentimentResult(BaseModel):
+class SentimentResult(BaseModel):
+    """Individual sentiment analysis result for a text segment"""
+
+    text: str
+    sentiment: str  # "POSITIVE", "NEUTRAL", or "NEGATIVE"
+    confidence: float  # Confidence score 0.0-1.0
+    start: int  # Start time in milliseconds
+    end: int  # End time in milliseconds
+
+class AudioAnalysisResult(BaseModel):
     """
     Result of audio sentiment analysis by AssemblyAI
     """
-
+    transcript: str # interview transcript
     sentiment_analysis: List[SentimentResult] = Field(default_factory=list)
     highlights: List[HighlightData] = Field(default_factory=list)
     iab_results: IABResult = Field(default_factory=IABResult)
-    clip_length_seconds: float = 0.0
+    duration: float = 0.0 # duration of audio clip in seconds
     errors: Optional[str] = None
 
 class AudioAnalysisResponse(BaseModel):
@@ -68,7 +68,7 @@ class AudioAnalysisResponse(BaseModel):
 
     job_id: str
     status: JobStatus
-    result: AudioSentimentResult | None = None
+    result: AudioAnalysisResult | None = None
     error: str | None = None
 
 

@@ -35,7 +35,6 @@ def _stopword(string):
 # Initialize the lemmatizer
 wl = WordNetLemmatizer()
 
-
 # This is a helper function to map NTLK position tags
 def _get_wordnet_pos(tag):
     if tag.startswith("J"):

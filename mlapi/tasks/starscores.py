@@ -56,6 +56,7 @@ def predict_star_scores(*args) -> dict[str, Any]:
     # Split the text into sentences.
     sentences: list = data.split(".")
     # Contains sentence and label sentence type. 
+    # clasifications: list[list[str]]
     classifications = []
     # Classify each sentence
     for sentence in sentences:

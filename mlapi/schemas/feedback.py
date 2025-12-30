@@ -43,9 +43,7 @@ class CompetencyFeedback(BaseModel):
     """
 
     score: float # Overall score
-    strengths: List[str] = Field(default_factory=list) # List of strengths displayed in interview
-    areas_for_improvement: List[str] = Field(default_factory=list) # List of areas to improve
-    recommendations: List[str] = Field(default_factory=list) # Recommended course of action
+    evaluations: List[str] = Field(default_factory=list) # States whether or not the user was compotent in some field 
 
 class OverallCompetencyFeedback(BaseModel):
     """

@@ -5,6 +5,9 @@ from tasks.assemblyai_api import detect_audio_sentiment
 from redisStore.queue import add_task_to_queue
 from tasks.create_answer_task import create_answer
 from tasks.starscores import predict_star_scores
+from utils.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 def start_audio_analysis(video_url: str) -> str:
     """
@@ -13,12 +16,16 @@ def start_audio_analysis(video_url: str) -> str:
     Args:
         video_url (str): The URL of the video to analyze.
     Returns:
-        str: The job ID of the queued audio analysis job.
+        job (Job): The Redis Job object of the queued audio analysis job.
     """
+    logger.info(f"Started audio analysis job for video URL {video_url}.")
+    
     # Enqueue audio analysis job
     job = add_task_to_queue(detect_audio_sentiment, video_url)
 
-    return job.get_id()
+    logger.info(f"Audio analysis job ID: {job.id}")
+
+    return job
 
 def start_interview_analysis(video_url: str) -> str:
     """
@@ -29,15 +36,20 @@ def start_interview_analysis(video_url: str) -> str:
     Args:
         video_url (str): The URL of the video to analyze.
     Returns:
-        str: The job ID of the queued interview analysis job.
+        answer_job_id (str): The job ID of the queued interview analysis job.
     """
     # Enqueue audio analysis job on the given video url
-    audio_job_id = start_audio_analysis(video_url)
+    audio_job = start_audio_analysis(video_url)
 
-    # Start the create_answer job that's dependent on the analysis job(s) 
-    job = add_task_to_queue(create_answer, video_url, audio_job_id)
+    # Enqueue the create_answer job that's dependent on the analysis job(s) 
+    answer_job = add_task_to_queue(
+        create_answer, # function to execute
+        video_url, # video of interview
+        audio_job.id, # audio job id
+        depends_on=[audio_job] # job doesn't start until audio_job is complete
+    )
 
-    return job.get_id()
+    return answer_job.id
 
 
 
@@ -54,4 +66,4 @@ def start_star_feedback_analysis(text: str) -> str:
     # Enqueue STAR feedback analysis job
     job = add_task_to_queue(predict_star_scores, data)
 
-    return job.get_id()
+    return job.id
