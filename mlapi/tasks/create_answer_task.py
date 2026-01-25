@@ -2,7 +2,7 @@ from rq.decorators import job
 from typing import List, Optional
 from schemas.create_answer import (
     # TextStructureResult,
-    TimelineStructure,
+    # TimelineStructure,
     # BigFiveScoreResult,
     CreateAnswerEvaluation,
     OverallCompetencyFeedback,

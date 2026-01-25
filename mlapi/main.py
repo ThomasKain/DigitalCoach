@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import (
     jobs,
     create_answer,
-    big_five,
     star_feedback,
     audio_analysis,
+    heygen
 )
 
 
@@ -41,6 +41,6 @@ def root():
 # Add routes here
 app.include_router(jobs.router)
 app.include_router(create_answer.router)
-app.include_router(big_five.router)
 app.include_router(star_feedback.router)
 app.include_router(audio_analysis.router)
+app.include_router(heygen.router)

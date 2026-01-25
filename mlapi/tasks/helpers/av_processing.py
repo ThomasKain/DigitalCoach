@@ -1,15 +1,13 @@
 from utils.logger_config import get_logger
-from schemas.create_answer import (
-    AudioSentimentResult,
-    HighlightData,
-)
+from schemas.create_answer import HighlightData
+from schemas.audio import AudioAnalysisResult
 from heapq import nlargest
 from typing import List
 
 logger = get_logger(__name__)
 
 
-def grab_top_five_keywords(audio_data: AudioSentimentResult) -> List[HighlightData]:
+def grab_top_five_keywords(audio_data: AudioAnalysisResult) -> List[HighlightData]:
     """
     Extract the top five keywords from audio data.
 
@@ -24,7 +22,7 @@ def grab_top_five_keywords(audio_data: AudioSentimentResult) -> List[HighlightDa
     return top_five
 
 
-def calculate_overall_audio_sentiment(audio_data: AudioSentimentResult) -> str:
+def calculate_overall_audio_sentiment(audio_data: AudioAnalysisResult) -> str:
     """
     Calculate the most common sentiment in the audio data.
 
