@@ -4,7 +4,8 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp, getApps } from "firebase/app";
 
-export const firebaseConfig = {
+// Setup Firebase configurations to allow Firebase Client SDK to connect to our backend
+const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -13,26 +14,37 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
-// If we're in the browser (window exists), use localhost. If we're in a Docker container, use the service name 'firebase'.
-const emulatorHost = typeof window !== "undefined" ? "localhost" : "firebase";
-// If we're in the browser, use localhost for auth emulator. If in Docker, use 'firebase' service name.
-const authURL = typeof window !== "undefined" ? "http://localhost:9099" : "http://firebase:9099";
 
-if (!getApps().length) {
-  const app = initializeApp(firebaseConfig);
-
-  if (typeof window !== "undefined" && "measurementId" in firebaseConfig) {
-    getAnalytics(app);
-  }
-
-  const auth = getAuth(app);
-  connectAuthEmulator(auth, authURL, {
-    disableWarnings: true,
-  });
-
-  const db = getFirestore(app);
-  connectFirestoreEmulator(db, emulatorHost, 8080);
-
-  const storage = getStorage(app);
-  connectStorageEmulator(storage, emulatorHost, 9199);
+// Initialize Firebase app but check if it's already initialized 
+if (getApps().length === 0) {
+  var app = initializeApp(firebaseConfig)
 }
+
+// Initialize Firebase services
+const auth = getAuth(app) // Firebase Authentication
+const db = getFirestore(app); // Firebase Firestore
+const storage = getStorage(app); // Firebase Storage
+
+// Analytics (client-side only)
+if (typeof window !== "undefined" && "measurementId" in firebaseConfig) {
+  getAnalytics(app);
+}
+
+// Connect emulators for development only. NODE_ENV will be 'development' automatically due to docker-compose.yml setting 
+if (process.env.NODE_ENV === "development") {
+  // Determine host (browser or Docker) if we're in the browser (window exists), use localhost and if we're in a Docker container, use the service name 'firebase'.
+  const emulatorHost = typeof window !== "undefined" ? "localhost" : "firebase";
+
+  // If we're in the browser, use localhost for auth emulator. If in Docker, use 'firebase' service name.
+  const authURL = typeof window !== "undefined" ? "http://localhost:9099" : "http://firebase:9099";
+
+  console.log(`Connecting to Firebase Emulators on ${emulatorHost}`)
+
+  connectAuthEmulator(auth, authURL, {disableWarnings: true});
+  connectFirestoreEmulator(db, emulatorHost, 8080)
+  connectStorageEmulator(storage, emulatorHost, 9199)
+
+}
+
+// Export instances of Firebase services for use throughout the app
+export { app, auth, db, storage }

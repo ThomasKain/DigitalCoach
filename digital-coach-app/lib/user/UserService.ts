@@ -12,8 +12,10 @@ import {
   CollectionReference,
   getDocs,
 } from "firebase/firestore";
-import FirebaseService from "@App/lib/firebase/FirebaseService";
+// import FirebaseService from "@App/lib/firebase/FirebaseService";
+import db from "../firebase/firebase.config";
 import { IUser, IBaseUserAttributes } from "@App/lib/user/models";
+
 
 class UserService extends FirebaseService {
   private firestore: Firestore;

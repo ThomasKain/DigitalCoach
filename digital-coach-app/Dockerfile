@@ -65,7 +65,7 @@ WORKDIR /app
 # Sets the environment to production
 ENV NODE_ENV=production
 
-# Disable telemtry for Next.js
+# Disable telemetry for Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create non-root user for security best practice

@@ -1,14 +1,21 @@
-import "./firebase.config";
+// import "./firebase.config";
 import * as functions from "firebase-functions";
 import { getApp } from "firebase/app";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
-
 import { getDoc, getFirestore, doc, updateDoc } from "firebase/firestore";
-
 import { default as axios } from "axios";
 import { answerOneResponse, answerTwoResponse } from "./sampledata";
 
-const app = getApp();
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+
+admin.initializeApp(); // initialize Firebase Admin SDK
+
+// Access Firenbase Services via admin
+const db = admin.firestore();
+const storage = admin.storage();
+
+const app = getApp(); 
 
 export const answerReceive = functions.https.onRequest(async (req, res) => {
   const { evaluation, userId, interviewId, questionId, answerId } = req.body;

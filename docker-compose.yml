@@ -15,7 +15,8 @@ services:
         - NEXT_PUBLIC_FIREBASE_APP_ID
         - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     # Put secrets in the container environment as they're for runtime use
-    # environment:
+    environment:
+      - NODE_ENV=development # Set Node environment to development to do things like enable emulators
     #   - HEYGEN_API_KEY # Pass HEYGEN_API_KEY to the container environment
     env_file:
       - ./digital-coach-app/.env # load environment variables from .env file (this is specifically for HeyGen API key. TEMPORARY: use environment directive above after env files have been consolidated to the root folder)
