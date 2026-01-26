@@ -1,23 +1,73 @@
 // import "./firebase.config";
-import * as functions from "firebase-functions";
-import { getApp } from "firebase/app";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { getDoc, getFirestore, doc, updateDoc } from "firebase/firestore";
-import { default as axios } from "axios";
-import { answerOneResponse, answerTwoResponse } from "./sampledata";
+// import { getApp } from "firebase/app";
+// import { getDownloadURL, getStorage, ref } from "firebase/storage";
+// import { getDoc, getFirestore, doc, updateDoc } from "firebase/firestore";
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { default as axios } from "axios";
+import { answerOneResponse, answerTwoResponse } from "./sampledata";
 
-admin.initializeApp(); // initialize Firebase Admin SDK
 
-// Access Firenbase Services via admin
+export const createFirebaseAdminApp = (projectId: string, clientEmail: string, storageBucket: string, privateKey: string) => {
+  /**
+   * Creates Firebase Admin App 
+   */
+  privateKey.replace(/\\n/g, "\n"); // replace the \n symbols in the private key with newlines
+
+  // if admin app is already running, return it
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
+
+  // create credential object for admin SDK
+  const cert = admin.credential.cert({
+    projectId,
+    clientEmail,
+    privateKey,
+  })
+
+  // initialize admin app with credential and storage bucket
+  return admin.initializeApp({
+    credential: cert,
+    projectId,
+    storageBucket,
+  }); 
+} 
+
+
+export async function initAdmin() {
+  /**
+   * Initialize Firebase Admin SDK with environment variables.
+   */
+  
+  // Create object with parameters to initialize Firebase Admin SDK
+  const adminConfig = {
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+  };
+
+  // Initialize Firebase Admin SDK
+  return createFirebaseAdminApp(adminConfig.projectId, adminConfig.clientEmail, adminConfig.storageBucket, adminConfig.privateKey);
+}
+
+
+
+
+
+// Access Firebase Services via admin
 const db = admin.firestore();
 const storage = admin.storage();
 
-const app = getApp(); 
+
 
 export const answerReceive = functions.https.onRequest(async (req, res) => {
+  /**
+   * Receives evaluation performance from the backend, e.g. interview score, and populates the corresponding document in Firebase Firestore.
+   */
+
   const { evaluation, userId, interviewId, questionId, answerId } = req.body;
   if (!evaluation || !userId || !interviewId || !questionId || !answerId) {
     res.status(400).send("Bad request");
