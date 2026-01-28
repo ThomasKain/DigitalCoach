@@ -53,16 +53,6 @@ export async function initAdmin() {
   return createFirebaseAdminApp(adminConfig.projectId, adminConfig.clientEmail, adminConfig.storageBucket, adminConfig.privateKey);
 }
 
-
-
-
-
-// Access Firebase Services via admin
-const db = admin.firestore();
-const storage = admin.storage();
-
-
-
 export const answerReceive = functions.https.onRequest(async (req, res) => {
   /**
    * Receives evaluation performance from the backend, e.g. interview score, and populates the corresponding document in Firebase Firestore.

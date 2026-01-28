@@ -1,3 +1,6 @@
+/**
+ * Frontend's Connection to Firebase Services
+ */
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
