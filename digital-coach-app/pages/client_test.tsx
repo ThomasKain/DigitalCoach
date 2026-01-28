@@ -1,3 +1,6 @@
+/**
+ * Used to test client-side write/read operations with Firebase Firestore. Access with localhost:3000/test
+ */
 "use client";
 import { db } from "../lib/firebase/firebase.config";
 import { doc, getDoc, setDoc, getDocFromServer } from "firebase/firestore";
@@ -22,7 +25,7 @@ export default function TestPage() {
                 const testDocRef = doc(db, "users", "test_user"); // get a reference to a document in collection "users" with id "test_user"
                 const testData = {
                     name: "Emma Frost",
-                    age: 23,
+                    age: 24,
                     email: "emmafrost@gmail.com",
                     createdAt: new Date().toISOString(),
                 };
@@ -43,11 +46,6 @@ export default function TestPage() {
                 }
             } catch (error: any) {
                 addLog(`CRITICAL ERROR:, ${error.message}`);
-                // Common hint for permission errors
-                if (error.code === "permission-denied") {
-                    addLog("⚠️ HINT: Check your Firestore Security Rules in the Firebase Console.");
-                    addLog("   For testing, they should look like: allow read, write: if true;");
-                }
             }
         };
         runTest();
