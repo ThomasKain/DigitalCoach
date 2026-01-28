@@ -1,9 +1,9 @@
 /**
- * Used to test client-side write/read operations with Firebase Firestore. Access with localhost:3000/test
+ * Tests client-side write/read operations with Firebase Firestore. Access with localhost:3000/test
  */
 "use client";
 import { db } from "../lib/firebase/firebase.config";
-import { doc, getDoc, setDoc, getDocFromServer } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState  } from "react";
 
 export default function TestPage() {
@@ -22,7 +22,7 @@ export default function TestPage() {
                     throw new Error("Database not initialized check firebase.config.ts");
                 }
 
-                const testDocRef = doc(db, "users", "test_user"); // get a reference to a document in collection "users" with id "test_user"
+                const testDocRef = doc(db, "users", "client_test_user"); // get a reference to a document in collection "users" with id "test_user"
                 const testData = {
                     name: "Emma Frost",
                     age: 24,
@@ -36,9 +36,7 @@ export default function TestPage() {
 
                 // Read document data
                 addLog("2. Reading data back from Firestore...");
-                // const docSnap = await getDoc(testDocRef);
-                const docSnap = await getDocFromServer(testDocRef);
-                if (docSnap.exists()) {
+                const docSnap = await getDoc(testDocRef);                if (docSnap.exists()) {
                     addLog("Read successful.");
                     addLog(`Data received: ${JSON.stringify(docSnap.data())}`);
                 } else {
