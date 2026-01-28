@@ -62,12 +62,20 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - WORKERS_COUNT=3
+      # Remove these emulator variables if you want to use the real services
+      - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
+      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
+      - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
+      - GCLOUD_PROJECT=demo-digital-coach # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services
+      - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
     volumes:
       - ./mlapi:/app # Mount backend code for live development
       - /app/.venv # Preserves the virtual environment inside the container
+      - ./mlapi/digital-coach-firebase-adminsdk.json:/app/digital-coach-firebase-adminsdk.json
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload # Start the API with auto-reload for development. This overrides the default CMD in the Dockerfile which is meant for production.
     depends_on:
       - redis # Ensure Redis is started before the API
+      - firebase # Ensure firebase starts before the backend tries to connect to it
     networks:
       - app-network # Use the shared network to communicate with the other services
 

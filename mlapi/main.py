@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from services.firebase_setup import initialize_firebase # initialize Firebase connection when backend starts
 from routes import (
     jobs,
     create_answer,
     star_feedback,
     audio_analysis,
-    heygen
+    heygen,
+    test_firebase # this is for testing backend's connection to firebase
 )
 
 
@@ -14,7 +16,7 @@ This API provides a simple interface to the various ML models used in Digital Co
 ## Video Transcript 
 AssemblyAI provides the simple transcription service. 
 ## Feedback
-Provided feedback is Big Five Scores, Star Scores, competency scores, and statistical feedback.  
+Provided feedback is Star Scores, competency scores, and statistical feedback.  
 """
 
 app = FastAPI(
@@ -31,6 +33,14 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+async def startup_event():
+    """
+    Starts up Firebase Admin SDK when backend starts
+    """
+    initialize_firebase()
+    print("Firebase Admin SDK initialized")
+
 @app.get("/")
 def root():
     return {
@@ -44,3 +54,4 @@ app.include_router(create_answer.router)
 app.include_router(star_feedback.router)
 app.include_router(audio_analysis.router)
 app.include_router(heygen.router)
+app.include_router(test_firebase.router) # this is for testing only

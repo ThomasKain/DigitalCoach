@@ -53,7 +53,7 @@ COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 # Set ownership of the copied files to the non-root user
 COPY --chown=appuser:appuser . .
 
-# Update the PATH environment variable to include the path ofor our Python's dependencies
+# Update the PATH environment variable to include the path for our Python's dependencies
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Forces Python to print logs to the terminal immediately
