@@ -8,7 +8,8 @@
     "lint": "next lint",
     "emulate": "firebase emulators:start",
     "test": "firebase emulators:exec 'jest --watch'",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "type-docs": "typedoc"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -17,6 +18,7 @@
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/react": "^6.1.17",
+    "@heygen/liveavatar-web-sdk": "^0.0.10",
     "@heygen/streaming-avatar": "^2.0.16",
     "@hookform/resolvers": "^5.1.1",
     "@mui/icons-material": "^7.3.5",
@@ -51,6 +53,7 @@
   "devDependencies": {
     "@types/node": "24.0.3",
     "@types/react": "19.1.8",
+    "@types/react-modal": "^3.16.3",
     "typescript": "^5.8.3"
   }
 }

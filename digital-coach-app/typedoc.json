@@ -1,0 +1,9 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["./components", "./lib", "./pages"],
+    "out": "docs",
+    "exclude": ["**/node_modules/**", "**/*.test.ts", "**/*.test.tsx"],
+    "excludeExternals": true,
+    "readme": "none",
+    "skipErrorChecking": true // Currently set to true because of front end import conflict, set false after resolved
+  }
