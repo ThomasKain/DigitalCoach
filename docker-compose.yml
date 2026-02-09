@@ -68,6 +68,7 @@ services:
       - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
       - GCLOUD_PROJECT=demo-digital-coach # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:
       - ./mlapi:/app # Mount backend code for live development
       - /app/.venv # Preserves the virtual environment inside the container
