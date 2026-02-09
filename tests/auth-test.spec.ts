@@ -8,6 +8,7 @@ test('can register and login', async ({ page }) => {
   const response = await page.request.get("https://picsum.photos/400");
   const buffer = await response.body();
 
+  // Register
   await page.goto('http://localhost:3000/auth/login');
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.locator('input[name="email"]').click();
@@ -18,6 +19,8 @@ test('can register and login', async ({ page }) => {
   await page.locator('input[name="passwordConfirm"]').fill('ILoveStevens@2026');
   await page.getByRole('button', { name: 'Register' }).click();
   await expect(page.getByRole('heading', { name: 'Register' })).toBeVisible();
+  
+  // Login
   await page.locator("input[type='file']").setInputFiles({
     name: "profilePic",
     "mimeType": "image/jpeg",
@@ -28,4 +31,8 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('button', { name: 'sign up' }).click();
   await page.goto("localhost:3000");
   await expect(page.getByRole('heading', { name: 'Welcome back, John Doe!' })).toBeVisible();
+  
+  // Logout
+  await page.getByRole('button', { name: 'Log out' }).click();
+  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
 });
