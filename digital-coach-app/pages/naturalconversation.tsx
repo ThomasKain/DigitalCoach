@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "@App/styles/NaturalConversationPage.module.scss";
 import axios from "axios";
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
+import { useRouter } from "next/router";
 
 interface Message {
   role: "user" | "interviewer";
@@ -20,7 +21,6 @@ export default function NaturalConversationPage() {
     endSession: () => void;
     handleInterrupt: () => void;
   } | null>(null);
-
   const [wasRecording, setWasRecording] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -135,6 +135,43 @@ export default function NaturalConversationPage() {
       videoRef.current.srcObject = previewStream || null;
     }
   }, [previewStream]);
+
+  // DELETE: TESTING ONLY: STARTS AN INTERVIEW SESSION WITH HEYGEN LIVEAVATAR
+  const router = useRouter();
+  useEffect(() => {
+      const startInterview = async () => {
+        // Request interview session
+        const interviewConfig = {
+          "avatar_id": "dd73ea75-1218-4ef3-92ce-606d5f7fbc0a",
+          "voice_id": "c2527536-6d1f-4412-a643-53a3497dada9",
+          "context_id": "595268c3-a4cf-499d-bf85-efd006fe8a47",
+          "is_sandbox": true
+        };
+        console.log("Requesting Interview Session...")
+
+        try {
+        const response = await fetch('http://localhost:8000/api/heygen/start', {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(interviewConfig)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log("Interview request sent successfully!");
+          router.push(data.session_url); // Go to interview
+        } else {
+          console.error(`Error: ${response.statusText || "Something went wrong"}`);
+        }
+        } catch (error) {
+          console.error(`Submission error: ${error}`);
+          
+        }
+
+      };
+      startInterview();
+  }, []);
 
   return (
     <AuthGuard>

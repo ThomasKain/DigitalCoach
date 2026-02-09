@@ -5,9 +5,35 @@ import Grid from "@mui/material/Grid";
 import useAuthContext from "@App/lib/auth/AuthContext";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import styles from "@App/styles/ProgressPage.module.scss";
+import { useEffect } from "react";
+
 
 function ProgressPage() {
   const { currentUser } = useAuthContext();
+
+  console.log("In Progress Page...");
+  // DELETE: TESTING ONLY: CHECK OLD INTERVIEW PERFORMANCE
+  useEffect(() => {
+    console.log("Querying Interview Results...");
+    const queryInterview = async () => {
+      // Add mock interview performance data
+      try {
+        const response = await fetch("localhost:8000/server/firestore");
+        const data = await response.json();
+        if (response.ok) {
+          console.log("Obtained Interview Results!!")
+          console.log(data);
+        } else {
+          console.error(`Error: ${response.statusText || "Something went wrong."}`);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    queryInterview();
+  }, []);
+
+
   return (
     <div className={styles.ProgressPage}>
       <h1>Your Progress</h1>

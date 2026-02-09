@@ -22,7 +22,7 @@ const Home: NextPage = () => {
     isLoading,
     isFetching,
   } = useGetFeaturedQuestionSets();
-  console.log(questionSets, isLoading, isFetching);
+  // console.log(questionSets, isLoading, isFetching);
 
   const {
     data: answerData,

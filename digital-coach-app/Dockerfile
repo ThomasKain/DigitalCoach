@@ -1,4 +1,4 @@
-# --- Stage 2: Install Dependencies only when needed --- 
+# --- Stage 1: Install Dependencies only when needed --- 
 # Base image is node alpine image to keep the image size small 
 FROM node:20-alpine AS deps
 

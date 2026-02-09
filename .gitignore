@@ -140,3 +140,10 @@ venv
 /ml-api/backend/__pycache__/
 
 digital-coach-firebase-adminsdk.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
