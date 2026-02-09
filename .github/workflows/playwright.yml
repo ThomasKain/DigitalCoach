@@ -18,8 +18,9 @@ jobs:
     - name: Create .env file with Secrets
       run: |
         # Ensure the directory exists first
-        mkdir -p digital-coach-app
+        # mkdir -p digital-coach-app
 
+        # These secrets are for starting up the Firebase services
         echo "NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}" >> digital-coach-app/.env
         echo "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}" >> digital-coach-app/.env
         echo "NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}" >> digital-coach-app/.env
@@ -29,6 +30,13 @@ jobs:
         echo "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}" >> digital-coach-app/.env
         echo "ML_API_URL=${{ secrets.ML_API_URL }}" >> digital-coach-app/.env
         echo "${{ secrets.FIREBASE_ADMIN_SDK_BASE64 }}" | base64 -d > mlapi/digital-coach-firebase-adminsdk.json
+
+
+    - name: DEBUG - Check .env content
+      run: |
+        echo "Checking .env content..."
+        cat digital-coach-app/.env
+
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4
