@@ -6,31 +6,17 @@ import useAuthContext from "@App/lib/auth/AuthContext";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import styles from "@App/styles/ProgressPage.module.scss";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-
-function ProgressPage() {
+export default function ProgressPage() {
+  console.log("TESTING PROGRESS PAGE")
   const { currentUser } = useAuthContext();
-
-  console.log("In Progress Page...");
-  // DELETE: TESTING ONLY: CHECK OLD INTERVIEW PERFORMANCE
+    // DELETE: TESTING ONLY: CHECK OLD INTERVIEW PERFORMANCE
+  const router = useRouter();
   useEffect(() => {
-    console.log("Querying Interview Results...");
-    const queryInterview = async () => {
-      // Add mock interview performance data
-      try {
-        const response = await fetch("localhost:8000/server/firestore");
-        const data = await response.json();
-        if (response.ok) {
-          console.log("Obtained Interview Results!!")
-          console.log(data);
-        } else {
-          console.error(`Error: ${response.statusText || "Something went wrong."}`);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    queryInterview();
+    console.log("In Progress Page...");
+    router.push("http://localhost:3000/client_test");
+    console.log("Querying Interview Results...")
   }, []);
 
 
@@ -107,7 +93,7 @@ function ProgressInit() {
   );
 }
 
-export default function Progress() {
+function Progress() {
   //Store user's id here
   const { currentUser } = useAuthContext();
   let hasInterviewed = currentUser?.get("hasCompletedInterview");
