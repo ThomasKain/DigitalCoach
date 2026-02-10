@@ -21,7 +21,7 @@ test('can register and login', async ({ page }) => {
   // Login
   await page.waitForURL("**/register");
   await page.waitForLoadState("load");
-  const profilePicInput = page.locator("[name='avatar']");
+  const profilePicInput = page.locator("#profilePic");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
@@ -37,5 +37,6 @@ test('can register and login', async ({ page }) => {
   
   // Logout
   await page.getByRole('button', { name: 'Log out' }).click();
+  await page.waitForLoadState("load");
   await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
 });

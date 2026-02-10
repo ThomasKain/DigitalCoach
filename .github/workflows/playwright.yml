@@ -39,7 +39,8 @@ jobs:
 
     - name: Wait for Web App to be ready
       run: |
-        npx wait-on --timeout 180000 http://localhost:3000
+        # wait for frontend, auth (9099), firestore (8080)
+        npx wait-on --timeout 180000 http://localhost:3000 tcp:9099 tcp:8080
 
     - name: Run Playwright tests
       run: npx playwright test

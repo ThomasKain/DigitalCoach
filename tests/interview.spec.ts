@@ -23,7 +23,7 @@ test('can start interview', async ({ page }) => {
   // Login
   await page.waitForURL("**/register");
   await page.waitForLoadState("load");
-  const profilePicInput = page.locator("[name='avatar']");
+  const profilePicInput = page.locator("#profilePic");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
@@ -66,7 +66,8 @@ test('query interview results', async ({ page }) => {
   // Login
   await page.waitForURL("**/register");
   await page.waitForLoadState("load");
-  const profilePicInput = page.locator("[name='avatar']");
+  const profilePicInput = page.locator("#profilePic");
+
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
@@ -82,5 +83,6 @@ test('query interview results', async ({ page }) => {
 
   // Request interview results
   await page.getByRole('link', { name: 'Progress Tracking' }).click();
+  await page.waitForLoadState("load");
   await expect(page.getByText('Data received: {"name":"Emma').first()).toBeVisible();
 });

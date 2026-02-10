@@ -64,7 +64,7 @@ export default function RegisterPage() {
         <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <h1>Register</h1>
           <label>Select a profile picture:</label>
-          <input type="file" required accept="image/*" {...register("avatar")} />
+          <input type="file" id="profilePic" required accept="image/*" {...register("avatar")} />
           <label>Enter your name:</label>
           <TextField placeholder="Full Name" {...register("name")} />
           {formError.name && <span>{formError.name.message}</span>}
