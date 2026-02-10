@@ -31,17 +31,6 @@ jobs:
         echo "ML_API_URL=${{ secrets.ML_API_URL }}" >> digital-coach-app/.env
         echo "${{ secrets.FIREBASE_ADMIN_SDK_BASE64 }}" | base64 -d > mlapi/digital-coach-firebase-adminsdk.json
 
-    - name: Wait for API to be ready
-      run: |
-        timeout 360s bash -c 'until curl -s http://localhost:8000/docs > /dev/null; do sleep 1; done'
-      
-    - name: Wait for Frontend to be ready
-      run: |
-        echo "Waiting for Next.js to be ready on port 3000..."
-        # Wait up to 2 minutes for the frontend to respond with a 200 OK
-        timeout 120s bash -c 'until curl --output /dev/null --silent --head --fail http://localhost:3000; do sleep 2; done'
-        echo "Frontend is ready!"
-
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4

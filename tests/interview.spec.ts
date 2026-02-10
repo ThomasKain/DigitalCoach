@@ -28,7 +28,7 @@ test('can start interview', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).click();
   await page.getByRole('textbox', { name: 'Full Name' }).fill('Vivy Doe');
   await page.getByRole('button', { name: 'sign up' }).click();
-  await page.goto("localhost:3000");
+  await page.goto("http://localhost:3000");
   const heading = page.getByRole("heading", {level: 1});
   await expect(heading).toHaveText("Welcome back, Vivy Doe!");
   
@@ -64,7 +64,7 @@ test('query interview results', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).click();
   await page.getByRole('textbox', { name: 'Full Name' }).fill('Emma Frost');
   await page.getByRole('button', { name: 'sign up' }).click();
-  await page.goto("localhost:3000");
+  await page.goto("http://localhost:3000");
   const heading = page.getByRole("heading", {level: 1});
   await expect(heading).toHaveText("Welcome back, Emma Frost!");
 

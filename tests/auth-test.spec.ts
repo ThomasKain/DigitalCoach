@@ -26,7 +26,7 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).click();
   await page.getByRole('textbox', { name: 'Full Name' }).fill('John Doe');
   await page.getByRole('button', { name: 'sign up' }).click();
-  await page.goto("localhost:3000");
+  await page.goto("http://localhost:3000");
   const heading = page.getByRole("heading", { level: 1});
   await expect(heading).toHaveText("Welcome back, John Doe!");
   

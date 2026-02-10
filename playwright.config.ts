@@ -72,9 +72,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'docker compose up',
+    command: 'docker compose up --build',
     url: 'http://localhost:3000',
-    timeout: 180 * 1000, // wait up to 3 minutes for Docker to build
+    timeout: 300 * 1000, // wait up to 5 minutes for Docker to build
     reuseExistingServer: !process.env.CI,
   },
 });
