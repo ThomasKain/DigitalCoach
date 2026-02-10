@@ -7,6 +7,7 @@ test('can register and login', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
   await page.getByRole('link', { name: 'New user? sign up' }).click();
+  await page.waitForURL("**/signup"); // wait until signup page is loaded
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('student@stevens.edu');
   await page.locator('input[name="password"]').click();

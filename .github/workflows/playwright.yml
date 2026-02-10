@@ -34,7 +34,12 @@ jobs:
         echo "ML_API_URL=${{ secrets.ML_API_URL }}" >> digital-coach-app/.env
         echo "${{ secrets.FIREBASE_ADMIN_SDK_BASE64 }}" | base64 -d > mlapi/digital-coach-firebase-adminsdk.json
 
-    
+    - name: Start Docker Compose
+      run: docker compose up -d
+
+    - name: Wait for Web App to be ready
+      run: |
+        npx wait-on --timeout 180000 http://localhost:3000
 
     - name: Run Playwright tests
       run: npx playwright test

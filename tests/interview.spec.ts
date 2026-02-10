@@ -8,6 +8,7 @@ test('can start interview', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
   await page.getByRole('link', { name: 'New user? sign up' }).click();
+  await page.waitForURL("**/signup"); // wait until signup page is loaded
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('vivy@stevens.edu');
   await page.locator('input[name="password"]').click();
@@ -45,6 +46,7 @@ test('query interview results', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
   await page.getByRole('link', { name: 'New user? sign up' }).click();
+  await page.waitForURL("**/signup"); // wait until signup page is loaded
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('emmafrost@stevens.edu');
   await page.locator('input[name="password"]').click();
