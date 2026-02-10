@@ -37,6 +37,7 @@ services:
   firebase:
     # use pre-built image with firebase tools
     image: andreysenov/firebase-tools
+    user: root
     volumes:
       # mount frontend as it contains firebase config and rules
       - ./digital-coach-app:/home/node/app
