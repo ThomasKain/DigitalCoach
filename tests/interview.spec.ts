@@ -7,8 +7,10 @@ import path from "path";
 test('can start interview', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
+  await page.waitForLoadState("load"); 
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.waitForURL("**/signup"); // wait until signup page is loaded
+  await page.waitForLoadState("load");
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('vivy@stevens.edu');
   await page.locator('input[name="password"]').click();
@@ -20,6 +22,7 @@ test('can start interview', async ({ page }) => {
   
   // Login
   await page.waitForURL("**/register");
+  await page.waitForLoadState("load");
   const profilePicInput = page.locator("[name='avatar']");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
@@ -30,13 +33,16 @@ test('can start interview', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).fill('Vivy Doe');
   await page.getByRole('button', { name: 'sign up' }).click();
   await page.goto("http://localhost:3000");
+  await page.waitForLoadState("load");
   const heading = page.getByRole("heading", {level: 1});
   await expect(heading).toHaveText("Welcome back, Vivy Doe!");
   
   // Start interview
   await page.getByRole('link', { name: 'Natural Conversation' }).click();
   await page.goto('https://meet.livekit.io/custom?liveKitUrl=wss://heygen-feapbkvq.livekit.cloud&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA2OTkyMTUsImlzcyI6IkFQSVByREUyNXZZRldERyIsIm5hbWUiOiJjbGllbnQiLCJuYmYiOjE3NzA2MTI4MTUsInN1YiI6ImNsaWVudCIsInZpZGVvIjp7ImNhblB1Ymxpc2giOnRydWUsImNhblB1Ymxpc2hEYXRhIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWUsInJvb20iOiI0YTExZTFjMC0wNTczLTExZjEtYmFiNC1iMjMxMzc5OWQxOTciLCJyb29tSm9pbiI6dHJ1ZX19.i9djsTddaCTO--O6NienIgBRX1LFgXPWydsR-LVBP2E');
+  await page.waitForLoadState("load");
   await expect(page.locator('.lk-participant-tile')).toBeVisible();
+
 });
 
 /**
@@ -45,8 +51,10 @@ test('can start interview', async ({ page }) => {
 test('query interview results', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
+  await page.waitForLoadState("load");
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.waitForURL("**/signup"); // wait until signup page is loaded
+  await page.waitForLoadState("load");
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('emmafrost@stevens.edu');
   await page.locator('input[name="password"]').click();
@@ -57,6 +65,7 @@ test('query interview results', async ({ page }) => {
   
   // Login
   await page.waitForURL("**/register");
+  await page.waitForLoadState("load");
   const profilePicInput = page.locator("[name='avatar']");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
@@ -67,6 +76,7 @@ test('query interview results', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).fill('Emma Frost');
   await page.getByRole('button', { name: 'sign up' }).click();
   await page.goto("http://localhost:3000");
+  await page.waitForLoadState("load");
   const heading = page.getByRole("heading", {level: 1});
   await expect(heading).toHaveText("Welcome back, Emma Frost!");
 

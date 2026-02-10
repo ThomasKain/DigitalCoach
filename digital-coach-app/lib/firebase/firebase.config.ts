@@ -32,7 +32,7 @@ const storage = getStorage(app); // Firebase Storage
 if (typeof window !== "undefined" && "measurementId" in firebaseConfig) {
   getAnalytics(app);
 }
-
+console.log(`Firebase Config Keys: ${JSON.stringify(firebaseConfig)}`);
 // Connect emulators for development only. NODE_ENV will be 'development' automatically due to docker-compose.yml setting 
 // Check emulator flag set by next.config.js which is based on NODE_ENV 
 const useEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true"; 

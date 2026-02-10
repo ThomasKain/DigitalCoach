@@ -6,8 +6,10 @@ import path from "path";
 test('can register and login', async ({ page }) => {
   // Register
   await page.goto('http://localhost:3000/auth/login');
+  await page.waitForLoadState("load");
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.waitForURL("**/signup"); // wait until signup page is loaded
+  await page.waitForLoadState("load");
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('student@stevens.edu');
   await page.locator('input[name="password"]').click();
@@ -17,10 +19,11 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('button', { name: 'Register' }).click();
 
   // Login
-  await page.waitForURL("**/register")
+  await page.waitForURL("**/register");
+  await page.waitForLoadState("load");
   const profilePicInput = page.locator("[name='avatar']");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
-  const fileInput =  page.locator("input[type='file']");
+  const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
   await fileInput.setInputFiles(path.join(__dirname, "profilePic.jpg"));
 
@@ -28,6 +31,7 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).fill('John Doe');
   await page.getByRole('button', { name: 'sign up' }).click();
   await page.goto("http://localhost:3000");
+  await page.waitForLoadState("load");
   const heading = page.getByRole("heading", { level: 1});
   await expect(heading).toHaveText("Welcome back, John Doe!");
   
