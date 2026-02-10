@@ -9,6 +9,7 @@ import Link from "next/link";
 import UnAuthGuard from "@App/lib/auth/UnAuthGuard";
 import CenteredComponent from "@App/components/atoms/CenteredComponent";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+import { useRouter } from "next/router";
 
 interface LoginFormInputs {
   email: string;
@@ -32,6 +33,7 @@ const inputValidationSchema = yup
 
 export default function SignUpPage() {
   const { error: authError, currentUser, signup } = useAuthContext();
+  const router = userRouter();
   const {
     register,
     handleSubmit,
@@ -41,10 +43,19 @@ export default function SignUpPage() {
     resolver: yupResolver(inputValidationSchema),
   });
 
-  const onSubmit = (data: LoginFormInputs) => {
+  const onSubmit = async (data: LoginFormInputs) => {
     const { email, password } = data;
-    signup(email, password);
+    // signup(email, password);
+    try {
+      await signup(email, password);
+      // navigate to register page after signup
+      router.push("/auth/register");
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
   };
+
+
 
   return (
     <UnAuthGuard>
