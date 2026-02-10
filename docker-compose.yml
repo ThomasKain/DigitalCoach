@@ -49,7 +49,7 @@ services:
       - "9199:9199" # Storage Emulator
       - "4000:4000" # Firebase UI
     # Start the emulators (that are needed) with the specified config file
-    command: firebase emulators:start --only auth,firestore,storage --project=demo-digital-coach
+    command: firebase emulators:start --only auth,firestore,storage --project=demo-digital-coach --debug
     networks:
       - app-network # use the shared network to the communicate with the frontend and backend
 
