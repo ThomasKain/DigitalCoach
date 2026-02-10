@@ -33,7 +33,7 @@ const inputValidationSchema = yup
 
 export default function SignUpPage() {
   const { error: authError, currentUser, signup } = useAuthContext();
-  const router = userRouter();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
