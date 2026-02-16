@@ -9,11 +9,20 @@ import axios from "axios";
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import { useRouter } from "next/router";
 
+type Role = "user" | "interviewer";
 interface Message {
-  role: "user" | "interviewer";
+  role: Role;
   text: string;
   timestamp: string;
 }
+
+const formatTimestamp = () =>
+  new Date().toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    });
 
 export default function NaturalConversationPage() {
   const avatarRef = useRef<{
@@ -21,9 +30,11 @@ export default function NaturalConversationPage() {
     endSession: () => void;
     handleInterrupt: () => void;
   } | null>(null);
+
   const [wasRecording, setWasRecording] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+
   const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
     useReactMediaRecorder({ video: true });
 
@@ -32,12 +43,7 @@ export default function NaturalConversationPage() {
     const newMessage: Message = {
       role: "user",
       text: userTranscript,
-      timestamp: new Date().toLocaleString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      }),
+      timestamp: formatTimestamp(),
     };
     setMessages((prev) => [...prev, newMessage]);
   };
@@ -47,12 +53,7 @@ export default function NaturalConversationPage() {
     const newMessage: Message = {
       role: "interviewer",
       text: interviewerTranscript,
-      timestamp: new Date().toLocaleString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      }),
+      timestamp: formatTimestamp(),
     };
     setMessages((prev) => [...prev, newMessage]);
   };
