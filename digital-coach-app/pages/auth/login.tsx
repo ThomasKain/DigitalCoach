@@ -9,6 +9,7 @@ import UnAuthGuard from "@App/lib/auth/UnAuthGuard";
 import { TextField } from "@App/components/molecules/TextField";
 import LoginIcon from "@mui/icons-material/Login";
 import CenteredComponent from "@App/components/atoms/CenteredComponent";
+import { useEffect } from "react";
 
 interface LoginFormInputs {
   email: string;
@@ -22,7 +23,7 @@ const inputValidationSchema = yup
       .email("Must be a valid email")
       .max(255)
       .required("Email is required"),
-    password: yup.string().max(255).required("Password is required"),
+    password: yup.string().min(8).max(16).required("Password is required"),
   })
   .required();
 
@@ -30,9 +31,15 @@ export default function LoginPage() {
   const {
     error: authError,
     currentUser,
+    clearError,
     // loginWithGoogle,
     login,
   } = useAuthContext();
+
+  useEffect(() => {
+    clearError();
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -43,6 +50,7 @@ export default function LoginPage() {
   });
 
   const onSubmit: SubmitHandler<LoginFormInputs> = (data: LoginFormInputs) => {
+    clearError();
     const { email, password } = data;
     login(email, password);
   };
@@ -56,14 +64,10 @@ export default function LoginPage() {
               <h1>Digital Coach</h1>
             </div>
             <h2>Login</h2>
-            {authError && (
-              <p className={styles.issue}>
-                username and password did not match
-              </p>
-            )}
+            {authError && <p className={styles.issue}>{authError}</p>}
             <h3>Email</h3>
             <TextField type="email" placeholder="" {...register("email")} />
-            {formError.email && <span>{formError.email.message}</span>}
+            {formError.email && <p className={styles.issue}>{formError.email.message}</p>}
             <h3>Password</h3>
             <TextField
               type="password"
@@ -71,7 +75,7 @@ export default function LoginPage() {
               placeholder=""
               {...register("password")}
             />
-            {formError.password && <span>{formError.password.message}</span>}
+            {formError.password && <p className={styles.issue}>{formError.password.message}</p>}
 
             <Button type="submit">
               <LoginIcon />

@@ -11,7 +11,8 @@ function RegistrationGuard({
   const { currentUser } = useAuthContext();
 
   useEffect(() => {
-    if (!AuthService.auth.currentUser) router.push("/auth/login");
+    const isAuthPage = router.pathname === "/auth/login" || router.pathname === "/auth/signup";
+    if (!AuthService.auth.currentUser && !isAuthPage) router.push("/auth/login");
     if (currentUser?.data()?.registrationCompletedAt) router.push("/");
   });
 

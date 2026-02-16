@@ -10,6 +10,7 @@ import UnAuthGuard from "@App/lib/auth/UnAuthGuard";
 import CenteredComponent from "@App/components/atoms/CenteredComponent";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 interface LoginFormInputs {
   email: string;
@@ -24,7 +25,15 @@ const inputValidationSchema = yup
       .email("Must be a valid email")
       .max(255)
       .required("Email is required"),
-    password: yup.string().min(7).max(255).required("Password is required"),
+    password: yup.string()
+    .min(8, "Password must be at least 8 characters long")
+    .max(16, "Password must be at most 16 characters")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(/[^a-zA-Z0-9]/, "Password must contain at least one special character")
+    .test("no-spaces", "Password must not contain any spaces", (value) => !/\s/.test(value ?? ""))
+    .required("Password is required"),
     passwordConfirm: yup
       .string()
       .oneOf([yup.ref("password"), null], "Passwords must match"),
@@ -32,7 +41,10 @@ const inputValidationSchema = yup
   .required();
 
 export default function SignUpPage() {
-  const { error: authError, currentUser, signup } = useAuthContext();
+  const { error: authError, currentUser, signup, clearError } = useAuthContext();
+  useEffect(() => {
+    clearError();
+  }, []);
   const router = useRouter();
   const {
     register,
@@ -48,6 +60,7 @@ export default function SignUpPage() {
     // signup(email, password);
     try {
       await signup(email, password);
+      clearError();
       // navigate to register page after signup
       router.push("/auth/register");
     } catch (error) {
@@ -67,6 +80,7 @@ export default function SignUpPage() {
               <h1>Digital Coach</h1>
             </div>
             <h2>Register an Account</h2>
+            {authError && <p className={styles.issue}>{authError}</p>}
             <h3>Email</h3>
             <TextField type="email" placeholder="" {...register("email")} />
             {formError.email && (

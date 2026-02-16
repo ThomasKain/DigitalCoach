@@ -7,6 +7,7 @@ interface AuthContextState {
   setCurrentUser: Dispatch<SetStateAction<DocumentSnapshot<IUser> | null>>;
   currentUser: DocumentSnapshot<IUser> | null;
   error: string;
+  clearError: () => void;
   fetchUser: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;

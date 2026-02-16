@@ -3,15 +3,19 @@ import { withRouter } from "next/router";
 import { PropsWithChildren, useEffect } from "react";
 import AuthService from "./AuthService";
 import UserService from "../user/UserService";
+import useAuthContext from "@App/lib/auth/AuthContext";
 
 function UnAuthGuard({ children, router }: PropsWithChildren<WithRouterProps>) {
-
+  const { error: authError } = useAuthContext();
   useEffect(() => {
     let isMounted = true;
     const unsubscribe = AuthService.onAuthStateChanged(async (user) => {
       // if (!!user) router.push("/");
       if (!!user && isMounted) {
-      
+        // if (router.pathname === "/auth/signup" && authError) return;
+        const currentPath = typeof window !== "undefined" ? window.location.pathname : router.pathname;
+        if (currentPath === "/auth/signup") return;
+
         try {
         // get user doc to check registration status
         const userDoc = await UserService.getUser(user.uid);
@@ -42,7 +46,7 @@ function UnAuthGuard({ children, router }: PropsWithChildren<WithRouterProps>) {
       isMounted = false;
       unsubscribe?.();
     };
-  }, [router]);
+  }, [router, authError]);
 
   return <>{children}</>;
 }

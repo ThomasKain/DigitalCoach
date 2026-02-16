@@ -11,13 +11,11 @@ export default function AuthGuard({ children }: PropsWithChildren<{}>) {
     const unsubscribe = AuthService.onAuthStateChanged(async () => {
       const isSignedIn = AuthService.isSignedIn();
       console.log("Is Signed In?", isSignedIn);
-
-      if (!isSignedIn) router.push("/auth/login");
+  
+      const isAuthPage = router.pathname === "/auth/login" || router.pathname === "/auth/signup";
+      if (!isSignedIn && !isAuthPage) router.push("/auth/login");
     });
 
-    if (currentUser && !currentUser?.data()?.registrationCompletedAt) {
-      router.push("/auth/register");
-    }
 
     return () => unsubscribe?.();
   }, [currentUser, router]);
