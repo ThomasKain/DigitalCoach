@@ -64,3 +64,21 @@
 //       }
 //     }
 //   });
+
+
+import { onRequest } from 'firebase-functions/https';
+
+
+/**
+ * When receiving an HTTP request, 
+*/
+type Indexable = { [key: string]: any };
+export const helloWorld = onRequest((req, res) => {
+    const name = req.params[0];
+
+
+    const items: Indexable = { toy: "This is a toy.", game: "Great game."};
+    const message = items[name];
+    
+    res.send(`<h1>${message}</h1>`);
+});

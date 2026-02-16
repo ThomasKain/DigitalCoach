@@ -1,6 +1,6 @@
 # --- Stage 1: Install Dependencies only when needed --- 
 # Base image is node alpine image to keep the image size small 
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 # Alpine is very lightweight and may be missing some libraries needed to build some npm packages
 RUN apk add --no-cache libc6-compat
@@ -16,7 +16,7 @@ RUN yarn install --frozen-lockfile
 
 # --- Stage 2: Build source code only when needed ---
 # Use lightweight Node.js base image 
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -57,7 +57,7 @@ RUN yarn build
 
 # --- Stage 3: Production image ---
 # Use a lightweight Node.js base image for the production environment
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 # Set working directory
 WORKDIR /app

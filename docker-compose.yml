@@ -36,7 +36,9 @@ services:
   # Firebase Emulator Suite for local development
   firebase:
     # use pre-built image with firebase tools
-    image: andreysenov/firebase-tools
+    image: andreysenov/firebase-tools:latest-node-22-slim
+    environment:
+      - FUNCTIONS_EMULATOR_TIMEOUT_SECONDS=180
     user: root
     volumes:
       # mount frontend as it contains firebase config and rules
@@ -48,8 +50,9 @@ services:
       - "8080:8080" # Firestore Emulator
       - "9199:9199" # Storage Emulator
       - "4000:4000" # Firebase UI
+      - "5001:5001" # Functions Emulator
     # Start the emulators (that are needed) with the specified config file
-    command: firebase emulators:start --only auth,firestore,storage --project=demo-digital-coach --debug
+    command: firebase emulators:start --inspect-functions --only auth,firestore,storage,functions --project=demo-digital-coach --debug
     networks:
       - app-network # use the shared network to the communicate with the frontend and backend
 
