@@ -6,8 +6,10 @@ import path from "path";
 test('can register and login', async ({ page }) => {
   // Sign Up
   await page.goto('http://localhost:3000/auth/login');
+  await page.waitForLoadState("load");
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
+  await page.waitForLoadState("load");
   await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill('student@stevens.edu');
   await page.locator('input[name="password"]').click();
@@ -16,9 +18,12 @@ test('can register and login', async ({ page }) => {
   await page.locator('input[name="passwordConfirm"]').fill('Stevens@26');
   await page.getByRole('button', { name: 'Register' }).click();
 
+
   // Login
   await page.goto('http://localhost:3000/auth/register');
+  await page.waitForLoadState("load");
   await page.waitForURL("**/register");
+  await page.waitForLoadState("load");
   const profilePicInput = page.locator("#profilePic");
   await expect(profilePicInput).toBeVisible({timeout: 10000});
   const fileInput = page.locator("input[type='file']");
@@ -28,11 +33,13 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).click();
   await page.getByRole('textbox', { name: 'Full Name' }).fill('John Doe');
   await page.getByRole('button', { name: 'Sign up' }).click();
+  await page.waitForLoadState("load");
   const heading = page.getByRole("heading", {level: 1});
   console.log("Heading:", heading);
   await expect(heading).toHaveText("Welcome back, John Doe!");
   
   // Logout
   await page.getByRole('button', { name: 'Log out' }).click();
+  await page.waitForLoadState("load");
   await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
 });
