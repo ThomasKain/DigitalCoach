@@ -6,7 +6,7 @@ import "@fullcalendar/common/main.css";
 import "@fullcalendar/daygrid";
 import "@App/lib/firebase/firebase.config";
 import CoreLayout from "@App/components/layouts/CoreLayout";
-import { AuthContextProvider } from "@App/lib/auth/AuthContextProvider";
+import { AuthProvider } from "@App/lib/auth/AuthContextProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -15,11 +15,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContextProvider>
+      <AuthProvider>
         <CoreLayout>
           <Component {...pageProps} />
         </CoreLayout>
-      </AuthContextProvider>
+      </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

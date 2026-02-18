@@ -29,6 +29,7 @@ export interface IBaseUserAttributes {
 }
 
 export interface IUser extends IBaseUserAttributes {
+  id: string | null;
   email: string;
   registrationCompletedAt: Timestamp | null;
   createdAt: Timestamp;

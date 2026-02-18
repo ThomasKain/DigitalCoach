@@ -2,10 +2,10 @@ import Link from "next/link";
 import Button from "../atoms/Button";
 import style from "./Navbar.module.scss";
 import LogoutIcon from "@mui/icons-material/Logout";
-import useAuthContext from "@App/lib/auth/AuthContext";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 
 export default function NavBar() {
-  const { logout } = useAuthContext();
+  const { logout } = useAuth();
 
   return (
     <div className={style.main}>

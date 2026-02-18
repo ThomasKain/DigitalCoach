@@ -1,6 +1,6 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "@App/components/atoms/Button";
-import useAuthContext from "@App/lib/auth/AuthContext";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import styles from "@App/styles/LoginPage.module.scss";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -30,11 +30,11 @@ const inputValidationSchema = yup
 export default function LoginPage() {
   const {
     error: authError,
-    currentUser,
+    // userData,
     clearError,
     // loginWithGoogle,
     login,
-  } = useAuthContext();
+  } = useAuth();
 
   useEffect(() => {
     clearError();

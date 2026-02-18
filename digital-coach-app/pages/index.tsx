@@ -1,40 +1,40 @@
 import type { NextPage } from "next";
 import { useState, useEffect } from "react";
-import useAuthContext from "@App/lib/auth/AuthContext";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import styles from "@App/styles/Home.module.scss";
 import Card from "@App/components/atoms/Card";
 import IssuesChart from "@App/components/molecules/IssuesChart";
-import ScoreChart from "@App/components/molecules/ScoreChart";
+// import ScoreChart from "@App/components/molecules/ScoreChart";
 import PracticeCalendar from "@App/components/molecules/PracticeCalendar";
-import useGetFeaturedQuestionSets from "@App/lib/questionSets/useGetFeaturedQuestionSets";
+// import useGetFeaturedQuestionSets from "@App/lib/questionSets/useGetFeaturedQuestionSets";
 import Link from "next/link";
-import useGetUserAverageScore from "@App/lib/interviewQuestion/useGetUserAverageScore";
-import useFetchUserInterviews from "@App/lib/interview/useFetchUserInterviews";
-import useGetAnswersByUserId from "@App/lib/answer/useGetAnswerByUserId";
-import seed from "@App/pages/api/seed";
+// import useGetUserAverageScore from "@App/lib/interviewQuestion/useGetUserAverageScore";
+// import useFetchUserInterviews from "@App/lib/interview/useFetchUserInterviews";
+// import useGetAnswersByUserId from "@App/lib/answer/useGetAnswerByUserId";
+// import seed from "@App/pages/api/seed";
 
 const Home: NextPage = () => {
-  const { currentUser } = useAuthContext();
+  const { user, userData } = useAuth();
 
-  const {
-    data: questionSets,
-    isLoading,
-    isFetching,
-  } = useGetFeaturedQuestionSets();
+  // const {
+  //   data: questionSets,
+  //   isLoading,
+  //   isFetching,
+  // } = useGetFeaturedQuestionSets();
   // console.log(questionSets, isLoading, isFetching);
 
-  const {
-    data: answerData,
-    isLoading: isAnswerLoading,
-    isFetching: isAnswerFetching,
-  } = useGetAnswersByUserId(currentUser?.id);
+  // const {
+  //   data: answerData,
+  //   isLoading: isAnswerLoading,
+  //   isFetching: isAnswerFetching,
+  // } = useGetAnswersByUserId(user?.uid);
 
-  const {
-    data: averageScore,
-    isLoading: isLoadingAverageScore,
-    isFetching: isFetchingAverageScore,
-  } = useGetUserAverageScore(currentUser?.id);
+  // const {
+  //   data: averageScore,
+  //   isLoading: isLoadingAverageScore,
+  //   isFetching: isFetchingAverageScore,
+  // } = useGetUserAverageScore(user?.uid);
 
   const [tip, setTips] = useState("");
 
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
     setTips(tips[randInd]);
   }, []);
 
-  if (isLoading || isFetching) return <div>Loading...</div>;
+  // if (isLoading || isFetching) return <div>Loading...</div>;
 
   const mockIssuesData = [
     {
@@ -85,29 +85,29 @@ const Home: NextPage = () => {
       value: 0.4,
     },
   ];
-  const events =
-    answerData?.docs.map((answer) => {
-      return {
-        start: answer.data().createdAt.toDate().toISOString(),
-        end: answer.data().createdAt.toDate().toISOString(),
-      };
-    }) || [];
+  // const events =
+  //   answerData?.docs.map((answer) => {
+  //     return {
+  //       start: answer.data().createdAt.toDate().toISOString(),
+  //       end: answer.data().createdAt.toDate().toISOString(),
+  //     };
+  //   }) || [];
 
   return (
     <AuthGuard>
       <div className={styles.Home}>
-        <h1>Welcome back, {currentUser?.data()?.name}!</h1>
+        <h1>Welcome back, {userData?.name}!</h1>
         <h2>Dashboard</h2>
         <div className={styles.cards}>
           <Card title={"Quick Start Interviews"} multiline>
-            <ul>
+            {/* <ul>
               {questionSets?.docs.map((questionSet) => (
                 <li key={questionSet.id}>
                   <Link href="/">{questionSet.data().title}</Link>
                   <span>→</span>
                 </li>
               ))}
-            </ul>
+            </ul> */}
           </Card>
           <Card title={"Your Random Interview Tip!"} multiline>
             <div className={styles.tipoftheday}>
@@ -119,14 +119,14 @@ const Home: NextPage = () => {
           </Card>
           <Card multiline>
             <div className={styles.calendarWrapper}>
-              <PracticeCalendar events={events} />
+              {/* <PracticeCalendar events={events} /> */}
             </div>
           </Card>
           <Card title={"Most Common Flags"} multiline>
             <div className={styles.issuesChartWrapper}>
               <IssuesChart chartData={mockIssuesData} />
             </div>
-            <h2>Average Score: {Math.round(averageScore * 100)}%</h2>
+            {/* <h2>Average Score: {Math.round(averageScore * 100)}%</h2> */}
           </Card>
         </div>
 

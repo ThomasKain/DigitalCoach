@@ -2,7 +2,7 @@ import Link from "next/link";
 import Avatar from "@App/components/atoms/Avatar";
 import Card from "@App/components/atoms/Card";
 import Grid from "@mui/material/Grid";
-import useAuthContext from "@App/lib/auth/AuthContext";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import styles from "@App/styles/ProgressPage.module.scss";
 import { useEffect } from "react";
@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 export default function ProgressPage() {
   console.log("TESTING PROGRESS PAGE")
-  const { currentUser } = useAuthContext();
+  const { userData } = useAuth();
     // DELETE: TESTING ONLY: CHECK OLD INTERVIEW PERFORMANCE
   const router = useRouter();
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function ProgressPage() {
     <div className={styles.ProgressPage}>
       <h1>Your Progress</h1>
       <div className={styles.ProgressPage_avatarWrapper}>
-        {currentUser?.data()?.avatarUrl && (
-          <Avatar size={125} src={currentUser?.data()!.avatarUrl} />
+        {userData?.avatarUrl && (
+          <Avatar size={125} src={userData?.avatarUrl} />
         )}
       </div>
       <Grid
@@ -69,14 +69,14 @@ export default function ProgressPage() {
 }
 
 function ProgressInit() {
-  const { currentUser } = useAuthContext();
+  const { userData } = useAuth();
   return (
     <div className={styles.ProgressPage}>
       <h1>Your Progress</h1>
 
       <div className={styles.ProgressPage_avatarWrapper}>
-        {currentUser?.data()?.avatarUrl && (
-          <Avatar size={125} src={currentUser?.data()!.avatarUrl} />
+        {userData?.avatarUrl && (
+          <Avatar size={125} src={userData?.avatarUrl} />
         )}
       </div>
 
@@ -95,8 +95,8 @@ function ProgressInit() {
 
 function Progress() {
   //Store user's id here
-  const { currentUser } = useAuthContext();
-  let hasInterviewed = currentUser?.get("hasCompletedInterview");
+  const { userData } = useAuth();
+  let hasInterviewed = userData?.hasCompletedInterview;
   //Add flag to user that says if they've completed an interview or not
   if (hasInterviewed) {
     return (

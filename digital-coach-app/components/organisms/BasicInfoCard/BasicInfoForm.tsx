@@ -7,8 +7,8 @@ import {
   Checkbox,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import InterviewSetsService from '@App/lib/interviewSets/interviewSetsService';
-import QuestionSetsService from '@App/lib/questionSets/QuestionSetsService';
+// import InterviewSetsService from '@App/lib/interviewSets/interviewSetsService';
+// import QuestionSetsService from '@App/lib/questionSets/QuestionSetsService';
 
 interface userInfo {
   userId: string;
@@ -41,9 +41,9 @@ export default function BasicInfoForm({ userId }: userInfo) {
       isFeatured: false,
       createdBy: userId,
     };
-    const thisQuestionSet = await QuestionSetsService.createQuestionSet(
-      questionSet
-    );
+    // const thisQuestionSet = await QuestionSetsService.createQuestionSet(
+    //   questionSet
+    // );
     console.log("hi");
     // A reference to the questionSet is stored in the newly created interviewSet
     if (makeInterview) {
@@ -51,10 +51,10 @@ export default function BasicInfoForm({ userId }: userInfo) {
         name: questionSetName,
         minutesToAnswer: parseInt(timePerQ),
         numberOfRetries: parseInt(numRetries),
-        questionSetRef: thisQuestionSet.id,
+        // questionSetRef: thisQuestionSet.id,
       };
       console.log('Calling create function in BasicInfoForm');
-      await InterviewSetsService.create(userId, interviewSet);
+      // await InterviewSetsService.create(userId, interviewSet);
     }
     location.reload();
   };

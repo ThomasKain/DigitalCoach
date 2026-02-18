@@ -1,10 +1,64 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import AuthService from "./AuthService";
-import { AuthContext } from "./AuthContext";
-import UserService from "../user/UserService";
-import { IUser } from "../user/models";
-import { DocumentSnapshot } from "firebase/firestore";
+// import { PropsWithChildren, useMemo } from "react";
+// import AuthService from "./AuthService";
+// import { AuthContext } from "./AuthContext";
+// import UserService from "../user/UserService";
+// import { DocumentSnapshot } from "firebase/firestore";
 
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    ReactNode
+} from "react";
+
+import {
+    User, 
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+} from "firebase/auth";
+
+import {
+    // doc,
+    // getDoc,
+    // setDoc,
+    Timestamp,
+} from "firebase/firestore";
+
+import { auth, db } from "@App/lib/firebase/firebase.config"; // import Firebase services from Firebase configuration
+import { IUser } from "@App/lib/user/models";
+import { getUser, createUser } from "@App/lib/user/userService";
+
+// define the shape of our authentication context
+interface AuthContextType {
+    user: User | null; // Firebase Auth user
+    userData : IUser | null; // Firebase Firestore user profile
+    loading: boolean; // flag used when checking if user is logged in, i.e. tells the app to "wait" until firebase is done verifying whether user is logged in
+    login: (email: string, pass: string) => Promise<void>; // user login function
+    signup: (email: string, pass: string) => Promise<void>; // user signup function
+    logout: () => Promise<void>;
+    error: string | null; // user logout function
+    clearError: () => void;
+}
+
+// initialize new authentication context
+const AuthContext = createContext<AuthContextType | null>(null);
+
+/**
+ * Enables other components access to authentication data based on AuthContext.
+ * @returns Authentication Context 
+ */
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be within an AuthProvider.");
+    return context;
+}
+
+/**
+ * Return user-friendly error messages based on given error object returned from Firebase Authentication service calls.
+ */
 export function getAuthErrorMessage(error: { code?: string; message?: string }): string {
   const code = error?.code ?? "";
   const messages: Record<string, string> = {
@@ -22,91 +76,168 @@ export function getAuthErrorMessage(error: { code?: string; message?: string }):
   return messages[code] ?? "Something went wrong. Please try again.";
 }
 
-export function AuthContextProvider({ children }: PropsWithChildren<{}>) {
-  const [currentUser, setCurrentUser] =
-    useState<DocumentSnapshot<IUser> | null>(null);
+export function AuthProvider({ children }: {children: ReactNode}) {
+
+  const [user, setUser] = useState<User | null>(null); // firebase authentication user identity
+  const [userData, setUserData] = useState<IUser | null>(null); // firebase firestore user identity
+  const [loading, setLoading] = useState(true); // before redirects, wait and check if user is logged in
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    AuthService.onAuthStateChanged(async (user) => {
-      if (user) {
-        const userDocSnapshot = await UserService.getUser(user?.uid);
+    // Listener performs session handling, i.e. checks whether user is logged in. This is called whenever authentication state has changed
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        setUser(firebaseUser); // update firebase authentication as soon as authentication state changes
+    
+        if (firebaseUser) {
+            // logged in, retrieve user data from firestore
+            try {
+                const userData = await getUser(firebaseUser.uid);
+                // cast user data as our defined IUser model
+                setUserData(userData as IUser);
 
-        setCurrentUser(userDocSnapshot);
-      }
+            } catch (e) {
+                console.error("Error fetching user profile", e);
+            }
+        } else {
+            // not logged in
+            setUserData(null);
+        }
+        setLoading(false); // we're done verifying whether user is logged in
     });
+    return () => unsubscribe();
   }, []);
 
-  const providerValue = useMemo(() => {
-    const login = async (email: string, password: string) => {
-      try {
-        const { user } = await AuthService.login(email, password);
-        const userDocSnapshot = await UserService.getUser(user.uid);
+  /**
+   * Handles logging in the user given an email and password.
+   */
+  const login = async (email: string, pass: string) => {
+    setError(""); // set error to empty
+    
+    try {
+        email = email.trim();
+        pass = pass.trim();
+        // log in user, we don't have to update user here since onAuthStateChanged will be triggered
+        await signInWithEmailAndPassword(auth, email, pass);
 
-        setCurrentUser(userDocSnapshot);
-      } catch (error: any) {
-        // setError(error.message);
-        setError(getAuthErrorMessage(error));
-      }
-    };
+    } catch (e: any) {
+        setError(getAuthErrorMessage(e)); // update error message using our predefined user-friendly error messages
+        throw e;
+    }
+  }
 
-    // const loginWithGoogle = async () => {
-    //   try {
-    //     const { user } = await AuthService.loginWithGoogle();
-    //     const userDocSnapshot = await UserService.getUser(user.uid);
+  /**
+   * Handles user signup.
+   */
+  const signup = async (email: string, pass: string) => {
+    setError(""); // set error to empty
+    try {
+        email = email.trim();
+        pass = pass.trim();
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        // create new user in Firestore
+        await createUser(cred.user);
 
-    //     setCurrentUser(userDocSnapshot);
-    //   } catch (error: any) {
-    //     setError(error.message);
-    //   }
-    // };
+        // onAuthStateChanged will handle updating userData
+    } catch (e: any) {
+        setError(getAuthErrorMessage(e));
+        throw e;
+    }
+  };
 
-    const signup = async (email: string, password: string) => {
-      try {
-        const { user } = await AuthService.signup(email, password);
+  /**
+   * Handles user logout.
+   */
+  const logout = async () => {
+    setError(""); // initialize empty error
+    try {
+        await signOut(auth);
+    } catch (e: any) {
+        setError(getAuthErrorMessage(e));
+        throw e;
+    }
+  };
 
-        await UserService.createNewUser(user);
+  /**
+   * Clears out current authentication error.
+   */
+  const clearError = () => {
+    setError("");
+  };
 
-        const userDocSnapshot = await UserService.getUser(user.uid);
+  const value = {
+    user, 
+    userData,
+    loading,
+    login,
+    signup,
+    logout,
+    error,
+    clearError,
+  };
 
-        setCurrentUser(userDocSnapshot);
-      } catch (error: any) {
-        // setError(error.message);
-        setError(getAuthErrorMessage(error));
-      }
-    };
+  return <AuthContext.Provider value={value}>
+    {children}
+  </AuthContext.Provider>;
+//   const providerValue = useMemo(() => {
+//     const login = async (email: string, password: string) => {
+//       try {
+//         const { user } = await AuthService.login(email, password);
+//         const userDocSnapshot = await UserService.getUser(user.uid);
 
-    const logout = async () => {
-      setCurrentUser(null);
+//         setCurrentUser(userDocSnapshot);
+//       } catch (error: any) {
+//         // setError(error.message);
+//         setError(getAuthErrorMessage(error));
+//       }
+//     };
 
-      await AuthService.logout();
-    };
 
-    const fetchUser = async (userId: string = currentUser!.id) => {
-      const userDocSnapshot = await UserService.getUser(userId);
-      setCurrentUser(userDocSnapshot);
-    };
+//     const signup = async (email: string, password: string) => {
+//       try {
+//         const { user } = await AuthService.signup(email, password);
 
-    const clearError = () => {
-      setError("");
-    };
+//         await UserService.createNewUser(user);
 
-    return {
-      currentUser,
-      setCurrentUser,
-      error,
-      clearError,
-      login,
-      signup,
-      // loginWithGoogle,
-      logout,
-      fetchUser,
-    };
-  }, [currentUser, setCurrentUser, error]);
+//         const userDocSnapshot = await UserService.getUser(user.uid);
 
-  return (
-    <AuthContext.Provider value={providerValue}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+//         setCurrentUser(userDocSnapshot);
+//       } catch (error: any) {
+//         // setError(error.message);
+//         setError(getAuthErrorMessage(error));
+//       }
+//     };
+
+//     const logout = async () => {
+//       setCurrentUser(null);
+
+//       await AuthService.logout();
+//     };
+
+//     const fetchUser = async (userId: string = currentUser!.id) => {
+//       const userDocSnapshot = await UserService.getUser(userId);
+//       setCurrentUser(userDocSnapshot);
+//     };
+
+//     const clearError = () => {
+//       setError("");
+//     };
+
+//     return {
+//       currentUser,
+//       setCurrentUser,
+//       error,
+//       clearError,
+//       login,
+//       signup,
+//       // loginWithGoogle,
+//       logout,
+//       fetchUser,
+//     };
+//   }, [currentUser, setCurrentUser, error]);
+
+//   return (
+//     <AuthContext.Provider value={providerValue}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+};

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import Button from "@App/components/atoms/Button";
-import useAuthContext from "@App/lib/auth/AuthContext";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import styles from "@App/styles/LoginPage.module.scss";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -41,7 +41,7 @@ const inputValidationSchema = yup
   .required();
 
 export default function SignUpPage() {
-  const { error: authError, currentUser, signup, clearError } = useAuthContext();
+  const { error: authError, user, signup, clearError } = useAuth();
   useEffect(() => {
     clearError();
   }, []);
@@ -74,7 +74,7 @@ export default function SignUpPage() {
     <UnAuthGuard>
       <CenteredComponent>
         <div className={styles.loginBox}>
-          <h1>{currentUser?.id}</h1>
+          <h1>{user?.uid}</h1>
           <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
             <div className={styles.logo}>
               <h1>Digital Coach</h1>

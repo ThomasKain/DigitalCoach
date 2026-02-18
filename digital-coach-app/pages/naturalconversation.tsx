@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Transcript from "@App/components/organisms/Transcript";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import { useReactMediaRecorder } from "react-media-recorder";
-import StorageService from "@App/lib/storage/StorageService";
+import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
 import { v4 as uuidv4 } from "uuid";
 import styles from "@App/styles/NaturalConversationPage.module.scss";
 import axios from "axios";
@@ -104,14 +104,17 @@ export default function NaturalConversationPage() {
       };
       const file = await getFile();
 
-      const url = (await StorageService.uploadAnswerVideo(
-        file,
-        uuidv4()
-      )) as any;
-      const dlURL = await StorageService.getDownloadUrlFromVideoUrlRef(
-        "gs://" + url.ref._location.bucket + "/" + url.ref._location.path
-      );
-      console.log(dlURL);
+      const dlURL = await uploadAnswerVideo(file, uuidv4());
+      console.log("Video Uploaded to:", dlURL);
+      
+      // const url = (await uploadAnswerVideo(
+      //   file,
+      //   uuidv4()
+      // )) as any;
+      // const dlURL = await StorageService.getDownloadUrlFromVideoUrlRef(
+      //   "gs://" + url.ref._location.bucket + "/" + url.ref._location.path
+      // );
+      // console.log(dlURL);
 
       const sentResponse = await axios.post(
         "http://localhost:8000/api/create_answer/",
@@ -136,7 +139,7 @@ export default function NaturalConversationPage() {
     }
   }, [previewStream]);
 
-  // DELETE: TESTING ONLY: STARTS AN INTERVIEW SESSION WITH HEYGEN LIVEAVATAR
+  // DELETE: TESTING ONLY: IMMEDIATELY STARTS AN INTERVIEW SESSION WITH HEYGEN LIVEAVATAR
   const router = useRouter();
   useEffect(() => {
       const startInterview = async () => {

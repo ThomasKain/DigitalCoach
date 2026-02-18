@@ -1,10 +1,10 @@
-import { FirebaseApp, getApps, getApp, initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebase.config";
+// import { FirebaseApp, getApps, getApp, initializeApp } from "firebase/app";
+// import { firebaseConfig } from "./firebase.config";
 
-export default class FirebaseService {
-  app: FirebaseApp;
+// export default class FirebaseService {
+//   app: FirebaseApp;
 
-  constructor() {
-    this.app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  }
-}
+//   constructor() {
+//     this.app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+//   }
+// }

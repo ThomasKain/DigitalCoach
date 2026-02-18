@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Avatar from '@App/components/atoms/Avatar';
 import Card from '@App/components/atoms/Card';
-import useAuthContext from '@App/lib/auth/AuthContext';
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import AuthGuard from '@App/lib/auth/AuthGuard';
-import InterviewService from '@App/lib/interview/InterviewService';
+import { fetchUserInterviews } from '@App/lib/interview/InterviewService';
 
 import styles from '@App/styles/ProfilePage.module.scss';
 
@@ -11,7 +11,7 @@ import { Tooltip, IconButton } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 function ProfilePage() {
-  const { currentUser } = useAuthContext();
+  const { userData, user } = useAuth();
   const [interviews, setInterviews] = useState<any[]>([]);
 
   const opennessText = `
@@ -102,35 +102,34 @@ function ProfilePage() {
 
   useEffect(() => {
     const getInterviews = async () => {
-      const result = await InterviewService.fetchUserInterviews(
-        currentUser!.id
-      );
+	  if (!user) return;
+      const result = await fetchUserInterviews(user.uid);
 	    console.log(result);
       setInterviews(result.docs.map((doc) => doc.data()));
     };
     getInterviews();
-  }, []);
+  }, [user]);
 
   return (
     <div className={styles.ProfilePage}>
       <h1>Your Profile</h1>
 
       <div className={styles.ProfilePage_avatarWrapper}>
-        {currentUser?.data()?.avatarUrl && (
-          <Avatar size={125} src={currentUser?.data()!.avatarUrl} />
+        {userData?.avatarUrl && (
+          <Avatar size={125} src={userData?.avatarUrl} />
         )}
       </div>
 
       <div className={styles.ProfilePage_body}>
         <div className={styles.ProfilePage_bodyLeft}>
-          <Card title='Name'>{currentUser?.data()?.name}</Card>
-          <Card title='Email'>{currentUser?.data()?.email}</Card>
+          <Card title='Name'>{userData?.name}</Card>
+          <Card title='Email'>{userData?.email}</Card>
         </div>
 
         <div className={styles.ProfilePage_bodyRight}>
-          <Card title='Major'>{currentUser?.data()?.concentration}</Card>
+          <Card title='Major'>{userData?.concentration}</Card>
           <Card title='Experience Level'>
-            {currentUser?.data()?.proficiency}
+            {userData?.proficiency}
           </Card>
           <Card title='Previous Interview Scores'>
 			{
