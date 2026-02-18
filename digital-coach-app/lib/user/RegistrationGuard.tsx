@@ -30,8 +30,10 @@ export default function RegistrationGuard({children}: {children: React.ReactNode
       // if the user is logged in and they completed their profile, redirect to dashboard (i.e. homepage)
       if (userData?.registrationCompletedAt) {
           router.replace("/");
-      } else {
-        // user is logged in but didn't complete their profile
+      } 
+      // user is logged in but didn't complete their profile
+      // we check whether they're already in /auth/register to prevent cancelling out a redirect to the homepage when the user presses the submit button
+      else if (router.pathname !== "/auth/register") {
         router.replace("/auth/register");
       }
       
