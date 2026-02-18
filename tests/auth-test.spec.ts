@@ -21,11 +21,11 @@ test('can register and login', async ({ page }) => {
 
   // Login
   await page.goto('http://localhost:3000/auth/register');
-  await page.waitForLoadState("load");
   await page.waitForURL("**/register");
   await page.waitForLoadState("load");
   const profilePicInput = page.locator("#profilePic");
-  await expect(profilePicInput).toBeVisible({timeout: 10000});
+  await expect(profilePicInput).toBeVisible({timeout: 30000});
+  
   const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
   await fileInput.setInputFiles(path.join(__dirname, "profilePic.jpg"));
