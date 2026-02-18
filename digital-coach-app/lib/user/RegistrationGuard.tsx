@@ -1,9 +1,3 @@
-// import { WithRouterProps } from "next/dist/client/with-router";
-// import { withRouter } from "next/router";
-// import { PropsWithChildren, useEffect } from "react";
-// import useAuthContext from "@App/lib/auth/AuthContext";
-// import AuthService from "@App/lib/auth/AuthService";
-
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
@@ -48,20 +42,3 @@ export default function RegistrationGuard({children}: {children: React.ReactNode
   // only show children (i.e. registration page) if the user is logged in but didn't complete their profile
   return <>{children}</>;
 }
-
-// function RegistrationGuard({
-//   children,
-//   router,
-// }: PropsWithChildren<WithRouterProps>) {
-//   const { currentUser } = useAuthContext();
-
-//   useEffect(() => {
-//     const isAuthPage = router.pathname === "/auth/login" || router.pathname === "/auth/signup";
-//     if (!AuthService.auth.currentUser && !isAuthPage) router.push("/auth/login");
-//     if (currentUser?.data()?.registrationCompletedAt) router.push("/");
-//   });
-
-//   return <>{children}</>;
-// }
-
-// export default withRouter(RegistrationGuard);

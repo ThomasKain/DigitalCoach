@@ -1,20 +1,3 @@
-// import { User as FirebaseUser} from "firebase/auth";
-// import {
-//   doc,
-//   DocumentReference,
-//   Firestore,
-//   getDoc,
-//   getFirestore,
-//   setDoc,
-//   Timestamp,
-//   updateDoc,
-//   collection,
-//   CollectionReference,
-//   getDocs,
-// } from "firebase/firestore";
-// import FirebaseService from "@App/lib/firebase/FirebaseService";
-// import db from "../firebase/firebase.config";
-// import { IUser, IBaseUserAttributes } from "@App/lib/user/models";
 /**
  * Collection of Firestore functions for interacting with the users collection. Example: Creating a user.
  */
