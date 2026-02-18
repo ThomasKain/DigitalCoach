@@ -69,7 +69,7 @@ export async function createUser(user: FirebaseUser) {
  * Updates the user's profile when they completed the registration process.
  */
 export async function registerUser(userId: string, userDetails: IBaseUserAttributes) {
-  return updateDoc(doc(db, "users", userId), {
+  return await updateDoc(doc(db, "users", userId), {
     ...userDetails,
     registrationCompletedAt: Timestamp.now(),
     hasCompletedInterview: false,

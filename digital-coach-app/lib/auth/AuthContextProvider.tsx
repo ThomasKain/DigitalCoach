@@ -121,7 +121,6 @@ export function AuthProvider({ children }: {children: ReactNode}) {
 
     } catch (e: any) {
         setError(getAuthErrorMessage(e)); // update error message using our predefined user-friendly error messages
-        throw e;
     }
   }
 
@@ -140,7 +139,6 @@ export function AuthProvider({ children }: {children: ReactNode}) {
         // onAuthStateChanged will handle updating userData
     } catch (e: any) {
         setError(getAuthErrorMessage(e));
-        throw e;
     }
   };
 
@@ -153,7 +151,6 @@ export function AuthProvider({ children }: {children: ReactNode}) {
         await signOut(auth);
     } catch (e: any) {
         setError(getAuthErrorMessage(e));
-        throw e;
     }
   };
 
