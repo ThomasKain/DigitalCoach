@@ -3,7 +3,8 @@ import path from "path";
 /**
  * Tests user's ability to register an account and login. The register information isn't random so make sure the created account is deleted or non-existant in Firebase Authentication service before every run.
  */
-test('can register and login-2', async ({ page }) => {
+test('can register and login', async ({ page }) => {
+  // Sign Up
   await page.goto('http://localhost:3000/auth/login');
   await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
@@ -15,6 +16,7 @@ test('can register and login-2', async ({ page }) => {
   await page.locator('input[name="passwordConfirm"]').fill('Stevens@26');
   await page.getByRole('button', { name: 'Register' }).click();
 
+  // Login
   await page.goto('http://localhost:3000/auth/register');
   await page.waitForURL("**/register");
   const profilePicInput = page.locator("#profilePic");
@@ -22,8 +24,6 @@ test('can register and login-2', async ({ page }) => {
   const fileInput = page.locator("input[type='file']");
   await expect(fileInput).toBeAttached(); // before inputting an image, we must wait for it to be attached to the DOM
   await fileInput.setInputFiles(path.join(__dirname, "profilePic.jpg"));
-
-
 
   await page.getByRole('textbox', { name: 'Full Name' }).click();
   await page.getByRole('textbox', { name: 'Full Name' }).fill('John Doe');
