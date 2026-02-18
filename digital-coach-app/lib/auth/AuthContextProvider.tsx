@@ -29,7 +29,7 @@ import {
 
 import { auth, db } from "@App/lib/firebase/firebase.config"; // import Firebase services from Firebase configuration
 import { IUser } from "@App/lib/user/models";
-import { getUser, createUser } from "@App/lib/user/userService";
+import { getUser, createUser } from "@App/lib/user/UserService";
 
 // define the shape of our authentication context
 interface AuthContextType {
