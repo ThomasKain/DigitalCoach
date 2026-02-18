@@ -17,6 +17,7 @@ services:
     # Put secrets in the container environment as they're for runtime use
     environment:
       - NODE_ENV=development # Set Node environment to development to do things like enable emulators
+      - HOST=0.0.0.0 # make ports accessible outside of containers
     #   - HEYGEN_API_KEY # Pass HEYGEN_API_KEY to the container environment
     env_file:
       - ./digital-coach-app/.env # load environment variables from .env file (this is specifically for HeyGen API key. TEMPORARY: use environment directive above after env files have been consolidated to the root folder)
