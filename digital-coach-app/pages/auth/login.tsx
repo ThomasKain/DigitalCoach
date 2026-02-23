@@ -57,32 +57,57 @@ export default function LoginPage() {
 
   return (
     <UnAuthGuard>
-      <CenteredComponent>
+      <CenteredComponent className={styles.loginContainer}>
         <div className={styles.loginBox}>
-          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+          <div className={styles.header}>
             <div className={styles.logo}>
-              <h1>Digital Coach</h1>
+              <div className={styles.logoBadge}>DC</div>
             </div>
-            <h2>Login</h2>
+            <h1>Digital Coach</h1>
+            <p className={styles.subtitle}>AI-powered mock interview platform</p>
+          </div>
+
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <div className={styles.titleBlock}>
+              <h2>Login</h2>
+              <p className={styles.helperText}>
+                Sign in with your email and password to continue your practice.
+              </p>
+            </div>
+
             {authError && <p className={styles.issue}>{authError}</p>}
-            <h3>Email</h3>
-            <TextField type="email" placeholder="" {...register("email")} />
-            {formError.email && <p className={styles.issue}>{formError.email.message}</p>}
-            <h3>Password</h3>
-            <TextField
-              type="password"
-              autoComplete="on"
-              placeholder=""
-              {...register("password")}
-            />
-            {formError.password && <p className={styles.issue}>{formError.password.message}</p>}
+
+            <div className={styles.fieldGroup}>
+              <h3>Email</h3>
+              <TextField type="email" placeholder="" {...register("email")} />
+              {formError.email && (
+                <p className={styles.issue}>{formError.email.message}</p>
+              )}
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <h3>Password</h3>
+              <TextField
+                type="password"
+                autoComplete="on"
+                placeholder=""
+                {...register("password")}
+              />
+              {formError.password && (
+                <p className={styles.issue}>{formError.password.message}</p>
+              )}
+            </div>
 
             <Button type="submit">
               <LoginIcon />
               Login
             </Button>
+
             {/* <Button onClick={loginWithGoogle}>Login with Google</Button> */}
-            <Link href="/auth/signup">New user? sign up</Link>
+
+            <p className={styles.footerText}>
+              New user? <Link href="/auth/signup">Create an account</Link>
+            </p>
           </form>
         </div>
       </CenteredComponent>

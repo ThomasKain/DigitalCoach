@@ -41,7 +41,7 @@ const inputValidationSchema = yup
   .required();
 
 export default function SignUpPage() {
-  const { error: authError, user, signup, clearError } = useAuth();
+  const { error: authError, signup, clearError } = useAuth();
   useEffect(() => {
     clearError();
   }, []);
@@ -72,49 +72,70 @@ export default function SignUpPage() {
 
   return (
     <UnAuthGuard>
-      <CenteredComponent>
+      <CenteredComponent className={styles.loginContainer}>
         <div className={styles.loginBox}>
-          <h1>{user?.uid}</h1>
-          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+          <div className={styles.header}>
             <div className={styles.logo}>
-              <h1>Digital Coach</h1>
+              <div className={styles.logoBadge}>DC</div>
             </div>
-            <h2>Register an Account</h2>
-            {authError && <p className={styles.issue}>{authError}</p>}
-            <h3>Email</h3>
-            <TextField type="email" placeholder="" {...register("email")} />
-            {formError.email && (
-              <p className={styles.issue}>{formError.email.message}</p>
-            )}
-            <h3>Password</h3>
-            <TextField
-              type="password"
-              autoComplete="on"
-              placeholder=""
-              {...register("password")}
-            />
-            {formError.password && (
-              <p className={styles.issue}>{formError.password.message}</p>
-            )}
-            <h3>Confirm Password</h3>
+            <h1>Digital Coach</h1>
+            <p className={styles.subtitle}>AI-powered mock interview platform</p>
+          </div>
 
-            <TextField
-              type="password"
-              autoComplete="on"
-              placeholder=""
-              {...register("passwordConfirm")}
-            />
-            {formError.passwordConfirm && (
-              <p className={styles.issue}>
-                {formError.passwordConfirm.message}
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <div className={styles.titleBlock}>
+              <h2>Register an Account</h2>
+              <p className={styles.helperText}>
+                Create an account with your email and password to get started.
               </p>
-            )}
+            </div>
+
+            {authError && <p className={styles.issue}>{authError}</p>}
+
+            <div className={styles.fieldGroup}>
+              <h3>Email</h3>
+              <TextField type="email" placeholder="" {...register("email")} />
+              {formError.email && (
+                <p className={styles.issue}>{formError.email.message}</p>
+              )}
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <h3>Password</h3>
+              <TextField
+                type="password"
+                autoComplete="on"
+                placeholder=""
+                {...register("password")}
+              />
+              {formError.password && (
+                <p className={styles.issue}>{formError.password.message}</p>
+              )}
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <h3>Confirm Password</h3>
+              <TextField
+                type="password"
+                autoComplete="on"
+                placeholder=""
+                {...register("passwordConfirm")}
+              />
+              {formError.passwordConfirm && (
+                <p className={styles.issue}>
+                  {formError.passwordConfirm.message}
+                </p>
+              )}
+            </div>
 
             <Button type="submit">
               <HowToRegIcon />
               Register
             </Button>
-            <Link href="/auth/login">Have an account? log in</Link>
+
+            <p className={styles.footerText}>
+              Have an account? <Link href="/auth/login">Log in</Link>
+            </p>
           </form>
         </div>
       </CenteredComponent>
