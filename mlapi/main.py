@@ -36,8 +36,11 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     """
-    Starts up Firebase Admin SDK when backend starts
+    Handles any setup that needs to occur when the FastAPI server starts, e.g. setting up Firebase Admin SDK.
     """
+    
+    # Initializes Firebase Admin SDK
+    print("Initializing Firebase Admin SDK...")
     initialize_firebase()
     print("Firebase Admin SDK initialized")
 
