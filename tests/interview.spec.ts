@@ -10,7 +10,8 @@ test('can start interview', async ({ page }) => {
 
   // Sign Up
   await page.goto('/auth/login');
-  await page.getByRole('link', { name: 'New user? sign up' }).click();
+  // await page.getByRole('link', { name: 'New user? sign up' }).click();
+  await page.getByRole('link', { name: 'Create an account' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill('Testing@123');
@@ -47,7 +48,8 @@ test('query interview results', async ({ page }) => {
 
   // Sign Up
   await page.goto('/auth/login');
-  await page.getByRole('link', { name: 'New user? sign up' }).click();
+  // await page.getByRole('link', { name: 'New user? sign up' }).click();
+  await page.getByRole('link', { name: 'Create an account' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill('Querying!123');
