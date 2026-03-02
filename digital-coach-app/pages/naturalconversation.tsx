@@ -6,9 +6,10 @@ import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
 import { v4 as uuidv4 } from "uuid";
 import styles from "@App/styles/NaturalConversationPage.module.scss";
 import axios from "axios";
-import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
+import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar"; // deprecated: HeyGen has switched to LiveAvatar
 import { useRouter } from "next/router";
 import VideoRecorder from "@App/components/video";
+import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
 
 
 type Role = "user" | "interviewer";
@@ -39,72 +40,7 @@ export default function NaturalConversationPage() {
   const [audioEnabled, setAudioEnabled] = useState(true);
 
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [videoEnabled, setVideoEnabled] = useState(true); // allows the user to toggle their webcam
-  const streamRef = useRef<MediaStream | null>(null); // media stream for user's video and mic
 
-
-  
-  // initialize webcam
-  // useEffect(() => {
-  //   /**
-  //    * Ask user permission for camera and mic
-  //    */
-  //   let isMounted = true; // flag for this effect to run
-  //   const initCamAndMic = async () => {
-  //     if (videoEnabled && !cameraError) {
-
-  //       try {
-  //         const stream = await navigator.mediaDevices.getUserMedia({
-  //           video: true,
-  //           audio: audioEnabled
-  //         });
-  //         // if the user left the page before accepting permissions, then turn off user camera
-  //         if (!isMounted) {
-  //           stream.getTracks().forEach(track => track.stop());
-  //           return;
-  //         }
-  //         streamRef.current = stream;
-  //         // connect stream to video element
-  //         if (videoRef.current) {
-  //           videoRef.current.srcObject = streamRef.current;
-  //         }
-  //         setCameraError(null); // user allowed their camera to be used, clear error
-  //         console.log("User has allowed camera");
-  //       } catch (e) {
-          
-  //         let errorMsg = "Camera access denied. You can continue without camera.";
-  //         if (e instanceof Error) {
-  //           // user blocked access
-  //           if (e.name === "NotAllowedError") {
-  //             errorMsg = "Camera permission denied. Please allow camera access in  browser settings, or continue without video.";  
-  //           } 
-  //           // cant find camera
-  //           else if (e.name === "NotFoundError") {
-  //             errorMsg = "No camera found. You can continue the interview without video.";
-  //           } 
-  //           // camera is used by another app like Zoom
-  //           else if (e.name === "NotReadableError") {
-  //             errorMsg = "Camera is already being used by another application.";
-  //           } 
-  //         } else {
-  //           errorMsg = `Unknown error: ${String(e)}.`;
-  //         }
-
-  //         setCameraError(errorMsg);
-  //         setVideoEnabled(false);
-  //         console.log("User has denied camera");
-  //       }
-  //     }
-  //   };
-  //   initCamAndMic();
-
-  //   // turn off camera when component is unmounted
-  //   return () => {
-  //     if (streamRef.current) {
-  //       streamRef.current.getTracks().forEach(track => track.stop());
-  //     }
-  //   };
-  // }, [videoEnabled, audioEnabled, cameraError]);
   
   const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
     useReactMediaRecorder({ video: true });
@@ -133,15 +69,19 @@ export default function NaturalConversationPage() {
    * 
    */
   const handleStartInterview = async () => {
-    if (wasRecording) {
-      stopRecording();
-      await avatarRef.current?.endSession();
-      setWasRecording(false);
-    } else {
-      setWasRecording(true);
-      await avatarRef.current?.startSession();
-      startRecording();
-    }
+    // request heygen session token
+    
+
+
+    // if (wasRecording) {
+    //   stopRecording();
+    //   await avatarRef.current?.endSession();
+    //   setWasRecording(false);
+    // } else {
+    //   setWasRecording(true);
+    //   await avatarRef.current?.startSession();
+    //   startRecording();
+    // }
   };
 
   const handleStopInterview = async () => {
@@ -286,6 +226,8 @@ export default function NaturalConversationPage() {
                 onTranscriptChange={handleUserTranscript}
                 onInterviewerTranscriptChange={handleInterviewerTranscript}
               /> */}
+                  <InteractiveAvatar/>
+
 
               {/* 3. INTERVIEW CONTROLS */}
               {/* These buttons allow the user to manage the interview state */}

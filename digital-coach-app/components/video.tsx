@@ -40,7 +40,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
     }, []);
 
     /**
-     * 
+     * Toggles the user's video camera. Note that its pausing the camera recording and not completely turning it off so the video recording doesn't get disabled preemptively.
      */
     const toggleVideo = () => {
         const newState = !videoEnabled;
@@ -53,7 +53,9 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
         }
     }
 
-
+    /**
+     * Toggles the user's microphone.
+     */
     const toggleAudio = () => {
         const newState = !audioEnabled;
         setAudioEnabled(newState);
@@ -125,12 +127,13 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
             });
             // if the user left webpage before giving permission, turn off camera
             if (!isMounted.current) {
+                console.log("Component unmounted before camera loaded. Aborting...");
                 mediaStream.getTracks().forEach((track) => track.stop());
                 console.log("Turning off user camera...");
                 return; 
             }
             streamRef.current = mediaStream;
-            setStream(mediaStream); // store mediate stream
+            setStream(mediaStream); // store media stream
             // assign stream to video to show live preview
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
@@ -173,6 +176,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     <button
                         onClick={toggleVideo}
                         className={videoEnabled ? styles.enabled : styles.disabled}
+                        disabled={stream ? false : true} // wait until video is ready before enabling toggling
                     >
                         {videoEnabled ? (
                             <Video />
@@ -184,6 +188,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     <button
                         onClick={toggleAudio}
                         className={audioEnabled ? styles.enabled : styles.disabled }
+                        disabled={stream ? false : true} // wait until video is ready before enabling toggling
                     >
                         { audioEnabled ? (
                             <Mic />

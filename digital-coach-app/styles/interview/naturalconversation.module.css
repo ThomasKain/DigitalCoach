@@ -39,6 +39,10 @@
   color: white;
 }
 
+.controls button:disabled {
+  background-color: dimgrey;
+}
+
 .enabled {
   background: #374151;
 }
