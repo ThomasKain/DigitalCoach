@@ -5,6 +5,7 @@ import AuthGuard from "@App/lib/auth/AuthGuard";
 import styles from "@App/styles/Home.module.scss";
 import Card from "@App/components/atoms/Card";
 import IssuesChart from "@App/components/molecules/IssuesChart";
+import { TrendingUp, Award, Target, Video, History } from "lucide-react";
 // import ScoreChart from "@App/components/molecules/ScoreChart";
 import PracticeCalendar from "@App/components/molecules/PracticeCalendar";
 // import useGetFeaturedQuestionSets from "@App/lib/questionSets/useGetFeaturedQuestionSets";
@@ -96,46 +97,109 @@ const Home: NextPage = () => {
   return (
     <AuthGuard>
       <div className={styles.Home}>
-        <h1>Welcome back, {userData?.name}!</h1>
-        <h2>Dashboard</h2>
-        <div className={styles.cards}>
-          <Card title={"Quick Start Interviews"} multiline>
-            {/* <ul>
-              {questionSets?.docs.map((questionSet) => (
-                <li key={questionSet.id}>
-                  <Link href="/">{questionSet.data().title}</Link>
-                  <span>→</span>
-                </li>
-              ))}
-            </ul> */}
-          </Card>
-          <Card title={"Your Random Interview Tip!"} multiline>
-            <div className={styles.tipoftheday}>
-              <p>{tip}</p>
-            </div>
-          </Card>
-          <Card title={"Recent Recordings"} multiline>
-            <h4>You have not recorded an interview yet!</h4>
-          </Card>
-          <Card multiline>
-            <div className={styles.calendarWrapper}>
-              {/* <PracticeCalendar events={events} /> */}
-            </div>
-          </Card>
-          <Card title={"Most Common Flags"} multiline>
-            <div className={styles.issuesChartWrapper}>
-              <IssuesChart chartData={mockIssuesData} />
-            </div>
-            {/* <h2>Average Score: {Math.round(averageScore * 100)}%</h2> */}
-          </Card>
-        </div>
+        <header className={styles.header}>
+          <div>
+            <h1>Digital Coach</h1>
+            <p>Welcome back, {userData?.name}!</p>
+          </div>
+        </header>
 
-        {/*
-        <span>id: {currentUser?.id}</span>
-        <span>email: {currentUser?.email}</span>
-        <span>name: {currentUser?.name}</span>
-        <span>concentration: {currentUser?.concentration}</span>
-        <span>proficiency: {currentUser?.proficiency}</span>*/}
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <h2>Ready to ace your next interview?</h2>
+            <p>
+              Practice with our AI-powered interviewer and get instant feedback on your performance.
+              Track your progress and improve your interview skills with personalized insights.
+            </p>
+            <div className={styles.heroActions}>
+              <Link href="/naturalconversation" className={styles.primaryCta}>
+                <Video size={20} />
+                <span>Start Mock Interview</span>
+              </Link>
+              <Link href="/history" className={styles.secondaryCta}>
+              {/* TODO: Add a link to the interview history page */}
+                <History size={20} />
+                <span>View Interview History</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.mainGrid}>
+          <div className={styles.mainColumn}>
+            
+            <section className={styles.bottomGrid}>
+              {/* Top Left Card */}
+              <div className={styles.gridItem}>
+                <Card title={"Most Common Flags"} multiline>
+                  <div className={styles.issuesChartWrapper}>
+                    <IssuesChart chartData={mockIssuesData} />
+                  </div>
+                </Card>
+              </div>
+
+              {/* Top Right Card */}
+              <div className={styles.gridItem}>
+                <Card title={"Your Random Interview Tip!"} multiline>
+                  <div className={styles.tipoftheday}>
+                    <p>{tip}</p>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Bottom Full-Width Card */}
+              <div className={styles.bottomFullWidth}>
+                <Card title={"What You'll Get"} multiline>
+                  <div className={styles.featuresContainer}>
+                    {/* STAR Method Feature */}
+                    <div className={styles.featureItem}>
+                      <div className={`${styles.iconWrapper} ${styles.green}`}>
+                        <Award size={20} />
+                      </div>
+                      <div className={styles.featureText}>
+                        <h4>STAR Method Analysis</h4>
+                        <p>
+                          Get feedback on how well your answers follow the Situation,
+                          Task, Action, Result framework
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pacing Feedback Feature */}
+                    <div className={styles.featureItem}>
+                      <div className={`${styles.iconWrapper} ${styles.purple}`}>
+                        <TrendingUp size={20} />
+                      </div>
+                      <div className={styles.featureText}>
+                        <h4>Pacing Feedback</h4>
+                        <p>
+                          Learn if you&apos;re speaking too fast, too slow, or just
+                          right for optimal communication
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Filler Word Feature */}
+                    <div className={styles.featureItem}>
+                      <div className={`${styles.iconWrapper} ${styles.orange}`}>
+                        <Target size={20} />
+                      </div>
+                      <div className={styles.featureText}>
+                        <h4>Filler Word Detection</h4>
+                        <p>
+                          Track usage of &quot;um&quot;, &quot;uh&quot;,
+                          &quot;like&quot; and other filler words that can detract
+                          from your message
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </section>
+            
+          </div>
+        </section>
       </div>
     </AuthGuard>
   );
