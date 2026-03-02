@@ -8,8 +8,6 @@ import styles from "@App/styles/NaturalConversationPage.module.scss";
 import axios from "axios";
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import { useRouter } from "next/router";
-import VideoRecorder from "@App/components/video";
-
 
 type Role = "user" | "interviewer";
 interface Message {
@@ -36,76 +34,7 @@ export default function NaturalConversationPage() {
   const [wasRecording, setWasRecording] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [audioEnabled, setAudioEnabled] = useState(true);
 
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const [videoEnabled, setVideoEnabled] = useState(true); // allows the user to toggle their webcam
-  const streamRef = useRef<MediaStream | null>(null); // media stream for user's video and mic
-
-
-  
-  // initialize webcam
-  // useEffect(() => {
-  //   /**
-  //    * Ask user permission for camera and mic
-  //    */
-  //   let isMounted = true; // flag for this effect to run
-  //   const initCamAndMic = async () => {
-  //     if (videoEnabled && !cameraError) {
-
-  //       try {
-  //         const stream = await navigator.mediaDevices.getUserMedia({
-  //           video: true,
-  //           audio: audioEnabled
-  //         });
-  //         // if the user left the page before accepting permissions, then turn off user camera
-  //         if (!isMounted) {
-  //           stream.getTracks().forEach(track => track.stop());
-  //           return;
-  //         }
-  //         streamRef.current = stream;
-  //         // connect stream to video element
-  //         if (videoRef.current) {
-  //           videoRef.current.srcObject = streamRef.current;
-  //         }
-  //         setCameraError(null); // user allowed their camera to be used, clear error
-  //         console.log("User has allowed camera");
-  //       } catch (e) {
-          
-  //         let errorMsg = "Camera access denied. You can continue without camera.";
-  //         if (e instanceof Error) {
-  //           // user blocked access
-  //           if (e.name === "NotAllowedError") {
-  //             errorMsg = "Camera permission denied. Please allow camera access in  browser settings, or continue without video.";  
-  //           } 
-  //           // cant find camera
-  //           else if (e.name === "NotFoundError") {
-  //             errorMsg = "No camera found. You can continue the interview without video.";
-  //           } 
-  //           // camera is used by another app like Zoom
-  //           else if (e.name === "NotReadableError") {
-  //             errorMsg = "Camera is already being used by another application.";
-  //           } 
-  //         } else {
-  //           errorMsg = `Unknown error: ${String(e)}.`;
-  //         }
-
-  //         setCameraError(errorMsg);
-  //         setVideoEnabled(false);
-  //         console.log("User has denied camera");
-  //       }
-  //     }
-  //   };
-  //   initCamAndMic();
-
-  //   // turn off camera when component is unmounted
-  //   return () => {
-  //     if (streamRef.current) {
-  //       streamRef.current.getTracks().forEach(track => track.stop());
-  //     }
-  //   };
-  // }, [videoEnabled, audioEnabled, cameraError]);
-  
   const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
     useReactMediaRecorder({ video: true });
 
@@ -129,9 +58,6 @@ export default function NaturalConversationPage() {
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  /**
-   * 
-   */
   const handleStartInterview = async () => {
     if (wasRecording) {
       stopRecording();
@@ -143,10 +69,6 @@ export default function NaturalConversationPage() {
       startRecording();
     }
   };
-
-  const handleStopInterview = async () => {
-    
-  }
 
   const handleInterruptAvatar = async () => {
     await avatarRef.current?.handleInterrupt();
@@ -212,11 +134,11 @@ export default function NaturalConversationPage() {
     }
   };
 
-  // useEffect(() => {
-  //   if (videoRef.current) {
-  //     videoRef.current.srcObject = previewStream || null;
-  //   }
-  // }, [previewStream]);
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = previewStream || null;
+    }
+  }, [previewStream]);
 
   // DELETE: TESTING ONLY: IMMEDIATELY STARTS AN INTERVIEW SESSION WITH HEYGEN LIVEAVATAR
   // const router = useRouter();
@@ -256,93 +178,64 @@ export default function NaturalConversationPage() {
   // }, []);
 
   return (
-    // AuthGuard ensures that only logged-in users can view this page.
-    // If a user isn't logged in, they are typically redirected away.
     <AuthGuard>
-      {/* Main container for the entire page layout */}
       <div className={styles.pageContainer}>
-        {/* LEFT/MAIN SECTION: Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
           <div className={styles.videoContainer}>
-            {/* Camera Error Notification */}
-
-
-
             <div className={styles.videoBox}>
-              {/* 1. THE USER'S WEBCAM FEED */}
-              {/* This displays the live video coming from the user's camera */}
-              <VideoRecorder
-                startInterview={handleStartInterview}
-                stopInterview={handleStopInterview}
-                setCameraError={setCameraError}
-              />
-
-              {/* 2. THE AI AVATAR (INTERVIEWER) */}
-              {/* This component handles the HeyGen streaming avatar. 
-                  We pass it the ref so we can trigger start/stop from the parent, 
-                  and the callbacks so it can send transcript data back up to the page. */}
-              {/* <InteractiveAvatar
+              <div className={styles.userVideoContainer}>
+                <video
+                  ref={videoRef}
+                  controls
+                  autoPlay
+                  className={styles.userVideo}
+                />
+              </div>
+              {/* Pass both transcript callbacks to InteractiveAvatar */}
+              <InteractiveAvatar
                 ref={avatarRef}
                 onTranscriptChange={handleUserTranscript}
                 onInterviewerTranscriptChange={handleInterviewerTranscript}
-              /> */}
-
-              {/* 3. INTERVIEW CONTROLS */}
-              {/* These buttons allow the user to manage the interview state */}
+              />
               <div className={styles.buttonBox}>
-                
-                {/* Toggles the recording and the avatar's session on or off */}
                 <button
                   className={styles.recordButton}
                   onClick={handleStartInterview}
                 >
                   {wasRecording ? "Stop Interview" : "Start Interview"}
                 </button>
-                
-                {/* Forces the AI avatar to stop speaking (useful if it's talking too much) */}
                 <button
                   className={styles.saveButton}
                   onClick={handleInterruptAvatar}
                 >
                   Interrupt Task
                 </button>
-
-                {/* Submits the recorded video to the backend server for AI analysis */}
                 <button className={styles.saveButton} onClick={getResponse}>
                   GetResponse
                 </button>
               </div>
-
             </div>
           </div>
         </div>
-
-        {/* RIGHT/SIDE SECTION: The Live Transcript */}
-        {/* Displays a real-time text log of the conversation */}
         <div className={styles.transcriptContainer}>
           <Transcript title="Transcript">
             {messages.length > 0 ? (
-              // Loop through the 'messages' array and render each one
               messages.map((message, index) => (
                 <div key={index}>
                   <p>
-                    {/* Render the timestamp and identify who is speaking (User or Interviewer) */}
                     <strong>
                       [{message.timestamp}]{" "}
                       {message.role === "user" ? "User:" : "Interviewer:"}
                     </strong>
                   </p>
-                  {/* Render the actual text that was spoken */}
                   <p>{message.text}</p>
                 </div>
               ))
             ) : (
-              // Fallback message before anyone has started speaking
               <p>No transcript available.</p>
             )}
           </Transcript>
         </div>
-
       </div>
     </AuthGuard>
   );

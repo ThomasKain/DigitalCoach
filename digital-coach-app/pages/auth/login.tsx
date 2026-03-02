@@ -9,7 +9,7 @@ import UnAuthGuard from "@App/lib/auth/UnAuthGuard";
 import { TextField } from "@App/components/molecules/TextField";
 import LoginIcon from "@mui/icons-material/Login";
 import CenteredComponent from "@App/components/atoms/CenteredComponent";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface LoginFormInputs {
   email: string;
@@ -28,6 +28,7 @@ const inputValidationSchema = yup
   .required();
 
 export default function LoginPage() {
+
   const {
     error: authError,
     // userData,
