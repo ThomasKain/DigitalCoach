@@ -9,7 +9,6 @@ test('can register and login', async ({ page }) => {
   
   // Sign Up
   await page.goto('/auth/login');
-  // await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.getByRole('link', { name: 'Create an account' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
   await page.locator('input[name="email"]').fill(email);
@@ -27,9 +26,8 @@ test('can register and login', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).fill('John Doe');
   await page.getByRole('button', { name: 'Sign up' }).click();
   await expect(page).toHaveURL('/', {timeout: 30000}); // wait to be redirected to homepage
-  
-  const heading = page.getByRole("heading", {level: 1});
-  await expect(heading).toHaveText("Welcome back, John Doe!");
+
+  await expect(page.getByText("Welcome back, John Doe!")).toBeVisible();
   
   // Logout
   await page.getByRole('button', { name: 'Log out' }).click();

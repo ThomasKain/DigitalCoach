@@ -29,11 +29,15 @@ test('can start interview', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign up' }).click();
   await expect(page).toHaveURL('/', {timeout: 30000}); // wait to be redirected to homepage
   
-  const heading = page.getByRole("heading", {level: 1});
-  await expect(heading).toHaveText("Welcome back, Vivy Diva!");
+  // const heading = page.getByRole("heading", {level: 1});
+  // await expect(heading).toHaveText("Welcome back, Vivy Diva!");
    
-  // Start interview
-  await page.getByRole('link', { name: 'Natural Conversation' }).click();
+  // // Start interview
+  // await page.getByRole('link', { name: 'Natural Conversation' }).click();
+  await expect(page.getByText("Welcome back, Vivy Diva!")).toBeVisible();
+   
+  // Start interview using the new button name
+  await page.getByRole('link', { name: 'Start Mock Interview' }).click();
   await page.goto('https://meet.livekit.io/custom?liveKitUrl=wss://heygen-feapbkvq.livekit.cloud&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA2OTkyMTUsImlzcyI6IkFQSVByREUyNXZZRldERyIsIm5hbWUiOiJjbGllbnQiLCJuYmYiOjE3NzA2MTI4MTUsInN1YiI6ImNsaWVudCIsInZpZGVvIjp7ImNhblB1Ymxpc2giOnRydWUsImNhblB1Ymxpc2hEYXRhIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWUsInJvb20iOiI0YTExZTFjMC0wNTczLTExZjEtYmFiNC1iMjMxMzc5OWQxOTciLCJyb29tSm9pbiI6dHJ1ZX19.i9djsTddaCTO--O6NienIgBRX1LFgXPWydsR-LVBP2E');
   await expect(page.locator('.lk-participant-tile')).toBeVisible();
 
@@ -48,7 +52,6 @@ test('query interview results', async ({ page }) => {
 
   // Sign Up
   await page.goto('/auth/login');
-  // await page.getByRole('link', { name: 'New user? sign up' }).click();
   await page.getByRole('link', { name: 'Create an account' }).click();
   await page.waitForURL("**/signup"); // wait until /signup page is loaded
   await page.locator('input[name="email"]').fill(email);
@@ -66,12 +69,11 @@ test('query interview results', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Full Name' }).fill('Emma Frost');
   await page.getByRole('button', { name: 'Sign up' }).click();
   await expect(page).toHaveURL('/', {timeout: 30000}); // wait to be redirected to homepage
-  
-  const heading = page.getByRole("heading", {level: 1});
-  await expect(heading).toHaveText("Welcome back, Emma Frost!");
 
-  // Request interview results
-  await page.getByRole('link', { name: 'Progress Tracking' }).click();
+  await expect(page.getByText("Welcome back, Emma Frost!")).toBeVisible();
+
+  // Request interview results using the new button name
+  await page.getByRole('link', { name: 'View Interview History' }).click();
   await page.waitForURL("**/client_test");
   await expect(page.getByText('Data received: {"name":"Emma').first()).toBeVisible();
 });
