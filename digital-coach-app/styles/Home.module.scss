@@ -148,7 +148,7 @@
   gap: 1.5rem;
   padding: 1rem 0;
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -206,7 +206,7 @@
   gap: 1.5rem;
   width: 100%; 
 
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr); 
     align-items: stretch; 
   }
@@ -229,7 +229,7 @@
   display: flex;
   width: 100%;
 
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     grid-column: span 2; 
   }
 
