@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 // import styles from "@App/styles/NaturalConversationPage.module.scss";
 import { Video, VideoOff, Mic, MicOff, Play } from "lucide-react"; 
-import styles from "@App/styles/interview/naturalconversation.module.css";
+import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
 
 // Define the shape of this components props
@@ -29,6 +29,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
     useEffect(() => {
         startPreview();
         isMounted.current = true;
+
         return () => {
             // stop recording user camera and mic when component unmounts
             if (streamRef.current) {

@@ -3,7 +3,9 @@ import Transcript from "@App/components/organisms/Transcript";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
 import { v4 as uuidv4 } from "uuid";
-import styles from "@App/styles/NaturalConversationPage.module.scss";
+// import styles from "@App/styles/NaturalConversationPage.module.scss";
+import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
+
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import VideoRecorder from "@App/components/video";
 
@@ -87,7 +89,7 @@ export default function NaturalConversationPage() {
   };
 
   const handleStopInterview = async () => {
-    
+
   }
 
   // const handleInterruptAvatar = async () => {
@@ -170,21 +172,23 @@ export default function NaturalConversationPage() {
         <div className={styles.videoAndButtonContainer}>
           <div className={styles.videoContainer}>
             {/* Camera Error Notification */}
+            
+            {/* User Webcam */}
+            {/* This displays the live video coming from the user's camera */}
             <div className={styles.videoBox}>
-              {/* User Webcam */}
-              {/* This displays the live video coming from the user's camera */}
               <VideoRecorder
                 startInterview={handleStartInterview}
                 stopInterview={handleStopInterview}
                 setCameraError={setCameraError}
               />
             </div>
-            <div className={styles.videoBox}>
+            
             {/* AI Interviewer */}
-              {/* After receiving a sessionToken, this handles starting and stopping the session. */}
-                <InteractiveAvatar
-                  sessionToken={token}
-                />
+            {/* After receiving a sessionToken, this handles starting and stopping the session. */}
+            <div className={styles.videoBox}>
+              <InteractiveAvatar
+                sessionToken={token}
+              />
             </div>
           </div>
         </div>

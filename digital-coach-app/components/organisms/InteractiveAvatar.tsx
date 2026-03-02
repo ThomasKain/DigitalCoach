@@ -210,7 +210,7 @@
 
 import { useRef, useEffect } from "react";
 import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
-import styles from "@App/styles/interview/naturalconversation.module.css";
+import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 import { VideoOff } from "lucide-react";
 
 interface InteractiveAvatarProps {
@@ -255,6 +255,7 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
     if (sessionToken) {
       startSession();
     }
+
     return () => {
       stopSession();
     }
