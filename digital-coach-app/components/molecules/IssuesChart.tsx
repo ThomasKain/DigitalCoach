@@ -37,7 +37,7 @@ const options = {
     responsive: true,
     maintainAspectRatio: false,
     scales:{
-        yAxes: {
+        y: {
             ticks:{
                 mirror:true,
                 z: 1
