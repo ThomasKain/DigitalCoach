@@ -39,6 +39,30 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
         }   
     }, []);
 
+    /**
+     * 
+     */
+    const toggleVideo = () => {
+        const newState = !videoEnabled;
+        setVideoEnabled(newState);
+        // disable video track (this will not turn off the camera, but it will stop transmitting the camera feed from rendering, we need this so the entire video can be recorded)
+        if (streamRef.current) {
+            streamRef.current.getVideoTracks().forEach((track) => {
+                track.enabled = newState;
+            });
+        }
+    }
+
+
+    const toggleAudio = () => {
+        const newState = !audioEnabled;
+        setAudioEnabled(newState);
+        if (streamRef.current) {
+            streamRef.current.getAudioTracks().forEach((track) => {
+                track.enabled = newState;
+            });
+        }
+    }
 
     /**
      * Starts recording user's camera.
@@ -82,8 +106,9 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
      * Stop recording user camera.
      */
     const stopRecording = async () => {
-        mediaRecorderRef.current?.stop();
+        mediaRecorderRef.current?.stop(); // stop recording user camera
         setIsRecording(false);
+        console.log("Turning off camera and mic...");
         // invoke callback from parent component (expected to stop HeyGen session and save interview)
         await stopInterview();
     }
@@ -102,7 +127,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
             if (!isMounted.current) {
                 mediaStream.getTracks().forEach((track) => track.stop());
                 console.log("Turning off user camera...");
-
+                return; 
             }
             streamRef.current = mediaStream;
             setStream(mediaStream); // store mediate stream
@@ -110,6 +135,9 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
+            // enable video and audio once user has agreed 
+            setVideoEnabled(true);
+            setAudioEnabled(true);
         } catch (e) {
             let err = "Camera access denied. You can continue without camera.";
             if (e instanceof Error) {
@@ -143,7 +171,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                 {/* Toggle video camera */}
                 <div className={styles.controls}>
                     <button
-                        onClick={() => setVideoEnabled(!videoEnabled)}
+                        onClick={toggleVideo}
                         className={videoEnabled ? styles.enabled : styles.disabled}
                     >
                         {videoEnabled ? (
@@ -154,7 +182,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     </button>
                     {/* Toggle microphone */}
                     <button
-                        onClick={() => setAudioEnabled(!audioEnabled)}
+                        onClick={toggleAudio}
                         className={audioEnabled ? styles.enabled : styles.disabled }
                     >
                         { audioEnabled ? (
@@ -168,39 +196,42 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
             
             <div className={`${styles.videoContent} ${styles.userCamera}`}>
                 {/* User Camera Video */}
-                {videoEnabled ? (
-                    <video 
+                <video 
                         ref={videoRef}
                         autoPlay
                         muted
+                        style={{display: videoEnabled ? "block" : "none"}}
                     />
-                ) : (
-                    <div className={styles.cameraOff}>
-                        <VideoOff/>
-                        <p>Camera is off</p>
-                    </div>
-                )}
+                    {!videoEnabled && (
+                        <div className={styles.cameraOff}>
+                            <VideoOff/>
+                            <p>Camera is off</p>
+                        </div>
+                    )}
             </div>
         </div>
 
         {/* Start/Stop Buttons */}
-        {!isRecording ? 
-            <button 
-                className={styles.startButton}
-                onClick={startRecording}
-            >
-                Start Recording
-            </button>:
-            <button 
-                className={styles.startButton}
-                onClick={stopRecording}
-            >
-                Stop Recording
-            </button>}
+        <div className={styles.buttonBox}>
+            
+            {!isRecording ? 
+                <button 
+                    className={`${styles.startButton} ${styles}`}
+                    onClick={startRecording}
+                >
+                    Start Recording
+                </button>:
+                <button 
+                    className={styles.startButton}
+                    onClick={stopRecording}
+                >
+                    Stop Recording
+                </button>}
            
             {/* If the video download URL is ready, store it in Firebase for preview later */}
             {videoURL 
             ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>}
+        </div>
         </>
 
     )
