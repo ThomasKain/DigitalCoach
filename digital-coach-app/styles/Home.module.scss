@@ -214,9 +214,11 @@
 
 .gridItem {
   display: flex;
+  min-width: 0;
   width: 100%;
   
   > * {
+    min-width: 0 !important;
     width: 100% !important; 
     max-width: 100% !important; 
     flex: 1; 
