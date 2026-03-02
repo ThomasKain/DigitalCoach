@@ -70,7 +70,28 @@ export default function NaturalConversationPage() {
    */
   const handleStartInterview = async () => {
     // request heygen session token
-    
+    console.log("TESTING FETCH API IN HANDLE START INTERVIEW"); 
+
+    console.log("Requesting Interview Session...")
+
+    try {
+      const response = await fetch('http://localhost:8000/api/heygen/session_token', {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Interview request sent successfully!");
+        console.log(data);
+      } else {
+        console.error(`Error: ${response.statusText || "Something went wrong"}`);
+      }
+    } catch (error) {
+        console.error(`Submission error: ${error}`);
+    }      
+
 
 
     // if (wasRecording) {

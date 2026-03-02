@@ -209,7 +209,6 @@
 // export default InteractiveAvatar;
 
 import { useRef, useEffect } from "react";
-import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
 
 interface InteractiveAvatarProps {
   sessionToken: string | null;
@@ -219,7 +218,7 @@ interface InteractiveAvatarProps {
 function InteractiveAvatar({}) {
 
   useEffect(() => {
-    
+
   }, []);
 
   return (
