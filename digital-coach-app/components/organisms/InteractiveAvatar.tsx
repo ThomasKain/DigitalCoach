@@ -210,10 +210,13 @@
 
 import { useRef, useEffect } from "react";
 import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
+import styles from "@App/styles/interview/naturalconversation.module.css";
+import { VideoOff } from "lucide-react";
 
 interface InteractiveAvatarProps {
   sessionToken: string;
 }
+
 function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sessionRef = useRef<LiveAvatarSession>(null);
@@ -222,7 +225,7 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
   };
   
   /**
-   * Starts HeyGen LiveAvatar session using the given session token and configurations
+   * Starts HeyGen LiveAvatar session using the given session token and configurations. Recommend referring to the reviewing heygen/liveavatar-web-sdk library as API documentation is sparse as of writing this.
    */
   const startSession = async () => {
     console.log("Starting session...");
@@ -258,12 +261,23 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
   }, [sessionToken]);
 
   return (
-    <div>
-      <p>This came from Interactive Avatar Component</p>
-      <video 
-        ref={videoRef}
-        autoPlay
-        />
+    <div className={styles.videoCard}>
+      <div className={`${styles.videoHeader} ${styles.aiHeader}`}>
+        <p>Interviewer</p>
+      </div>
+      <div className={`${styles.videoContent} ${styles.aiContainer}`}>
+        <video 
+          ref={videoRef}
+          autoPlay
+          style={{display: sessionToken ? "block" : "none"}}
+          />
+        {!sessionToken && (
+          <div className={styles.cameraOff}>
+              <VideoOff/>
+              <p>Waiting</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
