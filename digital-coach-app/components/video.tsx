@@ -137,8 +137,8 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
 
     return (
         <>
-        <div className="video-card">
-            <div className="video-header user-header">
+        <div className={styles.videoCard}>
+            <div className={`${styles.videoHeader} ${styles.userHeader}`}>
                 <p>Your Camera</p>
                 {/* Toggle video camera */}
                 <div className={styles.controls}>
@@ -155,7 +155,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     {/* Toggle microphone */}
                     <button
                         onClick={() => setAudioEnabled(!audioEnabled)}
-                        className={audioEnabled ? "enabled" : "disabled" }
+                        className={audioEnabled ? styles.enabled : styles.disabled }
                     >
                         { audioEnabled ? (
                             <Mic />
@@ -166,7 +166,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                 </div>
             </div>
             
-            <div className="video-content user-camera">
+            <div className={`${styles.videoContent} ${styles.userCamera}`}>
                 {/* User Camera Video */}
                 {videoEnabled ? (
                     <video 
@@ -175,7 +175,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                         muted
                     />
                 ) : (
-                    <div className="camera-off">
+                    <div className={styles.cameraOff}>
                         <VideoOff/>
                         <p>Camera is off</p>
                     </div>
@@ -186,13 +186,13 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
         {/* Start/Stop Buttons */}
         {!isRecording ? 
             <button 
-                className={styles['start-button']}
+                className={styles.startButton}
                 onClick={startRecording}
             >
                 Start Recording
             </button>:
             <button 
-                className="start-button"
+                className={styles.startButton}
                 onClick={stopRecording}
             >
                 Stop Recording
@@ -200,7 +200,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
            
             {/* If the video download URL is ready, store it in Firebase for preview later */}
             {videoURL 
-            ? <a href={videoURL} download="user-interview.webm" className="start-button">Download Video</a> : <a href=""></a>}
+            ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>}
         </>
 
     )
