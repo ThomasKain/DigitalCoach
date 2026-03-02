@@ -10,6 +10,7 @@ import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar"; // 
 import { useRouter } from "next/router";
 import VideoRecorder from "@App/components/video";
 import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
+import { DataArray } from "@mui/icons-material";
 
 
 type Role = "user" | "interviewer";
@@ -40,8 +41,8 @@ export default function NaturalConversationPage() {
   const [audioEnabled, setAudioEnabled] = useState(true);
 
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [token, setToken] = useState("");
 
-  
   const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
     useReactMediaRecorder({ video: true });
 
@@ -66,12 +67,10 @@ export default function NaturalConversationPage() {
   };
 
   /**
-   * 
+   * Requests backend to get a session token from HeyGen LiveAvatar API.
    */
   const handleStartInterview = async () => {
     // request heygen session token
-    console.log("TESTING FETCH API IN HANDLE START INTERVIEW"); 
-
     console.log("Requesting Interview Session...")
 
     try {
@@ -83,10 +82,10 @@ export default function NaturalConversationPage() {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log("Interview request sent successfully!");
-        console.log(data);
+        console.log("Token request successful!");
+        setToken(data);
       } else {
-        console.error(`Error: ${response.statusText || "Something went wrong"}`);
+        throw `Error: ${response.statusText || "Something went wrong"}`;
       }
     } catch (error) {
         console.error(`Submission error: ${error}`);
@@ -247,7 +246,11 @@ export default function NaturalConversationPage() {
                 onTranscriptChange={handleUserTranscript}
                 onInterviewerTranscriptChange={handleInterviewerTranscript}
               /> */}
-                  <InteractiveAvatar/>
+              {/* Interactive Avatar can't be mounted until session token has been obtained */}
+                <InteractiveAvatar
+                  sessionToken={token}
+                />
+              
 
 
               {/* 3. INTERVIEW CONTROLS */}

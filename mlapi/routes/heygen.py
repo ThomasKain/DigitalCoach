@@ -122,7 +122,7 @@ async def start_interview(configs: HeyGenSessionRequest):
 ) 
 async def get_session_token():
     """
-    Creates session token for end user based on predefined session configurations for how the avatar looks, how it sounds, and what's its knowledge base.
+    Creates session token for end user based on predefined session configurations for how the avatar looks, how it sounds, and what's its knowledge base. You can create new context within HeyGen's LiveAvatar API website: https://app.liveavatar.com/home
 
     Returns:
         session_token (str): String containing the session token for a HeyGen LiveAvatar session.
