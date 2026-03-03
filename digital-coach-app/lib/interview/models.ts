@@ -61,7 +61,7 @@ export interface IMetrics {
 export interface IInterview {
   id: string,
   date: string, // MM/DD/YYYY
-  createdAt: Timestamp
+  timeStarted: string // HH:MM 24-hour
   duration: string,
   feedback: IFeedback,
   metrics: IMetrics,

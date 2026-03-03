@@ -4,7 +4,7 @@ import styles from "@App/styles/HistoryPage.module.scss";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Award, Target, TrendingUp, Calendar, Clock, ChevronRight } from "lucide-react";
-import { Timestamp, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { IInterview } from "@App/lib/interview/models"
 
 
@@ -14,39 +14,40 @@ export default function ProgressPage() {
   const [improvement, setImprovement] = useState<number>(100); // how much the user has improved overtime
   const router = useRouter();
 
-  useEffect(() => {
-    // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
-    const mockData = {
-        "id": "vsoSA7V72JFdBPMLJL29",
-        "date": "03/04/2024",
-        "createdAt": Timestamp.now(),
-        "duration": "5:30",
-        "feedback": {
-            ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
-            overall_competency: {
-              clarity: {
-                score: 8,
-                summary: "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
-              },
-              confidence: {
-                score: 10,
-                summary: "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
-              },
-              engagement: {
-                score: 9,
-                summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
-              }
+  // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
+  const mockData = {
+      "id": "vsoSA7V72JFdBPMLJL29",
+      "date": "03/04/2024",
+      "timeStarted": "20:30",
+      "duration": "5:30",
+      "feedback": {
+          ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
+          overall_competency: {
+            clarity: {
+              score: 8,
+              summary: "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
+            },
+            confidence: {
+              score: 10,
+              summary: "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
+            },
+            engagement: {
+              score: 9,
+              summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
             }
-        },
-        "metrics": {
-            "filler_count": 2,
-            "overall_score": 99,
-            "wmp": 100,
-            "star_score": 98
-        },
-        "transcript": [],
-        "url": "google.com",
-    }
+          }
+      },
+      "metrics": {
+          "filler_count": 2,
+          "overall_score": 99,
+          "wmp": 100,
+          "star_score": 98
+      },
+      "transcript": [],
+      "url": "google.com",
+  }
+
+  useEffect(() => {
     setInterviews([...interviews, mockData, mockData])
   }, [])
 
@@ -78,7 +79,7 @@ export default function ProgressPage() {
   const createInterviewBtn = (interview: IInterview) => {
     const btn = <button
       key={interview.id} // identifier for button within an array of buttons
-      onClick={() => router.push(`/interview/${interview.id}`)}
+      onClick={() => router.push(`/interviews/${interview.id}`)}
       className="interview-item"
       >
 
@@ -95,11 +96,13 @@ export default function ProgressPage() {
               <div className={`${styles.infoRow} ${styles.date}`}>
                 <Calendar/>
                 <span>
-                  {new Date(interview.date).toLocaleDateString("en-US", { 
+                  {new Date(`${interview.date} ${interview.timeStarted}`).toLocaleDateString("en-US", { 
                     weekday: "long",
                     month: "2-digit",
                     day: "2-digit",
-                    year: "numeric" 
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit", 
                   })}
                 </span>
               </div>
@@ -222,7 +225,7 @@ export default function ProgressPage() {
                 </button>
           </div>
         ) : (
-          // for every interview, create a button that navigates them to their individual results (i.e. /interviews/:id)
+          // for every interview, create a button that navigates them to their individual results (i.e. /interviews/[id])
           <div className={styles.tableContainer}>
               {interviews.map((interview) => createInterviewBtn(interview))}
           </div>
