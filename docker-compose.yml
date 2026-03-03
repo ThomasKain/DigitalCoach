@@ -17,7 +17,6 @@ services:
     # Put secrets in the container environment as they're for runtime use
     environment:
       - NODE_ENV=development # Set Node environment to development to do things like enable emulators
-    #   - HEYGEN_API_KEY # Pass HEYGEN_API_KEY to the container environment
     # Required so changes are reflected in Next.js without restarting the container
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true

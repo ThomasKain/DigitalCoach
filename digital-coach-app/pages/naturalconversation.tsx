@@ -43,24 +43,24 @@ export default function NaturalConversationPage() {
   //   useReactMediaRecorder({ video: true });
 
   // Callback to add a new user message.
-  const handleUserTranscript = (userTranscript: string) => {
-    const newMessage: Message = {
-      role: "user",
-      text: userTranscript,
-      timestamp: formatTimestamp(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-  };
+  // const handleUserTranscript = (userTranscript: string) => {
+  //   const newMessage: Message = {
+  //     role: "user",
+  //     text: userTranscript,
+  //     timestamp: formatTimestamp(),
+  //   };
+  //   setMessages((prev) => [...prev, newMessage]);
+  // };
 
   // Callback to add a new interviewer (HeyGen API) message.
-  const handleInterviewerTranscript = (interviewerTranscript: string) => {
-    const newMessage: Message = {
-      role: "interviewer",
-      text: interviewerTranscript,
-      timestamp: formatTimestamp(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-  };
+  // const handleInterviewerTranscript = (interviewerTranscript: string) => {
+  //   const newMessage: Message = {
+  //     role: "interviewer",
+  //     text: interviewerTranscript,
+  //     timestamp: formatTimestamp(),
+  //   };
+  //   setMessages((prev) => [...prev, newMessage]);
+  // };
 
   /**
    * Requests backend to get a session token from HeyGen LiveAvatar API.
@@ -96,26 +96,26 @@ export default function NaturalConversationPage() {
   //   await avatarRef.current?.handleInterrupt();
   // };
 
-  const waitForJobResult = async (
-    jobId: string,
-    retries = 10,
-    delay = 3000
-  ) => {
-    for (let i = 0; i < retries; i++) {
-      const statusRes = await axios.get(
-        `http://localhost:8000/api/create_answer/${jobId}`
-      );
+  // const waitForJobResult = async (
+  //   jobId: string,
+  //   retries = 10,
+  //   delay = 3000
+  // ) => {
+  //   for (let i = 0; i < retries; i++) {
+  //     const statusRes = await axios.get(
+  //       `http://localhost:8000/api/create_answer/${jobId}`
+  //     );
 
-      if (statusRes.data.status === "completed") {
-        return axios.get(
-          `http://localhost:8000/api/create_answer/${jobId}/result`
-        );
-      }
+  //     if (statusRes.data.status === "completed") {
+  //       return axios.get(
+  //         `http://localhost:8000/api/create_answer/${jobId}/result`
+  //       );
+  //     }
 
-      await new Promise((res) => setTimeout(res, delay));
-    }
-    throw new Error("Job did not complete in time.");
-  };
+  //     await new Promise((res) => setTimeout(res, delay));
+  //   }
+  //   throw new Error("Job did not complete in time.");
+  // };
 
   // Optional: This function is still available if you need to manually fetch a response.
   const getResponse = async () => {
