@@ -51,7 +51,8 @@ export interface IFeedback {
 export interface IMetrics {
   filler_count: number,
   overall_score: number,
-  wmp: number
+  wmp: number,
+  star_score: number,
 }
 
 /**
@@ -59,7 +60,7 @@ export interface IMetrics {
  */
 export interface IInterview {
   id: string,
-  date: Date,
+  date: string, // MM/DD/YYYY
   createdAt: Timestamp
   duration: string,
   feedback: IFeedback,

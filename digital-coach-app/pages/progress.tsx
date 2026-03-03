@@ -1,35 +1,53 @@
-import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import AuthGuard from "@App/lib/auth/AuthGuard";
-import styles from "@App/styles/ProgressPage.module.scss";
+// import styles from "@App/styles/ProgressPage.module.scss";
+import styles from "@App/styles/HistoryPage.module.scss";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Award, Target, TrendingUp } from "lucide-react";
+import { Award, Target, TrendingUp, Calendar, Clock, ChevronRight } from "lucide-react";
 import { Timestamp, doc, getDoc } from "firebase/firestore";
-import { buttonBaseClasses } from "@mui/material";
 import { IInterview } from "@App/lib/interview/models"
 
 
-export default function ProgressPage() {
-  const { userData } = useAuth();
-  // DELETE: TESTING ONLY: CHECK OLD INTERVIEW PERFORMANCE
-  // const router = useRouter();
-  // useEffect(() => {
-  //   console.log("In Progress Page...");
-  //   router.push("http://localhost:3000/client_test");
-  //   console.log("Querying Interview Results...")
-  // }, []);
-  
-  
-  const [interviews, setInterviews] = useState<number[]>([]); // stores an array of all the user's interviews
+export default function ProgressPage() { 
+  const [interviews, setInterviews] = useState<IInterview[]>([]); // stores an array of all the user's interviews
   const [averageScore, setAverageScore] = useState<number>(100); // user's average score across all interview performances
   const [improvement, setImprovement] = useState<number>(100); // how much the user has improved overtime
   const router = useRouter();
 
   useEffect(() => {
-    // THIS IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
-    // setInterviews([...interviews, 1])
-
-    
+    // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
+    const mockData = {
+        "id": "vsoSA7V72JFdBPMLJL29",
+        "date": "03/04/2024",
+        "createdAt": Timestamp.now(),
+        "duration": "5:30",
+        "feedback": {
+            ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
+            overall_competency: {
+              clarity: {
+                score: 8,
+                summary: "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
+              },
+              confidence: {
+                score: 10,
+                summary: "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
+              },
+              engagement: {
+                score: 9,
+                summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
+              }
+            }
+        },
+        "metrics": {
+            "filler_count": 2,
+            "overall_score": 99,
+            "wmp": 100,
+            "star_score": 98
+        },
+        "transcript": [],
+        "url": "google.com",
+    }
+    setInterviews([...interviews, mockData, mockData])
   }, [])
 
   /**
@@ -50,7 +68,7 @@ export default function ProgressPage() {
    * Computes the user's average performance score.
    */
   const calculateAverage = () => {
-
+   
   }
 
   /**
@@ -58,81 +76,140 @@ export default function ProgressPage() {
    * @param interview The interview the button is for
    */
   const createInterviewBtn = (interview: IInterview) => {
-    <button
+    const btn = <button
       key={interview.id} // identifier for button within an array of buttons
       onClick={() => router.push(`/interview/${interview.id}`)}
       className="interview-item"
       >
 
-      <div className="item-content">
-        <div className="item-main">
-          <div className="item-primary">
-            <div className="score-badge">
-              {interview.metrics.overall_score}
+      <div className={styles.itemContent}>
+        <div className={styles.itemMain}>
+          <div className={styles.itemPrimary}>
+            <div className={styles.scoreBadge}>
+              <span className={styles.scoreValue}>
+                {interview.metrics.overall_score}
+              </span>
+            </div>
+
+            <div className={styles.itemInfo}>
+              <div className={`${styles.infoRow} ${styles.date}`}>
+                <Calendar/>
+                <span>
+                  {new Date(interview.date).toLocaleDateString("en-US", { 
+                    weekday: "long",
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric" 
+                  })}
+                </span>
+              </div>
+              <div className={`${styles.infoRow} ${styles.duration}`}>
+                <Clock/>
+                <span>
+                  Duration: {interview.duration}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.itemMetrics}>
+            <div className={styles.metric}>
+              <div className={styles.metricHeader}>
+                <Award/>
+                <span>STAR</span>
+              </div>
+              <span className={styles.metricValue}>
+                  {interview.metrics.star_score}
+              </span>
+            </div>
+                
+            <div className={styles.metric}>
+              <div className={styles.metricHeader}>
+                <TrendingUp/>
+                <span>Pacing</span>
+              </div>
+              <span className={styles.metricValue}>
+                {interview.metrics.wmp}
+              </span>
+            </div>
+
+            <div className={styles.metric}>
+              <div className={styles.metricHeader}>
+                <Target/>
+                <span>Fillers</span>
+              </div>
+              <span className={styles.metricValue}>
+                {interview.metrics.filler_count}
+              </span>
             </div>
           </div>
         </div>
+
+        <ChevronRight className={styles.chevronIcon}/>
       </div>
     </button>
-  }
 
+    return btn;
+  }
   return (
     <AuthGuard>
       <div className={styles.ProgressPage}>
-        <p>Interview History</p>
-        <p>This is the new interview history page</p>
+        <div className={styles.pageHeader}>
+          <h1>Interview History</h1>
+          <p>Track your interview results and performance over time.</p>
+        </div>
 
         {/* Statistics */}
         {interviews.length > 0 && (
-          <div className="statistics-grid">
+          <div className={styles.statisticsGrid}>
             {/* Interview Count */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon">
+            <div className={styles.statCard}>
+              <div className={styles.statHeader}>
+                <div className={styles.statIcon}>
                   <Award/>
                 </div>
 
                 <h3>Total Interviews</h3>
               </div>
-              <p>{interviews.length}</p>
+              <p className={styles.statValue}>{interviews.length}</p>
             </div>
 
             {/* Average Score */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon">
+            <div className={styles.statCard}>
+              <div className={styles.statHeader}>
+                <div className={styles.statIcon}>
                   <Target/>
                 </div>
                 <h3>Average Score</h3>
               </div>
-              <p>{averageScore}</p>
+              <p className={styles.statValue}>{averageScore}</p>
             </div>
 
             {/* Overall Improvement */}
-            <div className="stat-card">
-              <div className="stat-header">
-               <div className="stat-icon">
+            <div className={styles.statCard}>
+              <div className={styles.statHeader}>
+               <div className={styles.statIcon}>
                   <TrendingUp/>
                 </div> 
                 <h3>Momentum</h3>
-                <p className={"stat-value"}>{improvement}</p>
-                <p className="stat-label">Improvement over time</p>
               </div>
+                <p className={styles.statValue}>{improvement}</p>
+                <p className={styles.statLabel}>Improvement over time</p>
             </div>
           </div>
         )}
 
         {/* Interview List */}
-        <div className="interviews-list">
-          <div className="list-header">
+        <div className={styles.interviewsList}>
+          <div className={styles.listHeader}>
             <h2>Past Interviews</h2>
           </div>
         </div>
 
         {/* Handle case where there's no interview */}
         {interviews.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>
               <Award/>
             </div>
             <h3>No interviews yet</h3>
@@ -145,9 +222,9 @@ export default function ProgressPage() {
                 </button>
           </div>
         ) : (
-          // for every interview, create a button that navigates them to their individual results
-          <div>
-
+          // for every interview, create a button that navigates them to their individual results (i.e. /interviews/:id)
+          <div className={styles.tableContainer}>
+              {interviews.map((interview) => createInterviewBtn(interview))}
           </div>
         )}
       </div>
