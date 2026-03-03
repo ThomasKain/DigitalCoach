@@ -41,6 +41,10 @@ export interface IFeedback {
     engagement: {
       score: number,
       summary: string,
+    },
+    star: {
+      score: number,
+      summary: string,
     }
   }
 }
@@ -51,8 +55,7 @@ export interface IFeedback {
 export interface IMetrics {
   filler_count: number,
   overall_score: number,
-  wmp: number,
-  star_score: number,
+  wpm: number,
 }
 
 /**
@@ -61,8 +64,8 @@ export interface IMetrics {
 export interface IInterview {
   id: string,
   date: string, // MM/DD/YYYY
-  timeStarted: string // HH:MM 24-hour
-  duration: string,
+  timeStarted: string  // HH:MM 24-hour
+  duration: string, // MMm SSs, e.g. 10m 43s not 0-padded
   feedback: IFeedback,
   metrics: IMetrics,
   transcript: string[],

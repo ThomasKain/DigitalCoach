@@ -68,9 +68,10 @@ export default function NaturalConversationPage() {
   const handleStartInterview = async () => {
     // request heygen session token
     console.log("Requesting Interview Session...")
-
+    const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
+    console.log(`Using ${host} for the host.`);
     try {
-      const response = await fetch('http://localhost:8000/api/heygen/session_token', {
+      const response = await fetch(`http://${host}/api/heygen/session_token`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -118,43 +119,43 @@ export default function NaturalConversationPage() {
   // };
 
   // Optional: This function is still available if you need to manually fetch a response.
-  const getResponse = async () => {
-    try {
-      const getFile = async () => {
-        const url = mediaBlobUrl || "/output.mp4";
-        let blob = await fetch(url).then((res) => res.blob());
-        return new File([blob], "video.mp4");
-      };
-      const file = await getFile();
+  // const getResponse = async () => {
+  //   try {
+  //     const getFile = async () => {
+  //       const url = mediaBlobUrl || "/output.mp4";
+  //       let blob = await fetch(url).then((res) => res.blob());
+  //       return new File([blob], "video.mp4");
+  //     };
+  //     const file = await getFile();
 
-      const dlURL = await uploadAnswerVideo(file, uuidv4());
-      console.log("Video Uploaded to:", dlURL);
+  //     const dlURL = await uploadAnswerVideo(file, uuidv4());
+  //     console.log("Video Uploaded to:", dlURL);
       
-      // const url = (await uploadAnswerVideo(
-      //   file,
-      //   uuidv4()
-      // )) as any;
-      // const dlURL = await StorageService.getDownloadUrlFromVideoUrlRef(
-      //   "gs://" + url.ref._location.bucket + "/" + url.ref._location.path
-      // );
-      // console.log(dlURL);
+  //     // const url = (await uploadAnswerVideo(
+  //     //   file,
+  //     //   uuidv4()
+  //     // )) as any;
+  //     // const dlURL = await StorageService.getDownloadUrlFromVideoUrlRef(
+  //     //   "gs://" + url.ref._location.bucket + "/" + url.ref._location.path
+  //     // );
+  //     // console.log(dlURL);
 
-      const sentResponse = await axios.post(
-        "http://localhost:8000/api/create_answer/",
-        {
-          video_url: dlURL,
-        }
-      );
-      const jobId = sentResponse.data.job_id;
+  //     const sentResponse = await axios.post(
+  //       "http://localhost:8000/api/create_answer/",
+  //       {
+  //         video_url: dlURL,
+  //       }
+  //     );
+  //     const jobId = sentResponse.data.job_id;
 
-      const jobIdResponse = await waitForJobResult(jobId);
+  //     const jobIdResponse = await waitForJobResult(jobId);
 
-      console.log(jobIdResponse);
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred while processing the recording.");
-    }
-  };
+  //     console.log(jobIdResponse);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     alert("An error occurred while processing the recording.");
+  //   }
+  // };
 
   // useEffect(() => {
   //   if (videoRef.current) {

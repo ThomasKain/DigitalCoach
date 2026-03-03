@@ -45,9 +45,9 @@ def start_seed():
     )
     interview1 = {
         "id": "vsoSA7V72JFdBPMLJL29",
-        "date": "03/04/2024",
+        "date": "03/04/2024", # MM/DD/YY
         "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 24-hour
-        "duration": "5:30",
+        "duration": "5m 30s", # MMm SSs (not 0-padded)
         "feedback": {
             "ai_feedback": "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
             "overall_competency": {
@@ -62,14 +62,17 @@ def start_seed():
             "engagement": {
                 "score": 9,
                 "summary": "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
+            },
+            "star": {
+                "score": 88,
+                "summary": "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
             }
             }
         },
         "metrics": {
             "filler_count": 2,
             "overall_score": 99,
-            "wmp": 100,
-            "star_score": 98
+            "wpm": 100,
         },
         "transcript": [],
         "url": "https://google.com",

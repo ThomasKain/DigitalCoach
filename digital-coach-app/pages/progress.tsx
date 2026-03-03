@@ -19,7 +19,7 @@ export default function ProgressPage() {
       "id": "vsoSA7V72JFdBPMLJL29",
       "date": "03/04/2024",
       "timeStarted": "20:30",
-      "duration": "5:30",
+      "duration": "5m 30s",
       "feedback": {
           ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
           overall_competency: {
@@ -34,14 +34,17 @@ export default function ProgressPage() {
             engagement: {
               score: 9,
               summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
+            },
+            star: {
+                score: 88,
+                summary: "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
             }
           }
       },
       "metrics": {
           "filler_count": 2,
           "overall_score": 99,
-          "wmp": 100,
-          "star_score": 98
+          "wpm": 100,
       },
       "transcript": [],
       "url": "google.com",
@@ -122,7 +125,7 @@ export default function ProgressPage() {
                 <span>STAR</span>
               </div>
               <span className={styles.metricValue}>
-                  {interview.metrics.star_score}
+                  {interview.feedback.overall_competency.star.score}
               </span>
             </div>
                 
@@ -132,7 +135,7 @@ export default function ProgressPage() {
                 <span>Pacing</span>
               </div>
               <span className={styles.metricValue}>
-                {interview.metrics.wmp}
+                {interview.metrics.wpm}
               </span>
             </div>
 
