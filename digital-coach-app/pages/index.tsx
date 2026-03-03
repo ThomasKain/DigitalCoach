@@ -116,7 +116,7 @@ const Home: NextPage = () => {
                 <Video size={20} />
                 <span>Start Mock Interview</span>
               </Link>
-              <Link href="/client_test" className={styles.secondaryCta}>
+              <Link href="/progress" className={styles.secondaryCta}>
               {/* TODO: Add a link to the interview history page */}
                 <History size={20} />
                 <span>View Interview History</span>
