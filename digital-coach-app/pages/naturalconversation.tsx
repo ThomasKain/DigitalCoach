@@ -8,7 +8,7 @@ import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import VideoRecorder from "@App/components/video";
-
+import { useRouter } from "next/router";
 
 type Role = "user" | "interviewer";
 interface Message {
@@ -36,9 +36,8 @@ export default function NaturalConversationPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const [token, setToken] = useState("");
-
+  
   // const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
   //   useReactMediaRecorder({ video: true });
 
@@ -89,8 +88,28 @@ export default function NaturalConversationPage() {
     }
   };
 
-  const handleStopInterview = async () => {
+  /**
+   * Handle creating a new interview document within the user's collection of interviews using the interview's data like its duration.
+   */
+  const handleStopInterview = async (duration: string, timeStarted: string) => {
+    const newInterview = {
+      id: uuidv4(), // create intreview id
+      date: new Date().toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric"
+      }), // MM/DD/YYYY
+      timeStarted, // HH:MM AM/PM
+      duration, // MMm SSs
+      // these values will be populated later by the backend once the interview has been processed
+      feedback: undefined,
+      metrics: undefined,
+      transcript: undefined,
+      url: undefined,
+    }
 
+    // reroute user to interview's webpage 
+    
   }
 
   // const handleInterruptAvatar = async () => {
@@ -172,15 +191,14 @@ export default function NaturalConversationPage() {
         {/* Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
           <div className={styles.videoContainer}>
-            {/* Camera Error Notification */}
-            
+              {/* Camera Error Notification */}
+
             {/* User Webcam */}
             {/* This displays the live video coming from the user's camera */}
             <div className={styles.videoBox}>
               <VideoRecorder
                 startInterview={handleStartInterview}
                 stopInterview={handleStopInterview}
-                setCameraError={setCameraError}
               />
             </div>
             

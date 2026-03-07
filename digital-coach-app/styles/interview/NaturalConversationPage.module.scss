@@ -32,7 +32,7 @@ $border-radius-main: 16px;
   grid-template-columns: 1fr 1fr; // Two equal columns
   gap: 2rem;
   width: 100%;
-  align-items: start; // Prevents the AI column from stretching to match the button column
+  align-items: start; // Prevents the AI avatar column from stretching to match the button column
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr; // Stacks vertically on smaller screens
@@ -45,7 +45,7 @@ $border-radius-main: 16px;
   flex-direction: column;
   gap: 1.5rem; // Space between the video card and the start recording button
   width: 100%;
-  min-width: 0; // STRICT SIZING FIX: Prevents the video's intrinsic width from breaking the grid column
+  min-width: 0; // Prevents the video's width from breaking the grid column
 }
 
 // ==========================================
@@ -85,14 +85,14 @@ $border-radius-main: 16px;
 
 // Container that holds the actual <video> element
 .videoContent {
-  // STRICT SIZING FIX: "1 1 0%" forces it to calculate height strictly based on the parent (.videoCard) rather than the child (<video>)
+  // "1 1 0%" forces it to calculate height strictly based on the parent (.videoCard) rather than the child (<video>)
   flex: 1 1 0%; 
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #000;
-  overflow: hidden; // STRICT SIZING FIX: Clips the video if it tries to render outside the boundaries
+  overflow: hidden; // Clips the video if it tries to render outside the boundaries
 
   video {
     width: 100%;
@@ -123,6 +123,49 @@ $border-radius-main: 16px;
     margin: 0;
     letter-spacing: 0.5px; // Adds a tiny bit of space between letters for readability
   }
+}
+
+.cameraErr {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: rgba($brand-orange, 0.1); // Soft orange tint
+  border: 1px solid $brand-orange;
+  color: darken($brand-orange, 10%); // Slightly darkened for better text readability on white
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1rem; // Space between the error and the timer/video
+  width: 100%;
+
+  // Targets the Lucide <CircleAlert /> icon
+  svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0; // Prevents the icon from squishing if the text wraps
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+}
+
+// The session countdown timer
+.timerDisplay {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: $brand-navy;
+  margin: 0 0 0.75rem 0; // Pushes the video card down slightly
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; // Aligns the timer to the right side above the camera
+  width: 100%;
+}
+
+.timerWarning {
+  color: $brand-orange
 }
 
 // ==========================================
@@ -176,12 +219,19 @@ $border-radius-main: 16px;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 12px rgba($brand-orange, 0.3);
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: darken($brand-orange, 8%);
     transform: translateY(-2px);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(0);
+  }
+
+  &:disabled {
+    background-color: rgba($brand-navy, 0.1);
+    color: rgba($text-dark, 0.4);
+    cursor: not-allowed;
+    box-shadow: none;
   }
 }

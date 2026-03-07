@@ -64,7 +64,7 @@ export interface IMetrics {
 export interface IInterview {
   id: string,
   date: string, // MM/DD/YYYY
-  timeStarted: string  // HH:MM 24-hour
+  timeStarted: string  // HH:MM 12-hour
   duration: string, // MMm SSs, e.g. 10m 43s not 0-padded
   feedback: IFeedback,
   metrics: IMetrics,
