@@ -1,29 +1,29 @@
 import React, { useRef, useState, useEffect } from "react";
 // import styles from "@App/styles/NaturalConversationPage.module.scss";
-import { Video, VideoOff, Mic, MicOff, CircleAlert, Play } from "lucide-react"; 
+import { Video, VideoOff, Mic, MicOff } from "lucide-react"; 
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
+export const MAX_SESSION_TIME = 1 * 60; // sandbox mode for HeyGen LiveAvatar only lasts for 1 minute  
+const MIN_SESSION_DURATION = 0; // minimum duration for an interview for it to be counted
 
 // Define the shape of this components props
 interface VideoRecorderProps {
     startInterview: () => Promise<void>;
     stopInterview: (duration: string, timeStarted: string) => Promise<void>;
+    timeLeft: number; // timer
+    setTimeLeft: React.Dispatch<React.SetStateAction<number>>; // pass in the setter for the parent's timeLeft state
+    setCameraError: React.Dispatch<React.SetStateAction<string>>; // pass in the setter for the parent's cameraError state
 }
-
-const MAX_SESSION_TIME = 1 * 60; // sandbox mode for HeyGen LiveAvatar only lasts for 1 minute  
-const MIN_SESSION_DURATION = 20; // minimum duration for an interview for it to be counted
 
 /**
  * Handles recording the user's camera and audio.
  */
-function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
+function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, setCameraError}: VideoRecorderProps) {
     const [isRecording, setIsRecording] = useState(false); // keep track of recording state
-    const [timeLeft, setTimeLeft] = useState(MAX_SESSION_TIME); 
     const [stream, setStream] = useState<MediaStream>(); // stores user's camera stream
     const [videoURL, setVideoURL] = useState<string>(); // download URL for user's side of the interview
     const [videoEnabled, setVideoEnabled] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(false);
-    const [cameraError, setCameraError] = useState("");
 
     const videoRef = useRef<HTMLVideoElement>(null); // reference to video element 
     const mediaRecorderRef = useRef<MediaRecorder>(null); // reference to media recorder recording user's video/audio
@@ -138,7 +138,6 @@ function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
         setTimeLeft(MAX_SESSION_TIME); // restart timer
         setVideoURL(""); // clear out old recording url 
         
-
         // invoke callback from parent component (expected to start HeyGen Session)
         await startInterview();
     }
@@ -157,7 +156,6 @@ function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
             }
             setIsRecording(false);
             
-            
             // check if interview was too short to be counted
             const duration = MAX_SESSION_TIME - timeLeft; 
             if (duration < MIN_SESSION_DURATION) {
@@ -171,16 +169,6 @@ function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
         }
     }
     
-    /**
-     * Format time remaining into MM:SS
-     * @param seconds Duration in seconds.
-     */
-    const formatTimer = (seconds: number) => {
-        const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
-        const secs = (seconds % 60).toString().padStart(2, "0"); 
-        return `${mins}:${secs}`;
-    }
-
     /**
      * Format duration into MMm SSs not 0-padded
      * @param seconds 
@@ -221,9 +209,8 @@ function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
             
         } catch (error) {
             console.error(`Error accessing media device: ${error}`);
-            alert("Please allow video and audio permissions to start. You may disable them before recording begins.");
             if (error instanceof Error) {
-                setCameraError(error.message);
+                setCameraError(`${error.message}: Please allow video and audio permissions to proceed. You may disable them before recording begins.`);
                 setVideoEnabled(false);
             }
 
@@ -233,13 +220,7 @@ function VideoRecorder({startInterview, stopInterview}: VideoRecorderProps) {
 
     return (
         <>
-        {cameraError && (
-            <div className={styles.cameraErr}>
-                <CircleAlert/>
-                <p>{cameraError}</p> 
-            </div>
-        )}
-        <p className={`${styles.timerDisplay} ${timeLeft < 20 ? styles.timerWarning : ""}`}>Timer: {formatTimer(timeLeft)}</p>
+        
         <div className={styles.videoCard}>
             <div className={`${styles.videoHeader} ${styles.userHeader}`}>
                 <p>Your Camera</p>

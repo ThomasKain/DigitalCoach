@@ -7,6 +7,7 @@ from routes import (
     star_feedback,
     audio_analysis,
     heygen,
+    interview,
     test_firebase # this is for testing backend's connection to firebase
 )
 
@@ -57,4 +58,5 @@ app.include_router(create_answer.router)
 app.include_router(star_feedback.router)
 app.include_router(audio_analysis.router)
 app.include_router(heygen.router)
+app.include_router(interview.router)
 app.include_router(test_firebase.router) # this is for testing only

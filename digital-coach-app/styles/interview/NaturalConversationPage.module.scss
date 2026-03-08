@@ -154,18 +154,28 @@ $border-radius-main: 16px;
 
 // The session countdown timer
 .timerDisplay {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: $brand-navy;
-  margin: 0 0 0.75rem 0; // Pushes the video card down slightly
+  margin: 0 0 1rem 0; // Pushes the video card down
   display: flex;
   align-items: center;
-  justify-content: flex-end; // Aligns the timer to the right side above the camera
+  justify-content: flex-start; // Aligns the timer to the left side
   width: 100%;
+  transition: color 0.3s ease;
 }
 
 .timerWarning {
-  color: $brand-orange
+  color: $brand-orange;
+  animation: pulseWarning 1.5s infinite; // run pulsing effect 
+}
+
+
+// animation for when timer is running out, pulsing effect
+@keyframes pulseWarning {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 // ==========================================
