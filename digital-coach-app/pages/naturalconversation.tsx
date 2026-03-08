@@ -100,7 +100,7 @@ export default function NaturalConversationPage() {
    */
   const handleStopInterview = async (duration: string, timeStarted: string) => {
     const newInterview = {
-      interviewId: uuidv4(), // create intreview id
+      id: uuidv4(), // create intreview id
       date: new Date().toLocaleDateString("en-US", {
         month: "2-digit",
         day: "2-digit",
@@ -129,13 +129,13 @@ export default function NaturalConversationPage() {
       }, 
       body: JSON.stringify(req),
     });
-    // reroute user to interview's webpage
     if (!response.ok) {
       const errData = await response.json();
-      throw new Error(JSON.stringify(errData));
+      alert(`Error creating interview: ${JSON.stringify(errData)}`);
     }
-    console.log(response);
-    // router.push(`/interview/${newInterview.id}`);
+    
+    // reroute user to interview's webpage
+    router.push(`/interviews/${newInterview.id}`);
   }
 
   // const handleInterruptAvatar = async () => {

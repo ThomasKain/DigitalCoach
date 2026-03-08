@@ -46,7 +46,7 @@ class Interview(BaseModel):
     
     (Note: This should match the IInterview interface in /digital-coach-app/lib/interview/models.ts)
     """
-    interviewId: str # id for the interview
+    id: str # id for the interview
     date: str # MM/DD/YYYY
     timeStarted: str # HH:MM 12-hour
     duration: str # MMm SSs, e.g. 10m 43s not 0-padded

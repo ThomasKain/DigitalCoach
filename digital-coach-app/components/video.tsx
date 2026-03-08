@@ -4,7 +4,7 @@ import { Video, VideoOff, Mic, MicOff } from "lucide-react";
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
 export const MAX_SESSION_TIME = 1 * 60; // sandbox mode for HeyGen LiveAvatar only lasts for 1 minute  
-const MIN_SESSION_DURATION = 0; // minimum duration for an interview for it to be counted
+const MIN_SESSION_DURATION = 20; // minimum duration for an interview for it to be counted
 
 // Define the shape of this components props
 interface VideoRecorderProps {
@@ -50,7 +50,6 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
         // stop timer
         return () => clearInterval(timer);
         
-
     }, [isRecording, timeLeft]);
 
     useEffect(() => {
@@ -288,8 +287,8 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
                 </button>}
            
             {/* If the video download URL is ready, store it in Firebase for preview later */}
-            {videoURL 
-            ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>}
+            {/* {videoURL 
+            ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>} */}
         </div>
         </>
 

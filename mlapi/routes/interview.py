@@ -17,16 +17,15 @@ router = APIRouter(prefix="/api/interview", tags=["interview"])
 async def create_interview(request: CreateInterviewRequest):
     db = get_firestore_client()
     logger.info(f"Attempting to create new interview document for user={request.userId}...")
-    print(request.interview)
     try:
-
-        interview = request.interview.model_dump() # convert interview pydantic object into a dictionary 
+        # convert interview pydantic object into a dictionary 
+        interview = request.interview.model_dump()
 
         # get reference to user's interview collection
         interviewRef = db.collection("users").document(request.userId).collection("interviews")
         
         # add interview document to user's interview using the given interview id
-        interviewRef.document(interview.interviewId).set(interview)
+        interviewRef.document(interview["id"]).set(interview)
 
         logger.info("Inserted new interview!")
         return CreateInterviewResponse(success=True)
