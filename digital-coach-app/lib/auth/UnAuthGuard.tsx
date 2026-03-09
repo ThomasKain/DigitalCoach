@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import Spinner from "@App/components/atoms/Spinner"
 
 /**
  * Prevents users who have an account (regardless of whether they completed their profile) from accessing the account creation pages, i.e. /signup and /login pages.
@@ -30,8 +31,7 @@ export default function UnAuthGuard({children} : {children: React.ReactNode}) {
 
   // while waiting for firebase to check whether user is logged in or if user is found, show loading page until redirection above occurs
   if (loading || user) { 
-    // return null;
-    return <div>Loading...</div>
+    return <Spinner />
   };
 
   // only render children if we can't find the user
