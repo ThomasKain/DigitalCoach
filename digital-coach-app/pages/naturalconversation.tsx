@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import { CircleAlert } from "lucide-react";
 import { MAX_SESSION_TIME } from "@App/components/video";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
-
+import Spinner from "@App/components/atoms/Spinner";
 
 type Role = "user" | "interviewer";
 interface Message {
@@ -45,6 +45,9 @@ export default function NaturalConversationPage() {
   const [cameraError, setCameraError] = useState("");
   const { user } = useAuth();
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   // const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
   //   useReactMediaRecorder({ video: true });
 
@@ -73,7 +76,9 @@ export default function NaturalConversationPage() {
    */
   const handleStartInterview = async () => {
     // request heygen session token
-    console.log("Requesting Interview Session...")
+    console.log("Requesting Interview Session...");
+    setIsLoading(true);
+    setLoadingMessage("Requesting Interview Session...");
     const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
     console.log(`Using ${host} for the host.`);
     try {
@@ -92,6 +97,8 @@ export default function NaturalConversationPage() {
       }
     } catch (error) {
         console.error(`Submission error: ${error}`);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -114,11 +121,14 @@ export default function NaturalConversationPage() {
       transcript: undefined,
       url: undefined,
     }
+
     const req = {
       userId: user!.uid,
       interview: newInterview,
     }
     // submit new interview to backend
+    setIsLoading(true);
+    setLoadingMessage("Submitting Interview Session...");
     console.log("Submitting Interview Session...")
     const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
     console.log(`Using ${host} for the host.`);
@@ -132,8 +142,10 @@ export default function NaturalConversationPage() {
     if (!response.ok) {
       const errData = await response.json();
       alert(`Error creating interview: ${JSON.stringify(errData)}`);
+      setIsLoading(false);
+      return;
     }
-    
+    setIsLoading(false); // turn submission loading screen off before we get to the loading screen for route changes
     // reroute user to interview's webpage
     router.push(`/interviews/${newInterview.id}`);
   }
@@ -227,37 +239,42 @@ export default function NaturalConversationPage() {
       <div className={styles.pageContainer}>
         {/* Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
-            {/* Camera Error Notification */}
-            {cameraError && (
-                <div className={styles.cameraErr}>
-                    <CircleAlert/>
-                    <p>{cameraError}</p> 
-                </div>
-            )}
-            <p className={`${styles.timerDisplay} ${timeLeft < 20 ? styles.timerWarning : ""}`}>
-              Timer: {formatTimer(timeLeft)}
-            </p>
+          {isLoading && (
+            <Spinner message={loadingMessage} />
+          )}
+          <div style={{ display: isLoading ? "none" : "block", width: "100%" }}>
+              {/* Camera Error Notification */}
+              {cameraError && (
+                  <div className={styles.cameraErr}>
+                      <CircleAlert/>
+                      <p>{cameraError}</p> 
+                  </div>
+              )}
+              <p className={`${styles.timerDisplay} ${timeLeft < 20 ? styles.timerWarning : ""}`}>
+                Timer: {formatTimer(timeLeft)}
+              </p>
 
-          {/* Video Grid */}
-          <div className={styles.videoContainer}>
-            {/* User Webcam */}
-            {/* This displays the live video coming from the user's camera */}
-            <div className={styles.videoBox}>
-              <VideoRecorder
-                startInterview={handleStartInterview}
-                stopInterview={handleStopInterview}
-                timeLeft={timeLeft}
-                setTimeLeft={setTimeLeft}
-                setCameraError={setCameraError}
-              />
-            </div>
-            
-            {/* AI Interviewer */}
-            {/* After receiving a sessionToken, this handles starting and stopping the session. */}
-            <div className={styles.videoBox}>
-              <InteractiveAvatar
-                sessionToken={token}
-              />
+            {/* Video Grid */}
+            <div className={styles.videoContainer}>
+              {/* User Webcam */}
+              {/* This displays the live video coming from the user's camera */}
+              <div className={styles.videoBox}>
+                <VideoRecorder
+                  startInterview={handleStartInterview}
+                  stopInterview={handleStopInterview}
+                  timeLeft={timeLeft}
+                  setTimeLeft={setTimeLeft}
+                  setCameraError={setCameraError}
+                />
+              </div>
+              
+              {/* AI Interviewer */}
+              {/* After receiving a sessionToken, this handles starting and stopping the session. */}
+              <div className={styles.videoBox}>
+                <InteractiveAvatar
+                  sessionToken={token}
+                />
+              </div>
             </div>
           </div>
         </div>
