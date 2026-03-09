@@ -3,7 +3,7 @@ import Avatar from '@App/components/atoms/Avatar';
 import Card from '@App/components/atoms/Card';
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import AuthGuard from '@App/lib/auth/AuthGuard';
-import { fetchUserInterviews } from '@App/lib/interview/InterviewService';
+// import { fetchUserInterviews } from '@App/lib/interview/InterviewService';
 
 import styles from '@App/styles/ProfilePage.module.scss';
 
@@ -100,15 +100,15 @@ function ProfilePage() {
 
 
 
-  useEffect(() => {
-    const getInterviews = async () => {
-	  if (!user) return;
-      const result = await fetchUserInterviews(user.uid);
-	    console.log(result);
-      setInterviews(result.docs.map((doc) => doc.data()));
-    };
-    getInterviews();
-  }, [user]);
+//   useEffect(() => {
+//     const getInterviews = async () => {
+// 	  if (!user) return;
+//       const result = await fetchUserInterviews(user.uid);
+// 	    console.log(result);
+//       setInterviews(result.docs.map((doc) => doc.data()));
+//     };
+//     getInterviews();
+//   }, [user]);
 
   return (
     <div className={styles.ProfilePage}>

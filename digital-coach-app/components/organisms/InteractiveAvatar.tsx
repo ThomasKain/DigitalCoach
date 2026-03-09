@@ -252,10 +252,12 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
   }
 
   useEffect(() => {
+    // start session once session token is received
     if (sessionToken) {
       startSession();
     }
 
+    // stop heygen session when component unmounts
     return () => {
       stopSession();
     }
