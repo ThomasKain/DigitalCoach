@@ -88,10 +88,9 @@ def start_seed():
         "name": "Marzia Bartalotti",
         "proficiency": "Student",
         "registrationCompletedAt": datetime.now().strftime("%m/%d/%Y"),
-        # "interviews": [interview1],
     }
-    db.collection("users").document(f"{user1.uid}").set(data1)
-    db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1)
+    db.collection("users").document(f"{user1.uid}").set(data1) # add user
+    db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1) # add interview to user's account
     
 
     print(f"Created user with authentication id={user1.uid}")
