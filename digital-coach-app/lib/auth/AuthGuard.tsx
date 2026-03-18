@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import Spinner from "@App/components/atoms/Spinner"
 
 export default function AuthGuard({children} : {children: React.ReactNode}) {
   const {user, loading} = useAuth(); // extract user identity from Firebase Authentication and loading flag to check if Firebase is done verifying that user is logged in
@@ -17,7 +18,7 @@ export default function AuthGuard({children} : {children: React.ReactNode}) {
 
   // while waiting for authentication, return a loading page
   if (loading) {
-    return <div>Loading...</div>
+    return <Spinner />
   }
 
   // if we're on a page that requires the user to be logged in, and there isn't a user, return null causing a redirect

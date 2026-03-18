@@ -80,7 +80,7 @@ services:
       - ./mlapi:/app # Mount backend code for live development
       - /app/.venv # Preserves the virtual environment inside the container
       - ./mlapi/digital-coach-firebase-adminsdk.json:/app/digital-coach-firebase-adminsdk.json
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 # Start the API for development, use --reload for auto-reload but is CPU intensive. This overrides the default CMD in the Dockerfile which is meant for production.
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 # Start the API for development, use --reload for auto-reload but its CPU intensive. This overrides the default CMD in the Dockerfile which is meant for production.
     depends_on:
       - redis # Ensure Redis is started before the API
       - firebase # Ensure firebase starts before the backend tries to connect to it

@@ -50,6 +50,7 @@ export default function InterviewResults() {
     
     useEffect(() => {
         setInterview(mockData);
+        alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interview's data.")
     }, []);
 
     /**

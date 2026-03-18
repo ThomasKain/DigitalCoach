@@ -1,7 +1,7 @@
 .DS_Store
 /mit-dataset/*
 /ml/dataset/*
-
+.vscode
 # Logs
 logs
 *.log

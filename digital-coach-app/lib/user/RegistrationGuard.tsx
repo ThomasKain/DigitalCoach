@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import Spinner from "@App/components/atoms/Spinner"
 
 /**
  * Prevents guests (users who don't have accounts) and fully logged in users from accessing the profile creation page (i.e. /register).
@@ -34,9 +35,9 @@ export default function RegistrationGuard({children}: {children: React.ReactNode
     }
   }, [user, userData, loading, router]);
 
-  // show nothing while waiting for authentication
+  // while waiting for authentication, return a loading page
   if (loading || !user || userData?.registrationCompletedAt) {
-    return null;
+    return <Spinner />
   }
 
   // only show children (i.e. registration page) if the user is logged in but didn't complete their profile

@@ -25,7 +25,8 @@ import { DocumentReference, Timestamp } from "firebase/firestore";
 // }
 
 /**
- * Interface for AI-generated feedback which provides overall feedback, clarity of responses, confidence in the responses, and how engaging the responses were.
+ * Interface for AI-generated feedback which provides overall feedback, clarity of responses, confidence in the responses, and how engaging the responses were. 
+ * (Note: This should match the Feedback Pydantic model in /mlapi/schemas/interview.py)
  */
 export interface IFeedback {
   ai_feedback: string,
@@ -50,7 +51,9 @@ export interface IFeedback {
 }
 
 /**
- * Interface for all performance metrics computed from an interview.s
+ * Interface for all performance metrics computed from an interview.
+ * 
+ * (Note: This should match the Metrics Pydantic model in /mlapi/schemas/interview.py)
  */
 export interface IMetrics {
   filler_count: number,
@@ -60,15 +63,17 @@ export interface IMetrics {
 
 /**
  * Interview for how an interview is stored in the database.
+ * 
+ * (Note: This should match the Interview Pydantic model in /mlapi/schemas/interview.py)
  */
 export interface IInterview {
   id: string,
   date: string, // MM/DD/YYYY
-  timeStarted: string  // HH:MM 24-hour
+  timeStarted: string  // HH:MM 12-hour
   duration: string, // MMm SSs, e.g. 10m 43s not 0-padded
   feedback: IFeedback,
   metrics: IMetrics,
-  transcript: string[],
+  transcript: string[] | string, // transcript may either be an array of dialogues from avatar and user or a single long string
   url: string,
 }
 

@@ -52,6 +52,7 @@ export default function ProgressPage() {
 
   useEffect(() => {
     setInterviews([...interviews, mockData, mockData])
+    alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interviews' data.")
   }, [])
 
   /**
@@ -62,14 +63,14 @@ export default function ProgressPage() {
   }
 
   /**
-   * Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression. Currently using exponential moving average (EMA) where recent performance scores have more weight in computing the average which prioritizes the user's most recent capability to interview.
+   * TODO: Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression. Currently using exponential moving average (EMA) where recent performance scores have more weight in computing the average which prioritizes the user's most recent capability to interview.
    */
   const calculateImprovement = () => {
 
   }
 
   /**
-   * Computes the user's average performance score.
+   * TODO: Computes the user's average performance score.
    */
   const calculateAverage = () => {
    
@@ -157,6 +158,7 @@ export default function ProgressPage() {
 
     return btn;
   }
+  
   return (
     <AuthGuard>
       <div className={styles.ProgressPage}>

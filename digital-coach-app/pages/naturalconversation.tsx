@@ -8,7 +8,11 @@ import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import VideoRecorder from "@App/components/video";
-
+import { useRouter } from "next/router";
+import { CircleAlert } from "lucide-react";
+import { MAX_SESSION_TIME } from "@App/components/video";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import Spinner from "@App/components/atoms/Spinner";
 
 type Role = "user" | "interviewer";
 interface Message {
@@ -36,9 +40,14 @@ export default function NaturalConversationPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const [token, setToken] = useState("");
+  const [timeLeft, setTimeLeft] = useState(MAX_SESSION_TIME);
+  const [cameraError, setCameraError] = useState("");
+  const { user } = useAuth();
+  const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   // const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
   //   useReactMediaRecorder({ video: true });
 
@@ -67,7 +76,9 @@ export default function NaturalConversationPage() {
    */
   const handleStartInterview = async () => {
     // request heygen session token
-    console.log("Requesting Interview Session...")
+    console.log("Requesting Interview Session...");
+    setIsLoading(true);
+    setLoadingMessage("Requesting Interview Session...");
     const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
     console.log(`Using ${host} for the host.`);
     try {
@@ -86,11 +97,57 @@ export default function NaturalConversationPage() {
       }
     } catch (error) {
         console.error(`Submission error: ${error}`);
+    } finally {
+        setIsLoading(false);
     }
   };
 
-  const handleStopInterview = async () => {
+  /**
+   * Handle creating a new interview document within the user's collection of interviews using the interview's data like its duration.
+   */
+  const handleStopInterview = async (duration: string, timeStarted: string) => {
+    const newInterview = {
+      id: uuidv4(), // create intreview id
+      date: new Date().toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric"
+      }), // MM/DD/YYYY
+      timeStarted, // HH:MM AM/PM
+      duration, // MMm SSs
+      // these values will be populated later by the backend once the interview has been processed
+      feedback: undefined,
+      metrics: undefined,
+      transcript: undefined,
+      url: undefined,
+    }
 
+    const req = {
+      userId: user!.uid,
+      interview: newInterview,
+    }
+    // submit new interview to backend
+    setIsLoading(true);
+    setLoadingMessage("Submitting Interview Session...");
+    console.log("Submitting Interview Session...")
+    const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
+    console.log(`Using ${host} for the host.`);
+    const response = await fetch(`http://${host}/api/interview`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }, 
+      body: JSON.stringify(req),
+    });
+    if (!response.ok) {
+      const errData = await response.json();
+      alert(`Error creating interview: ${JSON.stringify(errData)}`);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(false); // turn submission loading screen off before we get to the loading screen for route changes
+    // reroute user to interview's webpage
+    router.push(`/interviews/${newInterview.id}`);
   }
 
   // const handleInterruptAvatar = async () => {
@@ -162,6 +219,17 @@ export default function NaturalConversationPage() {
   //     videoRef.current.srcObject = previewStream || null;
   //   }
   // }, [previewStream]);
+  
+
+  /**
+     * Format time remaining into MM:SS
+     * @param seconds Duration in seconds.
+     */
+    const formatTimer = (seconds: number) => {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+        const secs = (seconds % 60).toString().padStart(2, "0"); 
+        return `${mins}:${secs}`;
+    }
 
   return (
     // AuthGuard ensures that only logged-in users can view this page.
@@ -171,25 +239,42 @@ export default function NaturalConversationPage() {
       <div className={styles.pageContainer}>
         {/* Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
-          <div className={styles.videoContainer}>
-            {/* Camera Error Notification */}
-            
-            {/* User Webcam */}
-            {/* This displays the live video coming from the user's camera */}
-            <div className={styles.videoBox}>
-              <VideoRecorder
-                startInterview={handleStartInterview}
-                stopInterview={handleStopInterview}
-                setCameraError={setCameraError}
-              />
-            </div>
-            
-            {/* AI Interviewer */}
-            {/* After receiving a sessionToken, this handles starting and stopping the session. */}
-            <div className={styles.videoBox}>
-              <InteractiveAvatar
-                sessionToken={token}
-              />
+          {isLoading && (
+            <Spinner message={loadingMessage} />
+          )}
+          <div style={{ display: isLoading ? "none" : "block", width: "100%" }}>
+              {/* Camera Error Notification */}
+              {cameraError && (
+                  <div className={styles.cameraErr}>
+                      <CircleAlert/>
+                      <p>{cameraError}</p> 
+                  </div>
+              )}
+              <p className={`${styles.timerDisplay} ${timeLeft < 20 ? styles.timerWarning : ""}`}>
+                Timer: {formatTimer(timeLeft)}
+              </p>
+
+            {/* Video Grid */}
+            <div className={styles.videoContainer}>
+              {/* User Webcam */}
+              {/* This displays the live video coming from the user's camera */}
+              <div className={styles.videoBox}>
+                <VideoRecorder
+                  startInterview={handleStartInterview}
+                  stopInterview={handleStopInterview}
+                  timeLeft={timeLeft}
+                  setTimeLeft={setTimeLeft}
+                  setCameraError={setCameraError}
+                />
+              </div>
+              
+              {/* AI Interviewer */}
+              {/* After receiving a sessionToken, this handles starting and stopping the session. */}
+              <div className={styles.videoBox}>
+                <InteractiveAvatar
+                  sessionToken={token}
+                />
+              </div>
             </div>
           </div>
         </div>

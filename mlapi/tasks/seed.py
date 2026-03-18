@@ -46,7 +46,7 @@ def start_seed():
     interview1 = {
         "id": "vsoSA7V72JFdBPMLJL29",
         "date": "03/04/2024", # MM/DD/YY
-        "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 24-hour
+        "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 12-hour
         "duration": "5m 30s", # MMm SSs (not 0-padded)
         "feedback": {
             "ai_feedback": "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
@@ -88,10 +88,9 @@ def start_seed():
         "name": "Marzia Bartalotti",
         "proficiency": "Student",
         "registrationCompletedAt": datetime.now().strftime("%m/%d/%Y"),
-        "interviews": [interview1],
     }
-    db.collection("users").document(f"{user1.uid}").set(data1)
-
+    db.collection("users").document(f"{user1.uid}").set(data1) # add user
+    db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1) # add interview to user's account
     
 
     print(f"Created user with authentication id={user1.uid}")

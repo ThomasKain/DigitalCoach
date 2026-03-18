@@ -1,30 +1,56 @@
 import React, { useRef, useState, useEffect } from "react";
 // import styles from "@App/styles/NaturalConversationPage.module.scss";
-import { Video, VideoOff, Mic, MicOff, Play } from "lucide-react"; 
+import { Video, VideoOff, Mic, MicOff } from "lucide-react"; 
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 
+export const MAX_SESSION_TIME = 1 * 60; // sandbox mode for HeyGen LiveAvatar only lasts for around 1 minute  
+const MIN_SESSION_DURATION = 20; // minimum duration for an interview for it to be counted
 
 // Define the shape of this components props
 interface VideoRecorderProps {
     startInterview: () => Promise<void>;
-    stopInterview: () => Promise<void>;
-    setCameraError: (err: string) => void;
+    stopInterview: (duration: string, timeStarted: string) => Promise<void>;
+    timeLeft: number; // timer
+    setTimeLeft: React.Dispatch<React.SetStateAction<number>>; // pass in the setter for the parent's timeLeft state
+    setCameraError: React.Dispatch<React.SetStateAction<string>>; // pass in the setter for the parent's cameraError state
 }
 
 /**
  * Handles recording the user's camera and audio.
  */
-function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRecorderProps) {
-    const videoRef = useRef<HTMLVideoElement>(null); // video element for user camera
-    const mediaRecorderRef = useRef<MediaRecorder>(null); // stores the media recorder instance
+function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, setCameraError}: VideoRecorderProps) {
     const [isRecording, setIsRecording] = useState(false); // keep track of recording state
     const [stream, setStream] = useState<MediaStream>(); // stores user's camera stream
-    const streamRef = useRef<MediaStream>(null);
-    const [videoURL, setVideoURL] = useState<string>();
-    const chunks = useRef<Blob[]>([]); // stores video as an array of chunks
+    const [videoURL, setVideoURL] = useState<string>(); // download URL for user's side of the interview
     const [videoEnabled, setVideoEnabled] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(false);
+
+    const videoRef = useRef<HTMLVideoElement>(null); // reference to video element 
+    const mediaRecorderRef = useRef<MediaRecorder>(null); // reference to media recorder recording user's video/audio
+    const streamRef = useRef<MediaStream>(null); // reference to user's video and/or audio streams
+    const chunksRef = useRef<Blob[]>([]); // stores video as an array of chunks
     let isMounted = useRef(false);
+    let timeStartedRef = useRef("");
+
+    // session terminates automatically when timer runs out
+    useEffect(() => {
+        let timer: NodeJS.Timeout; 
+        // decrement timer if interview is still going
+        if (isRecording && timeLeft > 0) {
+            // decrement every second
+            timer = setInterval(() => {
+                setTimeLeft((prevTime) => prevTime - 1);
+            }, 1000); 
+        }
+        // time is up, stop recording
+        else if (isRecording && timeLeft === 0) {
+            stopRecording();
+        }
+
+        // stop timer
+        return () => clearInterval(timer);
+        
+    }, [isRecording, timeLeft]);
 
     useEffect(() => {
         startPreview();
@@ -68,39 +94,49 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
     }
 
     /**
-     * Starts recording user's camera.
+     * Sets up the media recorder and starts recording user's camera and microphone.
      * @returns Video download URL
      */
     const startRecording = async () => {
+        // start preview in case media stream isn't set up yet 
         if (!stream) {
             await startPreview();
             return;
         }
 
-        // create media recorder to record user's camera
+        // create media recorder to record user's camera/audio
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
-        chunks.current = []; // reset old data in chunks array
+        chunksRef.current = []; // reset old data in chunks array
         
-        // once there's data available, add it to the chunks array
+        // register event listener for when there's data available 
+        // add data to the chunks array
         mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                chunks.current.push(event.data);
+            if (event.data && event.data.size > 0) {
+                chunksRef.current.push(event.data);
             }
-        }
+        };
 
-        // once the recorder stops, create download url
+        // register event listener when recording stops
+        // once the recorder stops, create download URL for user's side of the interview
         mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks.current, {
-                type: "video/webm;codecs=vp8,opus" 
+            const blob = new Blob(chunksRef.current, {
+                type: "video/webm",
             });
             const url = URL.createObjectURL(blob);
-            setVideoURL(url); // store video download url
-        }
+            setVideoURL(url); // set download URL for video 
+        };
 
-        mediaRecorder.start(); // start recording
+        mediaRecorder.start(); // start recording user's camera and microphone
         setIsRecording(true); // recording has started
-
+        // save time when started
+        timeStartedRef.current = new Date().toLocaleDateString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+        setTimeLeft(MAX_SESSION_TIME); // restart timer
+        setVideoURL(""); // clear out old recording url 
+        
         // invoke callback from parent component (expected to start HeyGen Session)
         await startInterview();
     }
@@ -109,15 +145,41 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
      * Stop recording user camera.
      */
     const stopRecording = async () => {
-        mediaRecorderRef.current?.stop(); // stop recording user camera
-        setIsRecording(false);
-        console.log("Turning off camera and mic...");
-        // invoke callback from parent component (expected to stop HeyGen session and save interview)
-        await stopInterview();
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current?.stop(); // stop recording user camera
+            
+            // turn of camer and microphone
+            console.log("Turning off camera and mic...");
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach((track) => track.stop());
+            }
+            setIsRecording(false);
+            
+            // check if interview was too short to be counted
+            const duration = MAX_SESSION_TIME - timeLeft; 
+            if (duration < MIN_SESSION_DURATION) {
+                alert(`Interview must be at least ${MIN_SESSION_DURATION}s long to be counted.`);
+                // restart interview
+                window.location.href = "/naturalconversation";
+            } 
+
+            // invoke callback from parent component (expected to stop HeyGen session and save interview)
+            await stopInterview(formatDuration(duration), timeStartedRef.current);
+        }
     }
     
     /**
-     * Preview user's camera video.
+     * Format duration into MMm SSs not 0-padded
+     * @param seconds 
+     */
+    const formatDuration = (seconds: number) => {
+        const mins = Math.floor(seconds / 60).toString();
+        const secs = (seconds % 60).toString();
+        return `${mins}m ${secs}s`;
+    }
+
+    /**
+     * Requests user's video/audio and handles the preview of user's camera video.
      */
     const startPreview = async () => {
         try {
@@ -126,49 +188,38 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                 video: true,
                 audio: true,
             });
-            // if the user left webpage before giving permission, turn off camera
+            // if the user left webpage before giving permission, turn of camera and microphone
             if (!isMounted.current) {
                 console.log("Component unmounted before camera loaded. Aborting...");
                 mediaStream.getTracks().forEach((track) => track.stop());
                 console.log("Turning off user camera...");
                 return; 
             }
-            streamRef.current = mediaStream;
+            streamRef.current = mediaStream; // save media stream reference
             setStream(mediaStream); // store media stream
-            // assign stream to video to show live preview
+            // attach camera stream to video element to show live preview
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
+
             // enable video and audio once user has agreed 
             setVideoEnabled(true);
             setAudioEnabled(true);
-        } catch (e) {
-            let err = "Camera access denied. You can continue without camera.";
-            if (e instanceof Error) {
-                // user blocked access
-                if (e.name === "NotAllowedError") {
-                err = "Camera permission denied. Please allow camera access in your browser settings, or continue without video.";  
-                } 
-                // cant find camera
-                else if (e.name === "NotFoundError") {
-                err = "No camera found. You can continue the interview without video.";
-                } 
-                // camera is used by another app like Zoom
-                else if (e.name === "NotReadableError") {
-                err = "Camera is already being used by another application.";
-                }
-            } else {
-                err = `Unknown error: ${String(e)}.`;
+            
+        } catch (error) {
+            console.error(`Error accessing media device: ${error}`);
+            if (error instanceof Error) {
+                setCameraError(`${error.message}: Please allow video and audio permissions to proceed. You may disable them before recording begins.`);
+                setVideoEnabled(false);
             }
 
-            setCameraError(err);
-            setVideoEnabled(false);
         }
     }
 
 
     return (
         <>
+        
         <div className={styles.videoCard}>
             <div className={`${styles.videoHeader} ${styles.userHeader}`}>
                 <p>Your Camera</p>
@@ -177,7 +228,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     <button
                         onClick={toggleVideo}
                         className={videoEnabled ? styles.enabled : styles.disabled}
-                        disabled={stream ? false : true} // wait until video is ready before enabling toggling
+                        disabled={!stream} // wait until video is ready before enabling toggling
                     >
                         {videoEnabled ? (
                             <Video />
@@ -189,7 +240,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                     <button
                         onClick={toggleAudio}
                         className={audioEnabled ? styles.enabled : styles.disabled }
-                        disabled={stream ? false : true} // wait until video is ready before enabling toggling
+                        disabled={!stream} // wait until video is ready before enabling toggling
                     >
                         { audioEnabled ? (
                             <Mic />
@@ -224,6 +275,7 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                 <button 
                     className={`${styles.startButton} ${styles}`}
                     onClick={startRecording}
+                    disabled={!stream}
                 >
                     Start Recording
                 </button>:
@@ -235,8 +287,8 @@ function VideoRecorder({startInterview, stopInterview, setCameraError}: VideoRec
                 </button>}
            
             {/* If the video download URL is ready, store it in Firebase for preview later */}
-            {videoURL 
-            ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>}
+            {/* {videoURL 
+            ? <a href={videoURL} download="user-interview.webm" className={styles.startButton}>Download Video</a> : <a href=""></a>} */}
         </div>
         </>
 
