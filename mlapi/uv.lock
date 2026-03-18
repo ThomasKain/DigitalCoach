@@ -38,17 +38,18 @@ wheels = [
 
 [[package]]
 name = "assemblyai"
-version = "0.40.2"
+version = "0.58.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
+    { name = "pydantic-settings", marker = "python_full_version >= '3.14'" },
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/f1/ef2ec1b11114b8ef687037a050fbd3e6526ad4b7de8ac501efb004f18e21/assemblyai-0.40.2.tar.gz", hash = "sha256:026cb7ba6c7c0987eee57fe67f183f8cd8fec48237539400cbdf91203fe8b5fd", size = 49994, upload-time = "2025-04-24T21:07:27.552Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/40/68/9eda0318bf21bf923d1e766ef70d2c824dce2164d7672cbf9f11671ecc33/assemblyai-0.58.0.tar.gz", hash = "sha256:91f69f8d1c3f547d3d1e71d1f03fb28edfc0b096f8edd99b8ee72db0becb1325", size = 57094, upload-time = "2026-03-17T07:17:23.78Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/23/c8762b2a2ef46ab14ccb2ad217baa76bd14dd706ed3a22c6ed6252fb4c23/assemblyai-0.40.2-py3-none-any.whl", hash = "sha256:8e336c0c857a7937311b4a2d1bfb50e259e1d2b225c45e6b115a3b4bc6039f60", size = 44833, upload-time = "2025-04-24T21:07:26.479Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/68/94676f35b1ed818d5f2ddfe18c19251c4e25066ba10652162f90246c9172/assemblyai-0.58.0-py3-none-any.whl", hash = "sha256:2dc70202fe4938be2853e371a58174af27a03dfd4ad4091af2b7c84d1bf16c01", size = 53998, upload-time = "2026-03-17T07:17:22.735Z" },
 ]
 
 [[package]]

@@ -112,7 +112,6 @@ async def start_interview(configs: HeyGenSessionRequest):
     
     logger.info(f"HeyGen session URL: {session_url}")
     
-    # TODO Start session (refresh webpage with embedded session)
     return HeyGenSessionResponse(session_url=session_url)
 
 @router.get(
