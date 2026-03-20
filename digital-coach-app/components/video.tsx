@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 // import styles from "@App/styles/NaturalConversationPage.module.scss";
 import { Video, VideoOff, Mic, MicOff } from "lucide-react"; 
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import { StreamingTranscriber } from "assemblyai"; 
 
 export const MAX_SESSION_TIME = 1 * 60; // sandbox mode for HeyGen LiveAvatar only lasts for around 1 minute  
 const MIN_SESSION_DURATION = 20; // minimum duration for an interview for it to be counted
@@ -13,17 +15,22 @@ interface VideoRecorderProps {
     timeLeft: number; // timer
     setTimeLeft: React.Dispatch<React.SetStateAction<number>>; // pass in the setter for the parent's timeLeft state
     setCameraError: React.Dispatch<React.SetStateAction<string>>; // pass in the setter for the parent's cameraError state
+    onTranscriptChange?: (transcript: string, isFinal: boolean) => void; // optional callback for sending the transcript to the parent component
 }
 
 /**
  * Handles recording the user's camera and audio.
  */
-function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, setCameraError}: VideoRecorderProps) {
+function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, setCameraError, onTranscriptChange}: VideoRecorderProps) {
     const [isRecording, setIsRecording] = useState(false); // keep track of recording state
     const [stream, setStream] = useState<MediaStream>(); // stores user's camera stream
     const [videoURL, setVideoURL] = useState<string>(); // download URL for user's side of the interview
     const [videoEnabled, setVideoEnabled] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(false);
+    // const [transcript, setTranscript] = useState("");
+
+    const transcriberRef = useRef<StreamingTranscriber | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
 
     const videoRef = useRef<HTMLVideoElement>(null); // reference to video element 
     const mediaRecorderRef = useRef<MediaRecorder>(null); // reference to media recorder recording user's video/audio
@@ -31,6 +38,15 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
     const chunksRef = useRef<Blob[]>([]); // stores video as an array of chunks
     let isMounted = useRef(false);
     let timeStartedRef = useRef("");
+    const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
+    const { userData } = useAuth(); // extract user's Firestore data
+    // AssemblyAI uses generic speaker labels for its streaming speech-to-text feature (e.g. Speaker A, Speaker, etc.) so we use a map to make custom speaker labels 
+    const speakerMap: Record<string, string> = {
+        "Speaker A": "Interviewer",
+        "Speaker B": userData?.name || "User", // technically, userData shouldn't be null
+    }
+
+     
 
     // session terminates automatically when timer runs out
     useEffect(() => {
@@ -60,8 +76,21 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
             // stop recording user camera and mic when component unmounts
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach((track) => track.stop());
-                console.log("Turning off user camera...");
+                console.log("Turning off user camera and microphone...");
             }
+            const stopAudio = async () => {
+
+                // close websocket to AssemblyAI
+                if (transcriberRef.current) {
+                    await transcriberRef.current.close();
+                    transcriberRef.current = null;
+                }
+                if (audioContextRef.current) {
+                    await audioContextRef.current.close();
+                    audioContextRef.current = null;
+                }
+            }
+            stopAudio();
             isMounted.current = false;
         }   
     }, []);
@@ -127,8 +156,6 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
             setVideoURL(url); // set download URL for video 
         };
 
-        mediaRecorder.start(); // start recording user's camera and microphone
-        setIsRecording(true); // recording has started
         // save time when started
         timeStartedRef.current = new Date().toLocaleDateString("en-US", {
             hour: "2-digit",
@@ -137,6 +164,152 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
         setTimeLeft(MAX_SESSION_TIME); // restart timer
         setVideoURL(""); // clear out old recording url 
         
+
+        // get temporary AssemblyAI authentication token from our backend
+        try {
+            const response = await fetch(`http://${host}/api/assemblyai/token`, {
+                method: "GET",
+            });
+            const { token } = await response.json();
+            if (response.ok) {
+                console.log(`AssemblyAI token request successful!`);
+            } else {
+                throw `Error: ${response.statusText || "Something went wrong"}`;
+            }
+
+            // configurations for AssemblyAI API that get sent as query parameters to the WebSocket URL
+            const transcriber = new StreamingTranscriber({
+                token: token,
+                sampleRate: 16000,
+                speechModel: "universal-streaming-english", // AssemblyAI has multilingual models but for now we assume the user speaks English
+                formatTurns: true, // get transcripts with proper punctuation
+                maxSpeakers: 2, // only the interviewer and user will be talking
+                speakerLabels: true, // enable speaker diarization
+            });
+
+            // event handler for when connection to AssemblyAI API is established via websocket
+            transcriber.on("open", ({id}) => {
+                console.log(`AssemblyAI ready to transcribe! Session id: ${id}`);
+            });
+            
+            // event handler for when websocket to AssemblyAI is closed 
+            transcriber.on("close", (code: number, reason: string) => {
+                console.log(`WebSocket closed: ${code}\nReason: ${reason}`);
+            });
+
+            // event handler for when we receive a message from AssemblyAI
+            // AssemblyAI uses a turn-based transcription where turn events contain metadata on the words spoken in the current turn 
+            transcriber.on("turn", (message) => {
+                console.log(`Turn: ${JSON.stringify(message)}`);
+                // AssemblyAI provides partial (in-progress) sentences as well as final sentences 
+                // for now, we'll only send the completed sentences
+                if (message.end_of_turn && onTranscriptChange) {
+                    onTranscriptChange(`${userData?.name || "User"}: ${message.transcript}`, true);
+                }
+            });
+
+            // event handler for when an error occurs
+            transcriber.on("error", (error: Error) => {
+                console.error(`AssemblyAI WebSocket Error: ${error}`);
+            });
+
+            await transcriber.connect(); // connect to AssemblyAI API via websocket
+            transcriberRef.current = transcriber;
+
+            // create audio worklet to convert audio data into PCM data for AssemblyAI
+            const audioContext = new window.AudioContext({sampleRate: 16000});
+            audioContextRef.current = audioContext;
+
+            // create audio context source from user's video and audio stream 
+            const source = audioContext.createMediaStreamSource(stream); 
+
+            // load audio worklet from Next.js public folder
+            await audioContext.audioWorklet.addModule("/pcmprocessor.js"); 
+
+            // instantiate the processor we registered as pcm-processor 
+            const workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
+
+            // listen for the Int16 buffer from audio worklet node 
+            workletNode.port.onmessage = (event) => {
+                if (transcriberRef.current) {
+                    try {
+                        // send the PCM data from audio worklet node to AssemblyAI
+                        transcriberRef.current.sendAudio(event.data);
+                    } catch (e) {
+                        console.error(`Could not send audio chunk. WebSocket may be closed. ${e}`);
+                    }
+                }
+            }
+            // pipe the microphone data (source) into the audio worklet
+            source.connect(workletNode);
+            // workletNode.connect(audioContext.destination);
+
+
+            // AssemblyAI expects a sample rate of 16Hz for audio
+            // const audioContext = new window.AudioContext({ sampleRate: 16000});
+            // audioContextRef.current = audioContext;
+
+            // const source = audioContext.createMediaStreamSource(stream);
+
+            // const processor = audioContext.createScriptProcessor(4096, 1, 1);
+            // processor.onaudioprocess = (event) => {
+            //     const inputData = event.inputBuffer.getChannelData(0);
+
+            //     // Convert browser's Float32 audio data to Int16 PCM data
+            //     const pcm16 = new Int16Array(inputData.length);
+            //     for (let i=0; i < inputData.length; i++) {
+            //         const s = Math.max(-1, Math.min(1, inputData[i]));
+            //         pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            //     }
+
+            //     // send the raw binary chunk to AssemblyAI
+            //     if (transcriberRef.current) {
+            //         transcriberRef.current.sendAudio(pcm16.buffer);
+            //     }
+            // };
+
+            // source.connect(processor);
+            // processor.connect(audioContext.destination);
+
+            setIsRecording(true); // recording has started
+
+
+
+            // create recordRTC instance and record audio for AssemblyAI
+            // since Nextjs uses SSR and RecordRTC expects to be in the browser, only import RecordRTC module when recording starts to guarantee we're in the browser 
+            // const RecordRTCModule = await import("recordrtc");
+            // const RecordRTC = RecordRTCModule.default || RecordRTCModule; 
+            // const StereoAudioRecorder = RecordRTCModule.StereoAudioRecorder;
+
+            // recordRTCRef.current = new RecordRTC(stream, {
+            //     type: "audio", // record audio
+            //     mimeType: "audio/webm;codecs=pcm_s16le" as any,
+            //     recorderType: StereoAudioRecorder, // can downsample the audio into 16Hz
+            //     desiredSampRate: 16000,
+            //     numberOfAudioChannels: 1,
+            //     timeSlice: 250, // how many ms of audio data stored per blob
+            //     // event listener that fires on every time slice
+            //     ondataavailable: async (blob) => {
+            //         // send a blob of audio to AssemblyAI API for transcription
+            //         try {
+            //             console.log("Sending blob!");
+            //             const buffer = await blob.arrayBuffer(); // convert blob into array of binary data 
+            //             // const pcmData = buffer.slice(44); // remove the 44-byte WAV header to get the raw PCM data needed by AssemblyAI
+            //             if (transcriberRef.current){
+            //                 transcriberRef.current.sendAudio(buffer);
+            //             }
+            //         } catch (e) {
+            //             console.error(`Error with sending audio blob to AssemblyAI: ${e}`);
+            //         }
+            //     } 
+            // });
+
+            // recordRTCRef.current.startRecording(); // start recording user data
+        } catch (error) {
+            console.error(`AssemblyAI Error: ${error}`);
+        }
+            
+        mediaRecorder.start(); // start recording user's camera and microphone
         // invoke callback from parent component (expected to start HeyGen Session)
         await startInterview();
     }
@@ -146,9 +319,23 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
      */
     const stopRecording = async () => {
         if (mediaRecorderRef.current && isRecording) {
-            mediaRecorderRef.current?.stop(); // stop recording user camera
+            mediaRecorderRef.current?.stop(); // stop recording user camera and microphone
             
-            // turn of camer and microphone
+            // close websocket to AssemblyAI
+            if (transcriberRef.current) {
+                await transcriberRef.current.close();
+                transcriberRef.current = null;
+            }
+            // if (recordRTCRef.current) {
+            //     recordRTCRef.current.stopRecording();
+            // }
+            // release audio resources
+            if (audioContextRef.current) {
+                await audioContextRef.current.close();
+                audioContextRef.current = null;
+            }
+
+            // turn of camera and microphone
             console.log("Turning off camera and mic...");
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach((track) => track.stop());
@@ -186,13 +373,18 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
             // request access to user's camera and microphone
             const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: true,
-                audio: true,
+                audio: {
+                    sampleRate: 16000, // AssemblyAI expects 16Hhz sample rate
+                    channelCount: 1, 
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                },
             });
             // if the user left webpage before giving permission, turn of camera and microphone
             if (!isMounted.current) {
                 console.log("Component unmounted before camera loaded. Aborting...");
                 mediaStream.getTracks().forEach((track) => track.stop());
-                console.log("Turning off user camera...");
+                console.log("Turning off user camera and microphone...");
                 return; 
             }
             streamRef.current = mediaStream; // save media stream reference
@@ -219,7 +411,6 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
 
     return (
         <>
-        
         <div className={styles.videoCard}>
             <div className={`${styles.videoHeader} ${styles.userHeader}`}>
                 <p>Your Camera</p>

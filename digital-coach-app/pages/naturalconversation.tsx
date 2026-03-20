@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import Transcript from "@App/components/organisms/Transcript";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
 import { v4 as uuidv4 } from "uuid";
-// import styles from "@App/styles/NaturalConversationPage.module.scss";
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
-
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
 import VideoRecorder from "@App/components/video";
 import { useRouter } from "next/router";
@@ -40,7 +38,7 @@ export default function NaturalConversationPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [token, setToken] = useState("");
+  const [heygenToken, setHeyGenToken] = useState(""); // HeyGen authentication token
   const [timeLeft, setTimeLeft] = useState(MAX_SESSION_TIME);
   const [cameraError, setCameraError] = useState("");
   const { user } = useAuth();
@@ -90,8 +88,8 @@ export default function NaturalConversationPage() {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log("Token request successful!");
-        setToken(data);
+        console.log("HeyGen token request successful!");
+        setHeyGenToken(data);
       } else {
         throw `Error: ${response.statusText || "Something went wrong"}`;
       }
@@ -225,18 +223,33 @@ export default function NaturalConversationPage() {
      * Format time remaining into MM:SS
      * @param seconds Duration in seconds.
      */
-    const formatTimer = (seconds: number) => {
-        const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
-        const secs = (seconds % 60).toString().padStart(2, "0"); 
-        return `${mins}:${secs}`;
-    }
+  const formatTimer = (seconds: number) => {
+      const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const secs = (seconds % 60).toString().padStart(2, "0"); 
+      return `${mins}:${secs}`;
+  }
+  const [fullTranscript, setFullTranscript] = useState(""); // transcript of the entire interview 
 
+  /**
+   * Handler for when transcript is updated during the interview. AssemblyAI uses turn-based transcription where each turn is represented as a turn event. Each turn has its own partial/final transcript where a partial transcript are intermediate results that may change when more audio get processed and the final transcript is the true final transcript for this turn. 
+   * @param transcript New transcript segment, this will include the speaker (e.g. "Interviewer": "Hey Adora!")
+   * @param isFinal Boolean indicating whether this segment is the final transcript for the current turn.
+   */
+  const updateTranscript = (transcript: string, isFinal: boolean) => {
+    // only add the final transcript for this turn to the overall transcript
+    if (isFinal) {
+      setFullTranscript((prevTranscript) => `${prevTranscript}\n${transcript}`); 
+    }
+  }
+  
   return (
     // AuthGuard ensures that only logged-in users can view this page.
     // If a user isn't logged in, they are typically redirected away.
     <AuthGuard>
+        <p>Transcript: {fullTranscript}</p>
       {/* Main container for the entire page layout */}
       <div className={styles.pageContainer}>
+        {/* <Transcript/> */}
         {/* Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
           {isLoading && (
@@ -265,6 +278,7 @@ export default function NaturalConversationPage() {
                   timeLeft={timeLeft}
                   setTimeLeft={setTimeLeft}
                   setCameraError={setCameraError}
+                  onTranscriptChange={updateTranscript}
                 />
               </div>
               
@@ -272,7 +286,7 @@ export default function NaturalConversationPage() {
               {/* After receiving a sessionToken, this handles starting and stopping the session. */}
               <div className={styles.videoBox}>
                 <InteractiveAvatar
-                  sessionToken={token}
+                  sessionToken={heygenToken}
                 />
               </div>
             </div>

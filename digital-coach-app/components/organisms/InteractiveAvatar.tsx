@@ -228,7 +228,7 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
    * Starts HeyGen LiveAvatar session using the given session token and configurations. Recommend referring to the reviewing heygen/liveavatar-web-sdk library as API documentation is sparse as of writing this.
    */
   const startSession = async () => {
-    console.log("Starting session...");
+    console.log("Starting mock interview...");
     // create new session
     const session = new LiveAvatarSession(sessionToken, userConfig);
     sessionRef.current = session;
