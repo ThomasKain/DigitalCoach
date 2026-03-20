@@ -81,6 +81,8 @@ services:
       - /app/.venv # Preserves the virtual environment inside the container
       - ./mlapi/digital-coach-firebase-adminsdk.json:/app/digital-coach-firebase-adminsdk.json
     command: uvicorn main:app --host 0.0.0.0 --port 8000 # Start the API for development, use --reload for auto-reload but its CPU intensive. This overrides the default CMD in the Dockerfile which is meant for production.
+    models: 
+      - llm # our backend will use the LLM for tasks like sentiment analysis and feedback generation
     depends_on:
       - redis # Ensure Redis is started before the API
       - firebase # Ensure firebase starts before the backend tries to connect to it
@@ -152,3 +154,8 @@ networks:
 
 volumes:
   redis-data:
+
+models:
+  llm:
+    model: qwen3:4B-UD-Q4_K_XL # LLM model we're using
+    context_size: 8192 # context size (how much many tokens the model can process at any given time which includes your prompt and the LLM's response), each model has their own max size you can check using `docker model inspect <model name>` (make this smaller if you experience out of memory errors but there needs to be enough context for the LLM to make detailed responses)

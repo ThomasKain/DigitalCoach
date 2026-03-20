@@ -43,9 +43,10 @@ export default function NaturalConversationPage() {
   const [cameraError, setCameraError] = useState("");
   const { user } = useAuth();
   const router = useRouter();
-
+  const [fullTranscript, setFullTranscript] = useState(""); // transcript of the entire interview 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  
   // const { startRecording, stopRecording, mediaBlobUrl, previewStream } =
   //   useReactMediaRecorder({ video: true });
 
@@ -116,7 +117,7 @@ export default function NaturalConversationPage() {
       // these values will be populated later by the backend once the interview has been processed
       feedback: undefined,
       metrics: undefined,
-      transcript: undefined,
+      transcript: fullTranscript,
       url: undefined,
     }
 
@@ -228,7 +229,6 @@ export default function NaturalConversationPage() {
       const secs = (seconds % 60).toString().padStart(2, "0"); 
       return `${mins}:${secs}`;
   }
-  const [fullTranscript, setFullTranscript] = useState(""); // transcript of the entire interview 
 
   /**
    * Handler for when transcript is updated during the interview. AssemblyAI uses turn-based transcription where each turn is represented as a turn event. Each turn has its own partial/final transcript where a partial transcript are intermediate results that may change when more audio get processed and the final transcript is the true final transcript for this turn. 
