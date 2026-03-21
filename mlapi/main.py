@@ -51,10 +51,10 @@ async def startup_event():
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to the Digital Coach API, please see `/docs` for more information. If you want to access the Redis RQ Dashboard to monitor your jobs, please see /rq."
+        "message": "Welcome to the Digital Coach API, please see `/docs` for more information. If you want to access the Redis Queue (RQ) Dashboard to monitor your jobs, please see /rq."
     }
 
-# Create Redis RQ Dashboard to monitor Redis RQ
+# Create Redis Queue (RQ) Dashboard to monitor RQ
 dashboard = RedisQueueDashboard("redis://redis:6379/", "/rq")
 # Access dashboard at localhost:8000/rq
 app.mount("/rq", dashboard)

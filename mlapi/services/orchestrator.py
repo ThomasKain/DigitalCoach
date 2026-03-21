@@ -25,7 +25,7 @@ def start_audio_analysis(request: SentimentAnalysisRequest) -> str:
     
     # Enqueue sentiment analysis job
     # only pass the fields instead of the pydantic model
-    job = add_task_to_queue(detect_audio_sentiment, request.transcript_id)
+    job = add_task_to_queue("high", detect_audio_sentiment, request.transcript_id)
 
     logger.info(f"Sentiment analysis for transcript={request.transcript_id} job ID={job.id}")
 
