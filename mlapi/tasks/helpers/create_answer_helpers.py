@@ -3,13 +3,13 @@ from tasks.helpers.constants import (
     AUDIO_EMOTION_POINTS,
 )
 from schemas.create_answer import CreateAnswerEvaluation
-from schemas.audio import AudioAnalysisResult
+from schemas.audio import SentimentAnalysisResult
 
 from tasks.helpers.analyze_text_structure_ml import analyze_text_structure_ml
 from tasks.helpers.text_preprocessing import clean_text
 from tasks.helpers.av_processing import (
     calculate_overall_audio_sentiment,
-    grab_top_five_keywords,
+    # grab_top_five_keywords,
 )
 
 from utils.logger_config import get_logger

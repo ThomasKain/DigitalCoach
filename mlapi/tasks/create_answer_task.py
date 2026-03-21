@@ -13,11 +13,11 @@ from redisStore.myconnection import get_redis_con
 from redisStore.queue import add_task_to_queue
 
 # Functions
-from tasks.assemblyai_api import detect_audio_sentiment
+from tasks.audio_analysis import detect_audio_sentiment
 from tasks.helpers.create_answer_helpers import compute_overall_score
 from tasks.helpers.av_processing import (
     calculate_overall_audio_sentiment,
-    grab_top_five_keywords,
+    # grab_top_five_keywords,
 )
 
 from tasks.helpers.competency_feedback import generate_competency_feedback

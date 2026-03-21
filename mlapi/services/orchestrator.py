@@ -1,15 +1,18 @@
 # Handles orchestration of tasks for interview videos, e.g. starting analysis jobs. 
 # Can be called by route handlers.
 
-from tasks.assemblyai_api import detect_audio_sentiment
+from tasks.audio_analysis import detect_audio_sentiment
 from redisStore.queue import add_task_to_queue
 from tasks.create_answer_task import create_answer
 from tasks.starscores import predict_star_scores
 from utils.logger_config import get_logger
+from schemas.audio import (
+    SentimentAnalysisRequest
+)
 
 logger = get_logger(__name__)
 
-def start_audio_analysis(video_url: str) -> str:
+def start_audio_analysis(request: SentimentAnalysisRequest) -> str:
     """
     Start the audio analysis job by adding it to the queue.
     
@@ -18,12 +21,12 @@ def start_audio_analysis(video_url: str) -> str:
     Returns:
         job (Job): The Redis Job object of the queued audio analysis job.
     """
-    logger.info(f"Started audio analysis job for video URL {video_url}.")
+    logger.info(f"Started audio analysis job for transcript={request.transcript_id}.")
     
-    # Enqueue audio analysis job
-    job = add_task_to_queue(detect_audio_sentiment, video_url)
+    # Enqueue sentiment analysis job
+    job = add_task_to_queue(detect_audio_sentiment, request)
 
-    logger.info(f"Audio analysis job ID: {job.id}")
+    logger.info(f"Sentiment analysis for transcript={request.transcript_id} job ID={job.id}")
 
     return job
 

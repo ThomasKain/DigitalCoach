@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from schemas import JobId, AudioAnalysisRequest, AudioAnalysisResponse
+from schemas import JobId, SentimentAnalysisRequest, SentimentAnalysisJobResponse
 from redisStore.myconnection import get_redis_con
 from utils.logger_config import get_logger
 from redis import Redis
@@ -23,28 +23,22 @@ def get_redis():
     summary="Start an audio analysis job for the given video",
     description="Starts a background job to analyze audio using AssemblyAI",
 )
-async def start_audio_analysis_job(request: AudioAnalysisRequest) -> JobId:
+async def start_audio_analysis_job(request: SentimentAnalysisRequest) -> JobId:
     """
     Start a job to analyze audio from the video URL using AssemblyAI.
 
     This will extract audio and send it to AssemblyAI for:
-    - Transcription
     - Sentiment analysis
-    - Auto-highlights (key phrases)
-    - Topic detection (IAB categories)
 
     Args:
-        request: The AudioAnalysisRequest object that contains the video_url for analysis
+        request: The SentimentAnalysisRequest object that contains the video_url for analysis
     Returns:
         JobId: The job ID of the started job
     Raises:
         HTTPException: If the job cannot be started
     """
     try:
-        # Use default video URL for testing if not provided
-        # if not request.video_url:
-        #     video_url = "https://assembly.ai/wildfires.mp3"
-        
+
         # The actual video URL to analyze
         video_url = str(request.video_url)
         
@@ -67,11 +61,11 @@ async def start_audio_analysis_job(request: AudioAnalysisRequest) -> JobId:
 # GET /api/audio_analysis/{job_id}
 @router.get(
     "/{job_id}",
-    response_model=AudioAnalysisResponse,
+    response_model=SentimentAnalysisJobResponse,
     summary="Get the status of an audio analysis job",
     description="Check the status of a previously started audio analysis job"
 )
-async def get_audio_analysis_job(job_id: str, redis: Redis = Depends(get_redis)) -> AudioAnalysisResponse:
+async def get_audio_analysis_job(job_id: str, redis: Redis = Depends(get_redis)) -> SentimentAnalysisJobResponse:
     """
     Get the status of an audio analysis job.
 
@@ -96,8 +90,8 @@ async def get_audio_analysis_job(job_id: str, redis: Redis = Depends(get_redis))
             logger.warning(f"Job not found: {job_id}")
             raise HTTPException(status_code=404, detail=f"Job not found: {job_id}")
 
-        # convert JobResponse to AudioAnalysisResponse
-        return AudioAnalysisResponse(**job_status_data.model_dump())
+        # convert JobResponse to SentimentAnalysisJobResponse
+        return SentimentAnalysisJobResponse(**job_status_data.model_dump())
 
     except HTTPException:
         raise

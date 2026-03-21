@@ -6,7 +6,7 @@ from schemas import (
     CompetencyFeedback,
     OverallCompetencyFeedback
 )
-from schemas.audio import AudioAnalysisResult
+from schemas.audio import SentimentAnalysisResult
 from utils.logger_config import get_logger
 import re
 from .constants import (
@@ -66,13 +66,13 @@ def _count_confidence_markers(transcript: str) -> dict :
     return counts
 
 def _analyze_confidence(
-    audio_analysis: AudioAnalysisResult
+    audio_analysis: SentimentAnalysisResult
 ) -> CompetencyFeedback:
     """
     Analyzes confidence level based on filler words and hedging phrases.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Results from audio sentiment analysis based on AudioAnalysisResult schema.
+        audio_analysis (SentimentAnalysisResult): Results from audio sentiment analysis based on SentimentAnalysisResult schema.
 
     Returns:
         CompetencyFeedback: Score and evaluation on perceived confidence
@@ -126,13 +126,13 @@ def _analyze_confidence(
     return result
 
 def _analyze_communication_clarity(
-    audio_analysis: AudioAnalysisResult
+    audio_analysis: SentimentAnalysisResult
 ) -> CompetencyFeedback:
     """
     Analyzes communication clarity based on pacing (WPM). Could be extended in the future with grammar.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Audio sentiment analysis results
+        audio_analysis (SentimentAnalysisResult): Audio sentiment analysis results
 
     Returns:
         CompetencyFeedback: Score and evaluation on communication clarity
@@ -169,13 +169,13 @@ def _analyze_communication_clarity(
 
 
 def _analyze_engagement(
-    audio_analysis: AudioAnalysisResult,
+    audio_analysis: SentimentAnalysisResult,
 ) -> CompetencyFeedback:
     """
     Analyzes how engaging the response is based on audio sentiment and keywords.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Audio sentiment analysis results
+        audio_analysis (SentimentAnalysisResult): Audio sentiment analysis results
 
     Returns:
         CompetencyFeedback: Score and specific feedback on engagement level
@@ -228,13 +228,13 @@ def _analyze_engagement(
 
 
 def generate_competency_feedback(
-    audio_analysis: AudioAnalysisResult,
+    audio_analysis: SentimentAnalysisResult,
 ) -> OverallCompetencyFeedback:
     """
     Generates comprehensive competency-based feedback from all analysis components, i.e. confidence, clarity, and engagement.
 
     Args:
-        audio_analysis (AudioAnalysisResult): Audio sentiment analysis
+        audio_analysis (SentimentAnalysisResult): Audio sentiment analysis
 
     Returns:
         OverallCompetencyFeedback: Structured feedback on key interview competencies

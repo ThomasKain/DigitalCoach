@@ -116,10 +116,10 @@ def test_audio_analysis(monkeypatch):
         )
 
     # Apply our mock implementation
-    import tasks.assemblyai_api
+    import mlapi.tasks.audio_analysis
 
     monkeypatch.setattr(
-        tasks.assemblyai_api, "detect_audio_sentiment", mock_detect_audio_sentiment
+        tasks.audio_analysis, "detect_audio_sentiment", mock_detect_audio_sentiment
     )
 
     # Test the function
