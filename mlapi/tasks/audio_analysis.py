@@ -1,6 +1,5 @@
 from schemas import (
     SentimentAnalysisResult,
-    SentimentAnalysisRequest
 )
 from utils.logger_config import get_logger
 from rq.decorators import job
@@ -13,8 +12,8 @@ from dotenv import load_dotenv
 logger = get_logger(__name__)
 
 load_dotenv() # load environment variables
-@job("high", connection=get_redis_con())
-def detect_audio_sentiment(request: SentimentAnalysisRequest) -> SentimentAnalysisResult:
+# @job("high", connection=get_redis_con())
+def detect_audio_sentiment(transcript_id: str) -> SentimentAnalysisResult:
     """
     Generate audio sentiment analysis using local LLM
 
@@ -24,7 +23,7 @@ def detect_audio_sentiment(request: SentimentAnalysisRequest) -> SentimentAnalys
         result (SentimentAnalysisResult): Sentiment analysis results according to SentimentAnalysisResult schema
     """
 
-    logger.info(f"Starting sentiment analysis on transcript={request.transcript_id}...")
+    logger.info(f"Starting sentiment analysis on transcript={transcript_id}...")
 
     # extract relevant environment variables
     base_url = os.getenv("LM_BASE_URL")
@@ -82,14 +81,14 @@ def detect_audio_sentiment(request: SentimentAnalysisRequest) -> SentimentAnalys
     
     # parse and return LLM response
     try:
-        logger.info(f"Verifying LLM sentiment analysis on transcript={request.transcript_id}...")
+        logger.info(f"Verifying LLM sentiment analysis on transcript={transcript_id}...")
 
         llm_response = response.choices[0].message.content # extract LLM's JSON response string
         
         # verify LLM JSON response is the correct shape 
         validated_data = SentimentAnalysisResult.model_validate_json(llm_response) # parses JSON, checks if it fits our response schema and instantiates our schema if successful 
-        logger.info(f"Sentiment Analysis on transcript={request.transcript_id} successful!")
+        logger.info(f"Sentiment Analysis on transcript={transcript_id} successful!")
         return validated_data
     except ValidationError as e:
-        logger.error(f"LLM sentiment analysis on transcript={request.transcript_id} is in invalid shape. Reason: {e}")
-        return SentimentAnalysisResult(error=f"LLM sentiment analysis on transcript={request.transcript_id} is in invalid shape. Reason: {e}")
+        logger.error(f"LLM sentiment analysis on transcript={transcript_id} is in invalid shape. Reason: {e}")
+        return SentimentAnalysisResult(error=f"LLM sentiment analysis on transcript={transcript_id} is in invalid shape. Reason: {e}")

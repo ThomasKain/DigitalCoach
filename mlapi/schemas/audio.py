@@ -49,7 +49,6 @@ class SentimentAnalysisJobResponse(BaseModel):
     Response model for audio analysis job
     """
 
-    job_id: str
     status: JobStatus
     result: SentimentAnalysisResult | None = None
     error: str | None = None

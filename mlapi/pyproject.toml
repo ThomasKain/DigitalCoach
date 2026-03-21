@@ -19,4 +19,5 @@ dependencies = [
     "pydantic-settings>=2.9.1",
     "firebase-admin>=7.1.0",
     "openai>=2.29.0",
+    "rq-dashboard-fast>=0.8.1",
 ]

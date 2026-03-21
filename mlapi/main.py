@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from services.firebase_setup import initialize_firebase # initialize Firebase connection when backend starts
+from rq_dashboard_fast import RedisQueueDashboard
 from routes import (
     jobs,
     create_answer,
@@ -8,6 +9,7 @@ from routes import (
     audio_analysis,
     heygen,
     assemblyai,
+    llm,
     interview,
     test_firebase # this is for testing backend's connection to firebase
 )
@@ -52,6 +54,10 @@ def root():
         "message": "Welcome to the Digital Coach API, please see `/docs` for more information."
     }
 
+# Create Redis RQ Dashboard to monitor Redis RQ
+dashboard = RedisQueueDashboard("redis://redis:6379/", "/rq")
+# Access dashboard at localhost:8000/rq
+app.mount("/rq", dashboard)
 
 # Add routes here
 app.include_router(jobs.router)
@@ -60,5 +66,6 @@ app.include_router(star_feedback.router)
 app.include_router(audio_analysis.router)
 app.include_router(heygen.router)
 app.include_router(assemblyai.router)
+app.include_router(llm.router)
 app.include_router(interview.router)
 app.include_router(test_firebase.router) # this is for testing only

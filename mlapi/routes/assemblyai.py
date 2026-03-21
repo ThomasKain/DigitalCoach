@@ -11,11 +11,8 @@ from dotenv import load_dotenv
 import os
 import requests
 from schemas import (
-    SentimentAnalysisRequest, 
-    SentimentAnalysisResult,
-    AAI_Token
+    AAI_Token,
 )
-from services.orchestrator import start_audio_analysis
 
 # imports for get_sentiment_analysis
 from pydantic import BaseModel
@@ -31,7 +28,7 @@ class SentimentAnalysisByTranscriptResponse(BaseModel):
 
 logger = get_logger(__name__) # create logger instance to log messages
 
-router = APIRouter(prefix="/api/assemblyai", tags=["transcription"])
+router = APIRouter(prefix="/api/assemblyai", tags=["AssemblyAI"])
 
 # GET /api/assemblyai/token
 @router.get(
@@ -64,25 +61,6 @@ async def request_token():
     token = client.create_temporary_token(expires_in_seconds=60) # authentication token expires after 1 minute
     logger.info("AssemblyAI authentication token request successful!")
     return AAI_Token(token=token) 
-
- 
-# POST /api/assemblyai/model
-@router.post(
-    "/model",
-    response_model=SentimentAnalysisResult,
-    summary="Endpoint that tests communicating with our local LLM on Docker Model Runner.",
-    description="Temporary endpoint to communicate with Docker model runner."
-)
-async def sentiment_analysis(request: SentimentAnalysisRequest): 
-    # TODO verify input
-
-    
-
-    # start audio analysis job
-    return start_audio_analysis(request)
-     
-
-
 
 # POST /api/assemblyai/sentiment/{transcript_id}
 @router.post(

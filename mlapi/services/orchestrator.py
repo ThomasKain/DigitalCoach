@@ -17,18 +17,19 @@ def start_audio_analysis(request: SentimentAnalysisRequest) -> str:
     Start the audio analysis job by adding it to the queue.
     
     Args:
-        video_url (str): The URL of the video to analyze.
+        request (SentimentAnalysisRequest): the request body of the audio analysis job which is currently just sentiment analysis.
     Returns:
-        job (Job): The Redis Job object of the queued audio analysis job.
+        job_id (str): The Redis Job id of the queued audio analysis job.
     """
     logger.info(f"Started audio analysis job for transcript={request.transcript_id}.")
     
     # Enqueue sentiment analysis job
-    job = add_task_to_queue(detect_audio_sentiment, request)
+    # only pass the fields instead of the pydantic model
+    job = add_task_to_queue(detect_audio_sentiment, request.transcript_id)
 
     logger.info(f"Sentiment analysis for transcript={request.transcript_id} job ID={job.id}")
 
-    return job
+    return job.id # returns job id for polling later
 
 def start_interview_analysis(video_url: str) -> str:
     """

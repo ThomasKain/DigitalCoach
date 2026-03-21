@@ -135,18 +135,18 @@ services:
       replicas: 3
 
   # Worker monitor service
-  monitor:
-    build: ./mlapi
-    command: python -m redisStore.monitor
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    depends_on:
-      - redis
-    volumes:
-      - /app/.venv # Preserves the virtual environment inside the container
-    networks:
-      - app-network
+  # monitor:
+  #   build: ./mlapi
+  #   command: python -m redisStore.monitor
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #   depends_on:
+  #     - redis
+  #   volumes:
+  #     - /app/.venv # Preserves the virtual environment inside the container
+  #   networks:
+  #     - app-network
 
 networks:
   app-network:
