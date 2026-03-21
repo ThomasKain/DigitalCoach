@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import Transcript from "@App/components/organisms/Transcript";
+// import Transcript from "@App/components/organisms/Transcript";
 import AuthGuard from "@App/lib/auth/AuthGuard";
-import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
+// import { uploadAnswerVideo } from "@App/lib/storage/StorageService";
 import { v4 as uuidv4 } from "uuid";
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 import InteractiveAvatar from "@App/components/organisms/InteractiveAvatar";
@@ -246,10 +246,9 @@ export default function NaturalConversationPage() {
     // AuthGuard ensures that only logged-in users can view this page.
     // If a user isn't logged in, they are typically redirected away.
     <AuthGuard>
-        <p>Transcript: {fullTranscript}</p>
+      <p>Transcript: {fullTranscript}</p>
       {/* Main container for the entire page layout */}
       <div className={styles.pageContainer}>
-        {/* <Transcript/> */}
         {/* Holds the video feeds and the control buttons */}
         <div className={styles.videoAndButtonContainer}>
           {isLoading && (

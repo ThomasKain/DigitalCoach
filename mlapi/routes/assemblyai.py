@@ -92,30 +92,18 @@ async def llm_test():
                     """
                     You are an expert technical recruiter and behavioral analyst specializing in interviews. Your task is to analyze the following interview transcript and evaluate the candidate's sentiment, emotional intelligence, and communication skills.
 
-                    Please analyze any given transcripts and provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object.
+                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object. Note: "sentiment_analys_results" is an array of your sentiment analysis on each line the user spoke.
 
                     {
-                    "overall_sentiment": "[A brief 1-2 sentence summary of the candidate's overall emotional state and tone]",
-                    "emotional_arc": [
-                        {
-                        "phase": "Beginning",
-                        "detected_emotions": ["[Emotion 1]", "[Emotion 2]"],
-                        "analysis": "[Brief explanation of why these emotions were detected based on the text]"
-                        },
-                        {
-                        "phase": "Middle",
-                        "detected_emotions": ["[Emotion 1]", "[Emotion 2]"],
-                        "analysis": "[Brief explanation of why these emotions were detected based on the text]"
-                        },
-                        {
-                        "phase": "End",
-                        "detected_emotions": ["[Emotion 1]", "[Emotion 2]"],
-                        "analysis": "[Brief explanation of why these emotions were detected based on the text]"
-                        }
-                    ],
-                    "confidence_score": "[A score from 1-10 rating how confident the candidate sounded]",
-                    "constructive_feedback": "[1-2 actionable tips for the candidate to improve their communication]"
+                        "sentiment_analysis_results": [
+                            {
+                            "text": "[The sentence that your performing sentiment analysis on]",
+                            "sentiment": "[Sentiment for the sentence which must be 'POSITIVE', 'NEGATIVE', or 'NEUTRAL']",
+                            "confidence": [Your level of confidence between [0, 1]],
+                            },
+                        ],
                     }
+
                     """
                 },
                 {

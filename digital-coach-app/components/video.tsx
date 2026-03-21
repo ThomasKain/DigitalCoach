@@ -39,14 +39,7 @@ function VideoRecorder({startInterview, stopInterview, timeLeft, setTimeLeft, se
     let isMounted = useRef(false);
     let timeStartedRef = useRef("");
     const host = typeof window !== "undefined" ? "localhost:8000" : "api"; // if we're in the browser use localhost, but if we're in Docker, use the backend's service name (currently 'api')
-    const { userData } = useAuth(); // extract user's Firestore data
-    // AssemblyAI uses generic speaker labels for its streaming speech-to-text feature (e.g. Speaker A, Speaker, etc.) so we use a map to make custom speaker labels 
-    const speakerMap: Record<string, string> = {
-        "Speaker A": "Interviewer",
-        "Speaker B": userData?.name || "User", // technically, userData shouldn't be null
-    }
-
-     
+    const { userData } = useAuth(); // extract user's Firestore data  
 
     // session terminates automatically when timer runs out
     useEffect(() => {
