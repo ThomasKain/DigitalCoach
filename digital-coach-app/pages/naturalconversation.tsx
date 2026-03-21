@@ -238,10 +238,10 @@ export default function NaturalConversationPage() {
   const updateTranscript = (transcript: string, isFinal: boolean) => {
     // only add the final transcript for this turn to the overall transcript
     if (isFinal) {
-      setFullTranscript((prevTranscript) => `${prevTranscript}\n${transcript}`); 
+      setFullTranscript((prevTranscript) => `${prevTranscript}\n${transcript}\n`); 
     }
   }
-  
+
   return (
     // AuthGuard ensures that only logged-in users can view this page.
     // If a user isn't logged in, they are typically redirected away.
@@ -287,6 +287,7 @@ export default function NaturalConversationPage() {
               <div className={styles.videoBox}>
                 <InteractiveAvatar
                   sessionToken={heygenToken}
+                  onTranscriptUpdate={updateTranscript}
                 />
               </div>
             </div>

@@ -9,7 +9,6 @@ from assemblyai.streaming.v3 import (
 from utils.logger_config import get_logger
 from dotenv import load_dotenv
 import os
-import requests
 from openai import OpenAI
 import json
 
@@ -103,7 +102,7 @@ async def llm_test():
                         }
                     ],
                     "confidence_score": "[A score from 1-10 rating how confident the candidate sounded]",
-                    "constructive_feedback": "[1-2 actionable tips for the candidate to improve their communication, tailored for a junior developer or recent graduate entering the tech industry]"
+                    "constructive_feedback": "[1-2 actionable tips for the candidate to improve their communication]"
                     }
                     """
                 },

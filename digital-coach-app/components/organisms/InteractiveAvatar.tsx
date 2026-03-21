@@ -209,15 +209,16 @@
 // export default InteractiveAvatar;
 
 import { useRef, useEffect } from "react";
-import { LiveAvatarSession } from "@heygen/liveavatar-web-sdk";
+import { LiveAvatarSession, AgentEventsEnum } from "@heygen/liveavatar-web-sdk";
 import styles from "@App/styles/interview/NaturalConversationPage.module.scss";
 import { VideoOff } from "lucide-react";
 
 interface InteractiveAvatarProps {
   sessionToken: string;
+  onTranscriptUpdate?: (transcript: string, isFinal: boolean) => void;
 }
 
-function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
+function InteractiveAvatar({sessionToken, onTranscriptUpdate}: InteractiveAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sessionRef = useRef<LiveAvatarSession>(null);
   const userConfig = {
@@ -234,6 +235,16 @@ function InteractiveAvatar({sessionToken}: InteractiveAvatarProps) {
     sessionRef.current = session;
     // start the session
     await session.start();
+
+    // register event listener for when the avatar talks so we can add it to the transcript
+    // the event returns the text that the avatar speaks so we don't have to use AssemblyAI for this
+    session.on(AgentEventsEnum.AVATAR_TRANSCRIPTION, ({text}) => {
+      if (onTranscriptUpdate) {
+        onTranscriptUpdate(`Interviewer: ${text}`, true);
+      }
+      // console.log(`Avatar said: ${text}\n`);
+    })
+    
     // when video element is mounted, attach it to the session
     if (videoRef.current) {
       session.attach(videoRef.current);
