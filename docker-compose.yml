@@ -65,9 +65,7 @@ services:
     build: ./mlapi # Path to backend Dockerfile
     ports:
       - "8000:8000" # Expose port 8000 for the API
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+    environment:  
       - WORKERS_COUNT=3
       # Remove these emulator variables if you want to use the real services
       - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
@@ -104,9 +102,6 @@ services:
   high-worker:
     build: ./mlapi
     command: python -m redisStore.worker high
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     depends_on:
       - redis
     volumes:
@@ -121,9 +116,6 @@ services:
   default-worker:
     build: ./mlapi
     command: python -m redisStore.worker default
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     depends_on:
       - redis
     volumes:
