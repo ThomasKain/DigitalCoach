@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 import json
-
+import requests
 # imports for get_sentiment_analysis
 from pydantic import BaseModel
 from schemas import SentimentResult
