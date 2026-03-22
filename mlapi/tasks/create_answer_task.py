@@ -1,9 +1,4 @@
-from rq.decorators import job
-from typing import List, Optional
 from schemas.create_answer import (
-    # TextStructureResult,
-    # TimelineStructure,
-    # BigFiveScoreResult,
     CreateAnswerEvaluation,
     OverallCompetencyFeedback,
 )
@@ -19,7 +14,7 @@ from tasks.helpers.av_processing import (
     calculate_overall_audio_sentiment,
     # grab_top_five_keywords,
 )
-
+from redisStore.myconnection import get_redis_con
 from tasks.helpers.competency_feedback import generate_competency_feedback
 from utils.logger_config import get_logger
 from rq.job import Job
@@ -27,7 +22,6 @@ from rq.job import Job
 logger = get_logger(__name__)
 
 
-@job("default", connection=get_redis_con())
 def create_answer(
     video_url: str,
     audio_job_id: str,

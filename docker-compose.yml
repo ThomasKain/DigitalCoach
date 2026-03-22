@@ -106,6 +106,7 @@ services:
       - redis
     volumes:
       - ./mlapi/data:/app/data
+      - ./mlapi:/app
       - /app/.venv # Preserves the virtual environment inside the container
     networks:
       - app-network
@@ -120,6 +121,7 @@ services:
       - redis
     volumes:
       - ./mlapi/data:/app/data
+      - ./mlapi:/app
       - /app/.venv # Preserves the virtual environment inside the container
     networks:
       - app-network
@@ -149,5 +151,5 @@ volumes:
 
 models:
   llm:
-    model: qwen3:4B-UD-Q4_K_XL # LLM model we're using
+    model: ai/qwen3:4B-UD-Q4_K_XL # LLM model we're using
     context_size: 8192 # context size (how much many tokens the model can process at any given time which includes your prompt and the LLM's response), each model has their own max size you can check using `docker model inspect <model name>` (make this smaller if you experience out of memory errors but there needs to be enough context for the LLM to make detailed responses)

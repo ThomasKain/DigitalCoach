@@ -4,7 +4,7 @@ from redisStore.myconnection import get_redis_con
 from utils.logger_config import get_logger
 
 logger = get_logger(__name__)
-QUEUE_PRIORITIES = ["default", "high", "low"] # list of queue priorities
+QUEUE_PRIORITIES = ["high", "default", "low"] # list of queue priorities
 
 def get_queue(priority="default") -> Queue:
     """

@@ -2,8 +2,6 @@ from schemas import (
     SentimentAnalysisResult,
 )
 from utils.logger_config import get_logger
-from rq.decorators import job
-from redisStore.myconnection import get_redis_con
 import os
 from openai import OpenAI
 from pydantic import ValidationError
@@ -12,10 +10,9 @@ from dotenv import load_dotenv
 logger = get_logger(__name__)
 
 load_dotenv() # load environment variables
-# @job("high", connection=get_redis_con())
 def detect_audio_sentiment(transcript_id: str) -> SentimentAnalysisResult:
     """
-    Generate audio sentiment analysis using local LLM
+    Generate audio sentiment analysis using local LLM. This should be a job performed by a Redis RQ Worker
 
     Args:
         request (SentimentAnalysisRequest): Request model containing transcript id to perform sentiment analysis on.
@@ -29,21 +26,20 @@ def detect_audio_sentiment(transcript_id: str) -> SentimentAnalysisResult:
     base_url = os.getenv("LM_BASE_URL")
     api_key = os.getenv("LM_API_KEY")
     model_name = os.getenv("MODEL")
-
     # initialize OpenAI client
     client = OpenAI(base_url=base_url, api_key=api_key)
-    
+
     # initialize messages for LLM 
     # system messages provide additional context to the LLM
     # user messages are the messages the LLM actually responds to
-    messages = [
+    model_messages = [
                 {
                     "role": "system",
                     "content": 
                     """
                     You are an expert technical recruiter and behavioral analyst specializing in interviews. Your task is to analyze the following interview transcript and evaluate the candidate's sentiment, emotional intelligence, and communication skills.
 
-                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object. Note: "sentiment_analys_results" is an array of your sentiment analysis on each line the user spoke.
+                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object. Note: "sentiment_analysis" is an array of your sentiment analysis on each line the user spoke.
 
                     {
                         "sentiment_analysis": [
@@ -74,10 +70,14 @@ def detect_audio_sentiment(transcript_id: str) -> SentimentAnalysisResult:
     try:
         response = client.chat.completions.create(
             model=model_name, # llm model name from docker model runner (you can find this by running `docker model list` in your CMD)
-            messages = messages
+            messages = model_messages,
         )
+
     except Exception as e:
-        return SentimentAnalysisResult(error=f"Error communicating with LLM: {e}")
+        logger.error(f"Error communicating with LLM: {e}")
+        logger.error(f"Sentiment analysis for transcript={transcript_id} failed.")
+        # return SentimentAnalysisResult(error=f"Error communicating with LLM: {e}")
+        raise e # to make sure the RQ job returns a failed status, we must raise an exception
     
     # parse and return LLM response
     try:
@@ -91,4 +91,5 @@ def detect_audio_sentiment(transcript_id: str) -> SentimentAnalysisResult:
         return validated_data
     except ValidationError as e:
         logger.error(f"LLM sentiment analysis on transcript={transcript_id} is in invalid shape. Reason: {e}")
-        return SentimentAnalysisResult(error=f"LLM sentiment analysis on transcript={transcript_id} is in invalid shape. Reason: {e}")
+        # return SentimentAnalysisResult(error=f"LLM sentiment analysis on transcript={transcript_id} is in invalid shape. Reason: {e}")
+        raise e # to make sure the RQ job returns a failed status, we must raise an exception
