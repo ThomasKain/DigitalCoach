@@ -31,6 +31,7 @@ class Feedback(BaseModel):
     """
     ai_feedback: str
     overall_competency: OverallCompetency 
+    sentiment: str
 
 class Metrics(BaseModel):
     """
@@ -53,6 +54,7 @@ class Interview(BaseModel):
     feedback: Feedback | None = None
     metrics: Metrics | None = None
     transcript: list[str] | str | None = None # transcript may either be an array of dialogues from avatar and user or a single long string
+    sentiment: str | None = None
     url: str | None = None # download for user's side of the interview
 
 class CreateInterviewRequest(BaseModel):

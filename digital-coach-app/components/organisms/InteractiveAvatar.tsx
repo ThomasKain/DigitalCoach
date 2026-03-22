@@ -243,7 +243,16 @@ function InteractiveAvatar({sessionToken, onTranscriptUpdate}: InteractiveAvatar
         onTranscriptUpdate(`Interviewer: ${text}`, true);
       }
       // console.log(`Avatar said: ${text}\n`);
-    })
+    });
+
+    // HeyGen LiveAvatar keeps a user transcription (we currently use AssemblyAI for transcription) 
+    // session.on(AgentEventsEnum.USER_TRANSCRIPTION, ({text}) => {
+    //   if (onTranscriptUpdate) {
+    //     onTranscriptUpdate(`User: ${text}`, true);
+    //   }
+    // })
+
+
     
     // when video element is mounted, attach it to the session
     if (videoRef.current) {

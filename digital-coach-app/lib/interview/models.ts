@@ -1,29 +1,5 @@
 import { DocumentReference, Timestamp } from "firebase/firestore";
 
-// export interface IInterviewDocumentReferenceAttributes {
-//   userId: string;
-//   interviewId: string;
-// }
-
-// export type TInterviewDocumentReference =
-//   | DocumentReference<IInterviewAttributes>
-//   | IInterviewDocumentReferenceAttributes;
-
-// export interface IBaseInterview {
-//   title: string;
-// }
-
-// export interface IInterviewAttributes extends IBaseInterview {
-//   completedAt: Timestamp | null;
-//   reviewedAt: Timestamp | null;
-//   createdAt: Timestamp;
-//   result: object | null;
-// }
-
-// export interface IInterview extends IInterviewAttributes {
-//   id: string;
-// }
-
 /**
  * Interface for AI-generated feedback which provides overall feedback, clarity of responses, confidence in the responses, and how engaging the responses were. 
  * (Note: This should match the Feedback Pydantic model in /mlapi/schemas/interview.py)
@@ -47,7 +23,7 @@ export interface IFeedback {
       score: number,
       summary: string,
     }
-  }
+  },
 }
 
 /**
@@ -71,9 +47,34 @@ export interface IInterview {
   date: string, // MM/DD/YYYY
   timeStarted: string  // HH:MM 12-hour
   duration: string, // MMm SSs, e.g. 10m 43s not 0-padded
-  feedback: IFeedback,
-  metrics: IMetrics,
+  feedback: IFeedback | undefined,
+  metrics: IMetrics | undefined,
   transcript: string[] | string, // transcript may either be an array of dialogues from avatar and user or a single long string
-  url: string,
+  sentiment: string | undefined, // sentiment analysis (this is used to store the initial analysis and then be replaced with the overall sentiment later)
+  url: string | undefined,
 }
+
+// export interface IInterviewDocumentReferenceAttributes {
+//   userId: string;
+//   interviewId: string;
+// }
+
+// export type TInterviewDocumentReference =
+//   | DocumentReference<IInterviewAttributes>
+//   | IInterviewDocumentReferenceAttributes;
+
+// export interface IBaseInterview {
+//   title: string;
+// }
+
+// export interface IInterviewAttributes extends IBaseInterview {
+//   completedAt: Timestamp | null;
+//   reviewedAt: Timestamp | null;
+//   createdAt: Timestamp;
+//   result: object | null;
+// }
+
+// export interface IInterview extends IInterviewAttributes {
+//   id: string;
+// }
 

@@ -51,23 +51,23 @@ async def start_seed():
         "feedback": {
             "ai_feedback": "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
             "overall_competency": {
-            "clarity": {
-                "score": 8,
-                "summary": "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
+                "clarity": {
+                    "score": 8,
+                    "summary": "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
+                },
+                "confidence": {
+                    "score": 10,
+                    "summary": "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
+                },
+                "engagement": {
+                    "score": 9,
+                    "summary": "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
+                },
+                "star": {
+                    "score": 88,
+                    "summary": "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
+                }
             },
-            "confidence": {
-                "score": 10,
-                "summary": "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
-            },
-            "engagement": {
-                "score": 9,
-                "summary": "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
-            },
-            "star": {
-                "score": 88,
-                "summary": "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
-            }
-            }
         },
         "metrics": {
             "filler_count": 2,
@@ -84,6 +84,7 @@ async def start_seed():
 
             Marzia Bartalotti: Well, I stepped back, dug into the documentation, and realized I was making a classic N+1 query error. Once I understood the root of the problem, I felt a lot more confident. I restructured the backend logic to use batch processing and implemented some basic indexing. Seeing the load time drop to under 200 milliseconds was incredibly rewarding. I'm actually really proud of how that turned out.
         """,
+        "sentiment": "POSITIVE",
         "url": "https://google.com",
     }
 

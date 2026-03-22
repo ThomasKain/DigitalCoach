@@ -11,7 +11,7 @@ import { CircleAlert } from "lucide-react";
 import { MAX_SESSION_TIME } from "@App/components/video";
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import Spinner from "@App/components/atoms/Spinner";
-
+import { IInterview } from "@App/lib/interview/models";
 type Role = "user" | "interviewer";
 interface Message {
   role: Role;
@@ -105,7 +105,7 @@ export default function NaturalConversationPage() {
    * Handle creating a new interview document within the user's collection of interviews using the interview's data like its duration.
    */
   const handleStopInterview = async (duration: string, timeStarted: string) => {
-    const newInterview = {
+    const newInterview: IInterview = {
       id: uuidv4(), // create intreview id
       date: new Date().toLocaleDateString("en-US", {
         month: "2-digit",
@@ -118,6 +118,7 @@ export default function NaturalConversationPage() {
       feedback: undefined,
       metrics: undefined,
       transcript: fullTranscript,
+      sentiment: undefined,
       url: undefined,
     }
 

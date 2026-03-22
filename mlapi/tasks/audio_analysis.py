@@ -7,7 +7,8 @@ from openai import OpenAI
 from pydantic import ValidationError
 from dotenv import load_dotenv
 from data.interviews import getTranscriptById
-
+from services.firebase_setup import get_firestore_client
+import json
 logger = get_logger(__name__)
 
 load_dotenv() # load environment variables
@@ -75,6 +76,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
         # return SentimentAnalysisResult(error=f"Error communicating with LLM: {e}")
         raise BaseException(e) # to make sure the RQ job returns a failed status, we must raise an exception
     
+    db = get_firestore_client()
     # parse and return LLM response
     try:
         logger.info(f"Verifying LLM sentiment analysis on interview={interview_id}...")
@@ -84,6 +86,12 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
         # verify LLM JSON response is the correct shape 
         validated_data = SentimentAnalysisResult.model_validate_json(llm_response) # parses JSON, checks if it fits our response schema and instantiates our schema if successful 
         logger.info(f"Sentiment Analysis on interview={interview_id} successful!")
+
+        # add sentiment analysis to user's interview as a JSON string to be parsed later and converted into an overall sentiment
+        # get reference to interview
+        interviewRef = db.collection("users").document(user_id).collection("interviews").document(interview_id)
+        await interviewRef.update({"sentiment": validated_data.model_dump_json()})
+
         return validated_data
     except ValidationError as e:
         logger.error(f"LLM sentiment analysis on interview={interview_id} is in invalid shape. Reason: {e}")

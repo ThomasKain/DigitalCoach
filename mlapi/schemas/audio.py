@@ -35,14 +35,13 @@ class SentimentAnalysisResult(BaseModel):
     Result of audio sentiment analysis by AssemblyAI
     """
     sentiment_analysis: List[SentimentResult] = []
-    error: str | None = None
     
     # transcript: str # interview transcript
     # sentiment_analysis: List[SentimentResult] = Field(default_factory=list)
     # highlights: List[HighlightData] = Field(default_factory=list)
     # iab_results: IABResult = Field(default_factory=IABResult)
     # duration: float = 0.0 # duration of audio clip in seconds
-    # errors: Optional[str] = None
+    # error: str | None = None
     
 class SentimentAnalysisJobResponse(BaseModel):
     """

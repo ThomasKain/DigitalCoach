@@ -2,7 +2,7 @@ import sys
 from rq import Worker
 from redisStore.myconnection import get_redis_con
 from utils.logger_config import get_logger
-
+import uuid
 logger = get_logger(__name__)
 
 # Default list of queues to listen for jobs on
@@ -24,7 +24,7 @@ def get_worker(priorities=None):
     
     conn = get_redis_con()
 
-    return Worker(priorities, connection=conn, name=f"Emma Frost {Worker.count(connection=conn)}") # create a worker instance that watches the given queue priorities, with in the given Redis server, and give them a custom name
+    return Worker(priorities, connection=conn, name=f"Emma Frost {uuid.uuid4().hex[:8]}") # create a worker instance that watches the given queue priorities, with in the given Redis server, and give them a custom name
 
 
 if __name__ == "__main__":

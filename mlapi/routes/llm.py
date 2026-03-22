@@ -4,7 +4,6 @@ Routes for all LLM tasks such as sentiment analysis.
 from fastapi import APIRouter, HTTPException
 from schemas import (
     SentimentAnalysisRequest, 
-    SentimentAnalysisResult,
     SentimentAnalysisJobResponse,
     JobId,
     JobStatus
