@@ -1,12 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from utils.logger_config import get_logger
-from schemas import CreateInterviewResponse, CreateInterviewRequest
+from schemas import (
+    CreateInterviewResponse, 
+    CreateInterviewRequest,
+    AnalyzeInterviewRequest,
+)
 from services.firebase_setup import get_firestore_client
 
 logger = get_logger(__name__) # create a logger instance to log messages
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
-
+from services.orchestrator import start_interview_analysis 
 # POST /api/interview
 @router.post(
     "/",
@@ -25,10 +29,16 @@ async def create_interview(request: CreateInterviewRequest):
         interviewRef = db.collection("users").document(request.userId).collection("interviews")
         
         # add interview document to user's interview using the given interview id
-        interviewRef.document(interview["id"]).set(interview)
+        await interviewRef.document(interview["id"]).set(interview)
 
         logger.info("Inserted new interview!")
-        return CreateInterviewResponse(success=True)
+
+        logger.info(f"Starting analysis on interview={interview["id"]}")
+        # Start analysis jobs on interview
+        analysisRequest = AnalyzeInterviewRequest(user_id=request.userId, interview_id=interview["id"])
+        job_id = start_interview_analysis(analysisRequest)
+
+        return CreateInterviewResponse(job_id=job_id, success=True)
     except Exception as e:
         logger.info(f"Failed to create interview: {e}")
         return CreateInterviewResponse(success=False)

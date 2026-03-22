@@ -45,7 +45,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
                     """
                     You are an expert technical recruiter and behavioral analyst specializing in interviews. Your task is to analyze the following interview transcript and evaluate the candidate's sentiment, emotional intelligence, and communication skills.
 
-                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object. Note: "sentiment_analysis" is an array of your sentiment analysis on each line the user spoke.
+                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Ignore any sentences that come from the interviewer. Do not include any additional text outside of the JSON object. Note: "sentiment_analysis" is an array of your sentiment analysis on each line the user spoke.
 
                     {
                         "sentiment_analysis": [

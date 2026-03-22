@@ -68,11 +68,13 @@ class CreateInterviewResponse(BaseModel):
     """
     Model representing the response made after creating a new interview.
     """
+    job_id: str = "" # id of the analysis job started on the interview
     success: bool
 
 class AnalyzeInterviewRequest(BaseModel):
     """
     Model representing the shape for requesting an analysis of an interview which includes tasks like sentiment analysis and feedback generation.
     """
+    user_id: str
     interview_id: str
     

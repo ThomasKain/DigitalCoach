@@ -59,15 +59,19 @@ def start_interview_analysis(req: AnalyzeInterviewRequest) -> str:
         answer_job_id (str): The job ID of the queued interview analysis job.
     """
     # Enqueue audio analysis job on the given video url
-    audio_job = start_audio_analysis(req.interview_id)
+    sentiment_analysis_request = SentimentAnalysisRequest(user_id=req.user_id, interview_id=req.interview_id)
+
+    audio_job = start_audio_analysis(sentiment_analysis_request)
+
+    return audio_job
 
     # Enqueue the create_answer job that's dependent on the analysis job(s) 
-    answer_job = add_task_to_queue(
-        "high", # priority of task (i.e. RQ queue name)
-        create_answer, # function to execute
-        video_url, # video of interview
-        audio_job.id, # audio job id
-        depends_on=[audio_job] # job doesn't start until audio_job is complete
-    )
-
-    return answer_job.id
+    # answer_job = add_task_to_queue(
+    #     "high", # priority of task (i.e. RQ queue name)
+    #     create_answer, # function to execute
+    #     video_url, # video of interview
+    #     audio_job.id, # audio job id
+    #     depends_on=[audio_job] # job doesn't start until audio_job is complete
+    # )
+    
+    # return answer_job.id
