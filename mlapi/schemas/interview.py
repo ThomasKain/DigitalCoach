@@ -67,3 +67,10 @@ class CreateInterviewResponse(BaseModel):
     Model representing the response made after creating a new interview.
     """
     success: bool
+
+class AnalyzeInterviewRequest(BaseModel):
+    """
+    Model representing the shape for requesting an analysis of an interview which includes tasks like sentiment analysis and feedback generation.
+    """
+    interview_id: str
+    

@@ -57,15 +57,16 @@ class SentimentAnalysisRequest(BaseModel):
     """
     Request to start an audio analysis job
     
-    Args: 
-        transcript_id: The id of the interview transcript to analyze
+    Args:
+        user_id: The id of the user whose interview we're analyzing
+        interview_id: The id of the interview who owns the transcript to analyze
     Returns:
         AudioAnalysisRequest: The request object
     Raises:
         ValidationError: If the video_url is empty or not a valid URL
     """
-
-    transcript_id: str
+    user_id: str
+    interview_id: str
 
 # class TimestampData(BaseModel):
 #     """Timestamp info for keyword occurrences"""

@@ -27,7 +27,7 @@ def create_answer(
     audio_job_id: str,
 ) -> CreateAnswerEvaluation:
     """
-    Creates feedback answer based on results of audio analysis (can be extended in the future for facial analysis).
+    Compute metrics for feedback based on results of audio analysis (can be extended in the future for facial analysis).
 
     Args:
         video_url (str): URL or path to the video file
@@ -55,7 +55,7 @@ def create_answer(
 
     ### Process analysis results ### 
 
-    # Audio sentiment analysis
+    # Compute audio sentiment analysis scores
 
     # Compute the STAR score for the response
     

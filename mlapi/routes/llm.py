@@ -21,12 +21,10 @@ router = APIRouter(prefix="/api/llm", tags=["LLM"])
 @router.post(
     "/sentiment",
     response_model=JobId,
-    summary="Starts a sentiment analysis job on the given transcript id.",
-    description="Adds sentiment analysis job to LLM for the given transcript id. Returns the job's id for polling."
+    summary="Starts a sentiment analysis job on the given interview id.",
+    description="Adds sentiment analysis job to LLM for the given interview id. Returns the job's id for polling."
 )
 async def sentiment_analysis(request: SentimentAnalysisRequest) -> JobId: 
-    # TODO verify input
-
     # start audio analysis job
     job_id = start_audio_analysis(request)
 
@@ -49,6 +47,7 @@ async def poll_sentiment_job(job_id: str):
         raise HTTPException(status_code=404, detail=f"Error polling job: {e}")
     
     if job.is_finished:
+        print(f"Sentiment job={job_id} compeleted: {job.result.model_dump()}")
         # job result will SentimentAnalysisResult object
         return SentimentAnalysisJobResponse(
             status=JobStatus.COMPLETED,

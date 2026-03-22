@@ -2,7 +2,7 @@
 Handles setting the connection to Firebase services either emulators or production.
 """
 import firebase_admin
-from firebase_admin import firestore, credentials, auth
+from firebase_admin import firestore, firestore_async, credentials, auth
 import os
 from dotenv import load_dotenv
 from utils.logger_config import get_logger
@@ -33,10 +33,10 @@ def initialize_firebase():
         
 def get_firestore_client():
     """
-    Initializes Firebase Admin SDK and then returns Firestore client, i.e. connection to firestore database.
+    Initializes Firebase Admin SDK and then returns Firestore asynchronous client, i.e. connection to firestore database.
     """
     initialize_firebase()
-    return firestore.client()
+    return firestore_async.client()
 
 def get_auth_client():
     """

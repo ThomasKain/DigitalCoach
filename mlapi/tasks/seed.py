@@ -2,9 +2,9 @@
 Seed file used to populate Firebase services with mock data. This script is to be run within the backend's Docker container because it uses the Firebase Admin SDK.
 """
 from services import firebase_setup 
-from firebase_admin import firestore    
 import requests
 from datetime import datetime
+import asyncio
 
 def drop_emulator_data():
     """
@@ -28,7 +28,7 @@ def drop_emulator_data():
     except Exception as e:
         print(f"Failed to clear Authentication data: {e}")
 
-def start_seed():
+async def start_seed():
     """
     Seeds Firebase Services with data, e.g. add users.
     """
@@ -74,7 +74,16 @@ def start_seed():
             "overall_score": 99,
             "wpm": 100,
         },
-        "transcript": [],
+        "transcript": 
+        """
+            Interviewer: Hi Alex, thanks for taking the time to speak with me today. To kick things off, could you tell me about a recent software project you worked on and a specific technical challenge you had to overcome?
+
+            Marzia Bartalotti: Hi, yes, absolutely. Um, to be honest, I'm a little bit nervous, but I'm really excited to be here. So, recently, I worked on a full-stack web application. The biggest hurdle was definitely optimizing the database queries. Initially, the main user dashboard was loading incredibly slowly—it was taking almost five seconds to render. I felt pretty frustrated because I just couldn't figure out the bottleneck at first.
+
+            Interviewer: That does sound stressful. How did you end up resolving it?
+
+            Marzia Bartalotti: Well, I stepped back, dug into the documentation, and realized I was making a classic N+1 query error. Once I understood the root of the problem, I felt a lot more confident. I restructured the backend logic to use batch processing and implemented some basic indexing. Seeing the load time drop to under 200 milliseconds was incredibly rewarding. I'm actually really proud of how that turned out.
+        """,
         "url": "https://google.com",
     }
 
@@ -89,12 +98,12 @@ def start_seed():
         "proficiency": "Student",
         "registrationCompletedAt": datetime.now().strftime("%m/%d/%Y"),
     }
-    db.collection("users").document(f"{user1.uid}").set(data1) # add user
-    db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1) # add interview to user's account
+    await db.collection("users").document(f"{user1.uid}").set(data1) # add user
+    await db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1) # add interview to user's account
     
 
     print(f"Created user with authentication id={user1.uid}")
 
 print("Seeding Firebase...")
-start_seed()
+asyncio.run(start_seed())
 print("Done seeding Firebase!")
