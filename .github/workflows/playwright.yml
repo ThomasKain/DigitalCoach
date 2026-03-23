@@ -29,7 +29,6 @@ jobs:
         echo "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}" >> digital-coach-app/.env
         echo "NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}" >> digital-coach-app/.env
         echo "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}" >> digital-coach-app/.env
-        echo "ML_API_URL=${{ secrets.ML_API_URL }}" >> digital-coach-app/.env
         echo "${{ secrets.FIREBASE_ADMIN_SDK_BASE64 }}" | base64 -d > mlapi/digital-coach-firebase-adminsdk.json
 
     - name: Start Docker Compose
