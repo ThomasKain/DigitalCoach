@@ -38,6 +38,15 @@ export interface IMetrics {
 }
 
 /**
+ *  Interface of the overall sentiment analysis percentages.
+ */
+export interface ISentiments {
+    positive: Number // percentage of the responses that were positive sentiment
+    negative: Number // percentage of the responses that were negative sentiment
+    neutral:  Number  // percentage of the responses that were neutral sentiment
+}
+
+/**
  * Interview for how an interview is stored in the database.
  * 
  * (Note: This should match the Interview Pydantic model in /mlapi/schemas/interview.py)
@@ -50,7 +59,7 @@ export interface IInterview {
   feedback: IFeedback | undefined,
   metrics: IMetrics | undefined,
   transcript: string[] | string, // transcript may either be an array of dialogues from avatar and user or a single long string
-  sentiment: string | undefined, // sentiment analysis (this is used to store the initial analysis and then be replaced with the overall sentiment later)
+  sentiment: string | ISentiments | undefined, // sentiment analysis (this is used to store the initial analysis and then be replaced with the sentiment percentages later)
   url: string | undefined,
 }
 

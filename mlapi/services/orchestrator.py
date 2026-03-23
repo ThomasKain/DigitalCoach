@@ -63,7 +63,9 @@ def start_interview_analysis(req: AnalyzeInterviewRequest) -> str:
 
     audio_job = start_audio_analysis(sentiment_analysis_request)
 
-    return audio_job
+    # Invoke other tasks here...
+
+    return audio_job 
 
     # Enqueue the create_answer job that's dependent on the analysis job(s) 
     # answer_job = add_task_to_queue(

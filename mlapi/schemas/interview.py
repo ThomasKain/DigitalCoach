@@ -41,6 +41,14 @@ class Metrics(BaseModel):
     overall_score: int # overall interview performance score
     wpm: int # user's words per minute (pacing)
 
+class SentimentPercents(BaseModel):
+    """
+    Model representing the shape of the overall sentiment analysis percentages.
+    """
+    positive: int # percentage of the responses that were positive sentiment
+    negative: int # percentage of the responses that were negative sentiment
+    neutral: int  # percentage of the responses that were neutral sentiment
+
 class Interview(BaseModel): 
     """
     Model representing an interview 
@@ -54,8 +62,9 @@ class Interview(BaseModel):
     feedback: Feedback | None = None
     metrics: Metrics | None = None
     transcript: list[str] | str | None = None # transcript may either be an array of dialogues from avatar and user or a single long string
-    sentiment: str | None = None
+    sentiment: str | SentimentPercents | None = None
     url: str | None = None # download for user's side of the interview
+
 
 class CreateInterviewRequest(BaseModel):
     """
