@@ -4,7 +4,6 @@ Seed file used to populate Firebase services with mock data. This script is to b
 from services import firebase_setup 
 import requests
 from datetime import datetime
-import asyncio
 
 def drop_emulator_data():
     """
@@ -104,7 +103,3 @@ async def start_seed():
     
 
     print(f"Created user with authentication id={user1.uid}")
-
-print("Seeding Firebase...")
-asyncio.run(start_seed())
-print("Done seeding Firebase!")

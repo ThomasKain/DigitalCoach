@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from services.firebase_setup import initialize_firebase # initialize Firebase connection when backend starts
 from rq_dashboard_fast import RedisQueueDashboard
+from tasks.seed import start_seed
+
 from routes import (
     jobs,
     create_answer,
@@ -51,8 +53,23 @@ async def startup_event():
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to the Digital Coach API, please see `/docs` for more information. If you want to access the Redis Queue (RQ) Dashboard to monitor your jobs, please see /rq."
+        "message": "Welcome to the Digital Coach API, please see '/docs' for information on the server's endpoints as well as being able to test them. If you want to access the Redis Queue (RQ) Dashboard to monitor your jobs, please see '/rq'. If you want to seed your database, please see '/seed'."
     }
+
+@app.get("/seed")
+async def seed():
+    try:
+        print("Seeding Firebase...")
+        await start_seed()
+        print("Done seeding Firebase!")
+        return {
+            "message": "Firebase services seeded successfully!"
+        }
+    except Exception as e: 
+        return {
+            "message": f"Error seeding Firebase: {e}. Please try seeding again."
+        }
+
 
 # Create Redis Queue (RQ) Dashboard to monitor RQ
 dashboard = RedisQueueDashboard("redis://redis:6379/", "/rq")

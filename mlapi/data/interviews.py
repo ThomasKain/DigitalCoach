@@ -5,6 +5,9 @@ Data functions related to interviews.
 from services.firebase_setup import get_firestore_client
 from utils.logger_config import get_logger
 logger = get_logger(__name__)
+
+
+
 async def getTranscriptById(user_id: str, interview_id: str) -> str:
     """
     Returns the transcript with the given interview id from the given user.
