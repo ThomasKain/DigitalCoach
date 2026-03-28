@@ -22,7 +22,7 @@ async def create_user(request: CreateUserRequest):
         user = request.user.model_dump()
 
         # add user document to collection
-        db.collection("users").add(user)
+        await db.collection("users").add(user)
 
         logger.info("Inserted new user!")
         return CreateUserResponse(success=True)
@@ -41,7 +41,7 @@ async def get_user(request: GetUserRequest):
     db = get_firestore_client()
     logger.info(f"Attempting to retrieve user document with id {request.userId}...")
     try:
-        user = db.collection("users").document(request.userId).get()
+        user = await db.collection("users").document(request.userId).get()
         logger.info("Retrieved user!")
         return GetUserResponse(user=user)
     except Exception as e:
