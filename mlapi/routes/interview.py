@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from utils.logger_config import get_logger
 from schemas import (
     CreateInterviewResponse, 
     CreateInterviewRequest,
     AnalyzeInterviewRequest,
-)
+    GetInterviewRequest, 
+    GetInterviewResponse
+) 
 from services.firebase_setup import get_firestore_client
 
 logger = get_logger(__name__) # create a logger instance to log messages
@@ -42,4 +44,22 @@ async def create_interview(request: CreateInterviewRequest):
     except Exception as e:
         logger.info(f"Failed to create interview: {e}")
         return CreateInterviewResponse(success=False)
-    
+
+# GET /api/interview
+@router.get(
+    "/",
+    response_model=GetInterviewResponse,
+    summary="Get interview document given user and interview id.",
+    description="Retrieves an interview document with a given id from a user with a given id.",
+)
+async def get_interview(request: GetInterviewRequest):
+    db = get_firestore_client()
+    logger.info(f"Attempting to retrieve interview document with id {request.interviewId} from user={request.userId}...")
+    try:
+        interview = await (db.collection("users").document(request.userId)
+                     .collection("interviews").document(request.interviewId).get())
+        logger.info("Retrieved interview!")
+        return GetInterviewResponse(interview=interview)
+    except Exception as e:
+        logger.info(f"Failed to retrieve interview: {e}")
+        return GetInterviewResponse(interview=None)

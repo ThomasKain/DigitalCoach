@@ -74,6 +74,6 @@ test('query interview results', async ({ page }) => {
 
   // Request interview results using the new button name
   await page.getByRole('link', { name: 'View Interview History' }).click();
-  await page.waitForURL("**/client_test");
-  await expect(page.getByText('Data received: {"name":"Emma').first()).toBeVisible();
+  await page.waitForURL("**/progress");
+  await expect(page.getByText('Interview History').first()).toBeVisible();
 });

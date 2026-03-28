@@ -86,4 +86,16 @@ class AnalyzeInterviewRequest(BaseModel):
     """
     user_id: str
     interview_id: str
-    
+
+class GetInterviewRequest(BaseModel):
+    """
+    Model representing the shape of the request made from the client to retrieve an interview document.
+    """
+    userId: str # user's id from Firebase Authentication
+    interviewId: str # interview id
+
+class GetInterviewResponse(BaseModel):
+    """
+    Model representing the response made from retrieving an interview.
+    """
+    interview: Interview | None
