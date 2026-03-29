@@ -6,6 +6,7 @@ import { Calendar, Clock, Star, BookOpenText, Crown, Heart, CirclePlus } from "l
 import Spinner from "@App/components/atoms/Spinner";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import { useParams } from "next/navigation";
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
 
 /**
  * Webpage for a specific interview. 
@@ -16,87 +17,39 @@ export default function InterviewResults() {
     const router = useRouter();
     const [isLoading, setLoading] = useState(true);
     const [isReady, setReady] = useState(false); // flag representing whether the interview is "ready", i.e. it's done being analyzed
-    const [interviewData, setInterview] = useState<IInterview>();
-    const host = window ? "localhost:8000" : "api";
+    const [interview, setInterview] = useState<IInterview | undefined>(undefined);
+    const { user } = useAuth();
 
-    // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
-    const mockData = {
-        "id": "vsoSA7V72JFdBPMLJL29",
-        "date": "03/04/2024",
-        "timestamp": Date.now(), // timestamp when interview was created in milliseconds since the epoch
-        "timeStarted": "20:30",
-        "duration": "5m 30s",
-        "feedback": {
-            ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
-            overall_competency: {
-                clarity: {
-                    score: 8,
-                    summary: "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
-                },
-                confidence: {
-                    score: 10,
-                    summary: "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
-                },
-                engagement: {
-                    score: 9,
-                    summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
-                },
-                star: {
-                    score: 88,
-                    summary: "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
-                }
-            }
-        },
-        "metrics": {
-            "filler_count": 2,
-            "overall_score": 99,
-            "wpm": 100,
-        },
-        "transcript": [],
-        "sentiment": "POSITIVE",
-        "url": "google.com",
-    }
-    
     useEffect(() => {
+        const host = window ? "localhost:8000" : "api";
         const getInterview = async () => {
             const interviewId = params.id.trim();
             try {
-                const response = await fetch(`http://${host}/api/interview/${interviewId}`);
+                const response = await fetch(`http://${host}/api/interview/${user!.uid}/${interviewId}`);
+                if (response.ok) {
+                    console.log("Successfully fetched interview!");
+                    const data = await response.json();
+                    const { interview } = data;
+                    // check if interview is done being analyzed
+                    if (interview.is_analyzed) {
+                        console.log(interview)
+                        setInterview(interview);
+                        setLoading(false);
+                        setReady(true)
+                    }
+                } else {
+                    throw `Error ${response.statusText || "Something went wrong"}`;
+                }
             } catch (e) {
                 throw `Error getting interview=${interviewId}: ${e}`;
             }
         };
         
         // since we currently use the Next.js Page router, the query parameter (id) isn't available until the Page router is ready
-        if (router.isReady) {
+        if (router.isReady && user) {
             getInterview();
         }
-    }, [router.isReady]);
-
-    useEffect(() => {
-        // setInterview(mockData);
-        // alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interview's data.")
-
-        const getInterview = async () => {
-
-        }
-
-    }, []);
-
-    /**
-     * Gets the interview document using its id from the URL.
-     */
-    const getInterview = async () => {
-
-    }
-
-    /**
-     * Converts an interview's duration HH:MM into HHh and MMm
-     * @param duration 
-     */
-    const formatDuration = (duration: string) => {
-
-    }
+    }, [router.isReady, user]);
 
     if (isLoading) {
         return (
@@ -116,7 +69,7 @@ export default function InterviewResults() {
                         <h1>Interview Performance</h1>
                         <div className={styles.scoreDisplay}>
                             <div className={styles.scoreValue}>
-                                {interview?.metrics.overall_score}
+                                {interview && interview.metrics!.overall_score}
                             </div>
                             <p className={styles.scoreLabel}>Overall Score</p>
                         </div>
@@ -131,7 +84,6 @@ export default function InterviewResults() {
                             </div>
                         </div>
                     </div>
-            
                     {/* Performance Metrics */}
                     <div className={styles.metricsGrid}>
                         {/* STAR Method */}
@@ -148,10 +100,11 @@ export default function InterviewResults() {
 
                             <div className={styles.scoreBadge}>
                                 <span className={styles.scoreText}>
-                                    {interview?.feedback.overall_competency.star.score}
+                                    {interview && interview.feedback.overall_competency.star.score}
                                 </span>
+                                <p>/10</p>
                             </div>
-                            <p className={styles.feedbackText}>{interview?.feedback.overall_competency.star.summary}</p>
+                            <p className={styles.feedbackText}>{interview && interview.feedback.overall_competency.star.summary}</p>
                         </div>
 
                         {/* Pacing Score */}
@@ -168,12 +121,11 @@ export default function InterviewResults() {
 
                             <div className={styles.scoreBadge}>
                                 <span className={styles.scoreText}>
-                                    {interview?.feedback.overall_competency.clarity.score}
+                                    {interview && interview.feedback.overall_competency.clarity.score}
                                 </span>
+                                <p>/10</p>
                             </div>
-                            <p className={styles.feedbackText}>
-                                {interview?.feedback.overall_competency.clarity.summary}
-                            </p>
+                            <p className={styles.feedbackText}>{interview && interview.feedback.overall_competency.clarity.summary}</p>
                         </div>
 
                         {/* Filler Words */}
@@ -188,11 +140,12 @@ export default function InterviewResults() {
                                 </div>
                             </div>
                             <div className={styles.scoreBadge}>
-                                <div className={styles.scoreText}>{interview?.feedback.overall_competency.confidence.score}    
+                                <div className={styles.scoreText}>{interview && interview.feedback.overall_competency.confidence.score}    
                                 </div>
+                                <p>/10</p>
                             </div>
                             <p className={styles.feedbackText}>
-                                {interview?.feedback.overall_competency.confidence.summary}
+                                {interview && interview.feedback.overall_competency.confidence.summary}
                             </p>
                         </div>
 
@@ -209,11 +162,14 @@ export default function InterviewResults() {
                             </div>
                             <div className={styles.scoreBadge}>
                                 <div className={styles.scoreText}>
-                                    {interview?.feedback.overall_competency.engagement.score}
+                                    {interview && interview.feedback.overall_competency.engagement.score}
                                 </div>
+                                <p>/10</p>
+                                    
                             </div>
                             <p className={styles.feedbackText}>
-                                {interview?.feedback.overall_competency.engagement.summary}
+                                {interview && interview.feedback.overall_competency.engagement.summary}
+                                <p>Overall Sentiment: {interview && interview.sentiment}</p>
                             </p>
                         </div>
                     </div>

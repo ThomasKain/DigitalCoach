@@ -67,7 +67,7 @@ async def start_seed():
                     "summary": "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
                 },
                 "star": {
-                    "score": 88,
+                    "score": 8,
                     "summary": "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
                 }
             },
@@ -113,7 +113,7 @@ async def start_seed():
                     "summary": "You were highly expressive, but you dominated the conversation. Try to leave more 'white space' for the interviewer to interject.",
                 },
                 "star": {
-                    "score": 92,
+                    "score": 9,
                     "summary": "Excellent use of the STAR method. Your 'Result' section included specific revenue impact (15% increase), which is exactly what hiring managers look for."
                 }
             },

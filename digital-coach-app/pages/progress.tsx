@@ -26,12 +26,12 @@ export default function ProgressPage() {
         const response = await fetch(`http://${host}/api/interview/${user?.uid}`);
         if (response.ok) {
           console.log("Successfully fetched interviews!");
+          const data = await response.json();
+          setInterviews(data);
+          setLoading(false);
         } else {
           throw `Error: ${response.statusText || "Something went wrong"}`;
         }
-        const data = await response.json();
-        setInterviews(data);
-        setLoading(false);
       } catch (e) {
         throw `Error getting interviews: ${e}`;
       }
@@ -80,6 +80,7 @@ export default function ProgressPage() {
     if (interviews.length) {
       let sum = 0; 
       for (const interview of interviews) {
+        console.log(`interview=${interview.id}`)
         sum += interview.metrics!.overall_score
       }
       return Math.floor(sum / interviews.length);
