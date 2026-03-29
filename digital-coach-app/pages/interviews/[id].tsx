@@ -3,18 +3,27 @@ import { useState, useEffect } from "react";
 import styles from "@App/styles/interview/Results.module.scss";
 import { IInterview } from "@App/lib/interview/models"
 import { Calendar, Clock, Star, BookOpenText, Crown, Heart, CirclePlus } from "lucide-react";
+import Spinner from "@App/components/atoms/Spinner";
+import AuthGuard from "@App/lib/auth/AuthGuard";
+import { useParams } from "next/navigation";
 
 /**
  * Webpage for a specific interview. 
  * @returns Webpage that displays the interview-related results
  */
 export default function InterviewResults() {
+    const params = useParams<{id: string}>();
     const router = useRouter();
-    const [interview, setInterview] = useState<IInterview>();
+    const [isLoading, setLoading] = useState(true);
+    const [isReady, setReady] = useState(false); // flag representing whether the interview is "ready", i.e. it's done being analyzed
+    const [interviewData, setInterview] = useState<IInterview>();
+    const host = window ? "localhost:8000" : "api";
+
     // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
     const mockData = {
         "id": "vsoSA7V72JFdBPMLJL29",
         "date": "03/04/2024",
+        "timestamp": Date.now(), // timestamp when interview was created in milliseconds since the epoch
         "timeStarted": "20:30",
         "duration": "5m 30s",
         "feedback": {
@@ -42,15 +51,36 @@ export default function InterviewResults() {
             "filler_count": 2,
             "overall_score": 99,
             "wpm": 100,
-
         },
         "transcript": [],
+        "sentiment": "POSITIVE",
         "url": "google.com",
     }
     
     useEffect(() => {
-        setInterview(mockData);
-        alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interview's data.")
+        const getInterview = async () => {
+            const interviewId = params.id.trim();
+            try {
+                const response = await fetch(`http://${host}/api/interview/${interviewId}`);
+            } catch (e) {
+                throw `Error getting interview=${interviewId}: ${e}`;
+            }
+        };
+        
+        // since we currently use the Next.js Page router, the query parameter (id) isn't available until the Page router is ready
+        if (router.isReady) {
+            getInterview();
+        }
+    }, [router.isReady]);
+
+    useEffect(() => {
+        // setInterview(mockData);
+        // alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interview's data.")
+
+        const getInterview = async () => {
+
+        }
+
     }, []);
 
     /**
@@ -68,133 +98,145 @@ export default function InterviewResults() {
 
     }
 
+    if (isLoading) {
+        return (
+            <AuthGuard>
+                <Spinner message={isReady
+                    ? "Getting interview..."
+                    : "Interview undergoing analysis, please come back later."}/>
+            </AuthGuard>
+        )
+    }
     return (
-        <div className={styles.performanceResults}>
-            <div className={styles.resultsContainer}>
-                {/* Overall Score */}
-                <div className={styles.overallScore}>
-                    <h1>Interview Performance</h1>
-                    <div className={styles.scoreDisplay}>
-                        <div className={styles.scoreValue}>
-                            {interview?.metrics.overall_score}
+        <AuthGuard>
+            <div className={styles.performanceResults}>
+                <div className={styles.resultsContainer}>
+                    {/* Overall Score */}
+                    <div className={styles.overallScore}>
+                        <h1>Interview Performance</h1>
+                        <div className={styles.scoreDisplay}>
+                            <div className={styles.scoreValue}>
+                                {interview?.metrics.overall_score}
+                            </div>
+                            <p className={styles.scoreLabel}>Overall Score</p>
                         </div>
-                        <p className={styles.scoreLabel}>Overall Score</p>
+                        <div className={styles.metadata}>
+                            <div className={styles.metadataItem}>
+                                <Calendar/>
+                                <span>{interview?.date}</span>
+                            </div>
+                            <div className={styles.metadataItem}>
+                                <Clock/>
+                                <span>{interview?.duration}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className={styles.metadata}>
-                        <div className={styles.metadataItem}>
-                            <Calendar/>
-                            <span>{interview?.date}</span>
+            
+                    {/* Performance Metrics */}
+                    <div className={styles.metricsGrid}>
+                        {/* STAR Method */}
+                        <div className={styles.metricCard}>
+                            <div className={styles.metricHeader}>
+                                <div className={styles.metricIcon}>
+                                    <Star/>
+                                </div>
+                                <div className={styles.metricInfo}>
+                                    <h3>STAR Method</h3>
+                                    <p>Structure Quality</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.scoreBadge}>
+                                <span className={styles.scoreText}>
+                                    {interview?.feedback.overall_competency.star.score}
+                                </span>
+                            </div>
+                            <p className={styles.feedbackText}>{interview?.feedback.overall_competency.star.summary}</p>
                         </div>
-                        <div className={styles.metadataItem}>
-                            <Clock/>
-                            <span>{interview?.duration}</span>
+
+                        {/* Pacing Score */}
+                        <div className={styles.metricCard}>
+                            <div className={styles.metricHeader}>
+                                <div className={styles.metricIcon}>
+                                    <BookOpenText/>
+                                </div>
+                                <div className={styles.metricInfo}>
+                                    <h3>Clarity</h3>
+                                    <p>Speech Rate</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.scoreBadge}>
+                                <span className={styles.scoreText}>
+                                    {interview?.feedback.overall_competency.clarity.score}
+                                </span>
+                            </div>
+                            <p className={styles.feedbackText}>
+                                {interview?.feedback.overall_competency.clarity.summary}
+                            </p>
+                        </div>
+
+                        {/* Filler Words */}
+                        <div className={styles.metricCard}>
+                            <div className={styles.metricHeader}>
+                                <div className={styles.metricIcon}>
+                                    <Crown/>
+                                </div>
+                                <div className={styles.metricInfo}>
+                                    <h3>Confidence</h3>
+                                    <p>Filler/Hedge Words</p>
+                                </div>
+                            </div>
+                            <div className={styles.scoreBadge}>
+                                <div className={styles.scoreText}>{interview?.feedback.overall_competency.confidence.score}    
+                                </div>
+                            </div>
+                            <p className={styles.feedbackText}>
+                                {interview?.feedback.overall_competency.confidence.summary}
+                            </p>
+                        </div>
+
+                        {/* Sentiment/Engagement */}
+                        <div className={styles.metricCard}>
+                            <div className={styles.metricHeader}>
+                                <div className={styles.metricIcon}>
+                                    <Heart/>
+                                </div>
+                                <div className={styles.metricInfo}>
+                                    <h3>Engagement</h3>
+                                    <p>Emotional Tone</p>
+                                </div>
+                            </div>
+                            <div className={styles.scoreBadge}>
+                                <div className={styles.scoreText}>
+                                    {interview?.feedback.overall_competency.engagement.score}
+                                </div>
+                            </div>
+                            <p className={styles.feedbackText}>
+                                {interview?.feedback.overall_competency.engagement.summary}
+                            </p>
                         </div>
                     </div>
-                </div>
-        
-                {/* Performance Metrics */}
-                <div className={styles.metricsGrid}>
-                    {/* STAR Method */}
-                    <div className={styles.metricCard}>
-                        <div className={styles.metricHeader}>
-                            <div className={styles.metricIcon}>
-                                <Star/>
-                            </div>
-                            <div className={styles.metricInfo}>
-                                <h3>STAR Method</h3>
-                                <p>Structure Quality</p>
-                            </div>
-                        </div>
 
-                        <div className={styles.scoreBadge}>
-                            <span className={styles.scoreText}>
-                                {interview?.feedback.overall_competency.star.score}
-                            </span>
-                        </div>
-                        <p className={styles.feedbackText}>{interview?.feedback.overall_competency.star.summary}</p>
+                    {/* Transcript */}
+
+                    {/* Action Buttons */}
+                    <div className={styles.actionButtons}>
+                        <button
+                            onClick={() => router.push("/naturalconversation")}
+                            className={styles.practiceButton}
+                        >
+                        Practice Again  
+                        </button>
+                        <button
+                            onClick={() => router.push("/progress")}
+                            className={styles.viewHistory}>
+                            View All Interviews
+                        </button>
                     </div>
+                </div>    
+            </div>
+        </AuthGuard>
 
-                    {/* Pacing Score */}
-                    <div className={styles.metricCard}>
-                        <div className={styles.metricHeader}>
-                            <div className={styles.metricIcon}>
-                                <BookOpenText/>
-                            </div>
-                            <div className={styles.metricInfo}>
-                                <h3>Clarity</h3>
-                                <p>Speech Rate</p>
-                            </div>
-                        </div>
-
-                        <div className={styles.scoreBadge}>
-                            <span className={styles.scoreText}>
-                                {interview?.feedback.overall_competency.clarity.score}
-                            </span>
-                        </div>
-                        <p className={styles.feedbackText}>
-                            {interview?.feedback.overall_competency.clarity.summary}
-                        </p>
-                    </div>
-
-                    {/* Filler Words */}
-                    <div className={styles.metricCard}>
-                        <div className={styles.metricHeader}>
-                            <div className={styles.metricIcon}>
-                                <Crown/>
-                            </div>
-                            <div className={styles.metricInfo}>
-                                <h3>Confidence</h3>
-                                <p>Filler/Hedge Words</p>
-                            </div>
-                        </div>
-                        <div className={styles.scoreBadge}>
-                            <div className={styles.scoreText}>{interview?.feedback.overall_competency.confidence.score}    
-                            </div>
-                        </div>
-                        <p className={styles.feedbackText}>
-                            {interview?.feedback.overall_competency.confidence.summary}
-                        </p>
-                    </div>
-
-                    {/* Sentiment/Engagement */}
-                    <div className={styles.metricCard}>
-                        <div className={styles.metricHeader}>
-                            <div className={styles.metricIcon}>
-                                <Heart/>
-                            </div>
-                            <div className={styles.metricInfo}>
-                                <h3>Engagement</h3>
-                                <p>Emotional Tone</p>
-                            </div>
-                        </div>
-                        <div className={styles.scoreBadge}>
-                            <div className={styles.scoreText}>
-                                {interview?.feedback.overall_competency.engagement.score}
-                            </div>
-                        </div>
-                        <p className={styles.feedbackText}>
-                            {interview?.feedback.overall_competency.engagement.summary}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Transcript */}
-
-                {/* Action Buttons */}
-                <div className={styles.actionButtons}>
-                    <button
-                        onClick={() => router.push("/naturalconversation")}
-                        className={styles.practiceButton}
-                    >
-                      Practice Again  
-                    </button>
-                    <button
-                        onClick={() => router.push("/progress")}
-                        className={styles.viewHistory}>
-                        View All Interviews
-                    </button>
-                </div>
-            </div>    
-        </div>
     )
 }

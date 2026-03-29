@@ -89,6 +89,7 @@ async def start_seed():
         """,
         "sentiment": "POSITIVE",
         "url": "https://google.com",
+        "is_analyzed": True,
     }
     interview2 = {
         "id": "k8nLB9X23mRpTQXCZK44",
@@ -134,6 +135,7 @@ async def start_seed():
         """,
         "sentiment": "POSITIVE",
         "url": "https://zoom.us/rec/example-id",
+        "is_analyzed": True,
     }
 
 

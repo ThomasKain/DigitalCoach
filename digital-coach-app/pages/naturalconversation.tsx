@@ -121,6 +121,7 @@ export default function NaturalConversationPage() {
       transcript: fullTranscript,
       sentiment: undefined,
       url: undefined,
+      is_analyzed: false
     }
 
     const req = {

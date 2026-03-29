@@ -64,7 +64,7 @@ class Interview(BaseModel):
     transcript: list[str] | str | None = None # transcript may either be an array of dialogues from avatar and user or a single long string
     sentiment: str | SentimentPercents | None = None
     url: str | None = None # download for user's side of the interview
-
+    is_analyzed: bool = False # flag representing when an interview has completed their analysis
 
 class CreateInterviewRequest(BaseModel):
     """

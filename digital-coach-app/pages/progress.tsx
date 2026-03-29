@@ -223,7 +223,7 @@ export default function ProgressPage() {
               </div>
                 {/* how much the user has improved overtime  */}
                 <p className={styles.statValue}>{interviews && calculateImprovement()}</p>
-                <p className={styles.statLabel}>Improvement Over Time (EMA)</p>
+                <p className={styles.statLabel}>Improvement Over Time (EMA Δ)</p>
             </div>
           </div>
         )}

@@ -62,6 +62,7 @@ export interface IInterview {
   transcript: string[] | string, // transcript may either be an array of dialogues from avatar and user or a single long string
   sentiment: string | ISentiments | undefined, // sentiment analysis (this is used to store the initial analysis and then be replaced with the sentiment percentages later)
   url: string | undefined,
+  is_analyzed: boolean // flag representing when the interview is done being analyzed
 }
 
 // export interface IInterviewDocumentReferenceAttributes {

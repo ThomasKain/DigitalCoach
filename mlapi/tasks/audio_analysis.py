@@ -55,6 +55,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
                             "confidence": [Your level of confidence between [0, 1]],
                             },
                         ],
+                        "feedback": "[1-2 actionable tips for the candidate to improve their communication]"
                     }
 
                     """
