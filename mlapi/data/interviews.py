@@ -4,6 +4,16 @@ Data functions related to interviews.
 
 from services.firebase_setup import get_firestore_client
 from utils.logger_config import get_logger
+from schemas.interview import (
+    Interview,
+    Feedback,
+    Metrics,
+    OverallCompetency,
+    CompetencyMetric,
+)
+from google.api_core import exceptions
+from pydantic import ValidationError
+
 logger = get_logger(__name__)
 
 
@@ -37,5 +47,37 @@ async def getTranscriptById(user_id: str, interview_id: str) -> str:
         raise AttributeError(f"Error getting transcript for interview={interview_id}. Reason: {e}")
 
 
+
+async def getUserInterviews(user_id: str) -> list[Interview]:
+    """
+    Returns a list of all the user's interviews.
+    """
+    db = get_firestore_client() # get firestore instance
+
+    # get user's document 
+    userRef = db.collection("users").document(user_id)
+    userDoc = await userRef.get()
+
+    # check if user document exists
+    if userDoc.exists:
+        logger.info(f"User document found!")
+        
+        interviewCol = userRef.collection("interviews").stream() # read all documents in interview collection
+        interviews = [] 
+        try:
+            # iterate through each interview document
+            async for interviewDoc in interviewCol:
+                interview_data = interviewDoc.to_dict() # convert document into dictionary
+
+                interviews.append(Interview.model_validate(interview_data)) # verify dictionary matches interview schema's shape and then add it to the list as an interview instance if valid
+
+            return interviews # return list of all interviews
+        except ValidationError as e:
+            logger.error(f"An interview doesn't follow the Pydantic schema: {e}")
+            return []
+
+    else:
+        logger.error(f"User with user_id={user_id} not found.")
+        return []
 
 

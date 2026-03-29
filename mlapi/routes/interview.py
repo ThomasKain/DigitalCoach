@@ -5,9 +5,11 @@ from schemas import (
     CreateInterviewRequest,
     AnalyzeInterviewRequest,
     GetInterviewRequest, 
-    GetInterviewResponse
+    GetInterviewResponse,
+    Interview
 ) 
 from services.firebase_setup import get_firestore_client
+from data.interviews import getUserInterviews
 
 logger = get_logger(__name__) # create a logger instance to log messages
 
@@ -63,3 +65,19 @@ async def get_interview(request: GetInterviewRequest):
     except Exception as e:
         logger.info(f"Failed to retrieve interview: {e}")
         return GetInterviewResponse(interview=None)
+
+
+# GET /api/interview/{user_id}
+@router.get(
+    "/{user_id}",
+    summary="Get all of a specific user's interviews.",
+    description="Get all of interview documents belonging to a specific user.",
+)
+async def get_interviews(user_id: str) -> list[Interview]:
+    logger.info(f"Getting all the interviews for user id={user_id}")
+    
+    interviews = await getUserInterviews(user_id)
+    
+
+    return interviews
+    

@@ -31,7 +31,6 @@ class Feedback(BaseModel):
     """
     ai_feedback: str
     overall_competency: OverallCompetency 
-    sentiment: str
 
 class Metrics(BaseModel):
     """

@@ -4,6 +4,8 @@ Seed file used to populate Firebase services with mock data. This script is to b
 from services import firebase_setup 
 import requests
 from datetime import datetime
+from schemas import Interview
+from pydantic import ValidationError
 
 def drop_emulator_data():
     """
@@ -86,6 +88,14 @@ async def start_seed():
         "sentiment": "POSITIVE",
         "url": "https://google.com",
     }
+
+    # verify seed data follows the correct Pydantic schemas
+    try:
+        # verify interview data follows the interview pydantic schema
+        Interview.model_validate(interview1)
+    except ValidationError as e:
+        print(f"Seed data doesn't follow Pydantic schema(s): {e}")
+        raise Exception(f"Seed data doesn't follow Pydantic schema(s): {e}")
 
     data1 = { 
         "avatarUrl": "https://picsum.photos/200",

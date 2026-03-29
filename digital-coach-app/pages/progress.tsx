@@ -50,9 +50,12 @@ export default function ProgressPage() {
       "url": "google.com",
   }
 
+  // pull user's interview from database 
   useEffect(() => {
-    setInterviews([...interviews, mockData, mockData])
-    alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interviews' data.")
+    // setInterviews([...interviews, mockData, mockData])
+    // alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interviews' data.")
+  
+    
   }, [])
 
   /**
