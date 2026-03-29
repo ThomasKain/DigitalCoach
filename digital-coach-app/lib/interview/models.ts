@@ -32,9 +32,9 @@ export interface IFeedback {
  * (Note: This should match the Metrics Pydantic model in /mlapi/schemas/interview.py)
  */
 export interface IMetrics {
-  filler_count: number,
-  overall_score: number,
-  wpm: number,
+  filler_count: number | undefined,
+  overall_score: number | undefined,
+  wpm: number | undefined,
 }
 
 /**
@@ -54,7 +54,8 @@ export interface ISentiments {
 export interface IInterview {
   id: string,
   date: string, // MM/DD/YYYY
-  timeStarted: string  // HH:MM 12-hour
+  timestamp: number, // timestamp of when interview was created using milliseconds elapsed since the epoch (this is used as a way to sort interviews chronologically)
+  timeStarted: string, // HH:MM 12-hour
   duration: string, // MMm SSs, e.g. 10m 43s not 0-padded
   feedback: IFeedback | undefined,
   metrics: IMetrics | undefined,

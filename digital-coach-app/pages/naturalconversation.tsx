@@ -112,6 +112,7 @@ export default function NaturalConversationPage() {
         day: "2-digit",
         year: "numeric"
       }), // MM/DD/YYYY
+      timestamp: Date.now(),
       timeStarted, // HH:MM AM/PM
       duration, // MMm SSs
       // these values will be populated later by the backend once the interview has been processed

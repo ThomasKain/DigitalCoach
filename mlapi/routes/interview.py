@@ -70,14 +70,20 @@ async def get_interview(request: GetInterviewRequest):
 # GET /api/interview/{user_id}
 @router.get(
     "/{user_id}",
-    summary="Get all of a specific user's interviews.",
-    description="Get all of interview documents belonging to a specific user.",
+    summary="Get all of a specific user's fully analyzed interviews.",
+    description="Get all analyzed interview documents belonging to a specific user.",
 )
 async def get_interviews(user_id: str) -> list[Interview]:
-    logger.info(f"Getting all the interviews for user id={user_id}")
-    
-    interviews = await getUserInterviews(user_id)
-    
+    logger.info(f"Getting all the analyzed interviews for user id={user_id}")
 
-    return interviews
+    
+    # validate user_id
+
+    # get user interviews
+    try: 
+        interviews = await getUserInterviews(user_id)
+        return interviews # return interviews
+    except Exception as e: 
+        logger.error(e)
+        return []
     

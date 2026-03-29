@@ -6,6 +6,7 @@ import requests
 from datetime import datetime
 from schemas import Interview
 from pydantic import ValidationError
+import time
 
 def drop_emulator_data():
     """
@@ -47,6 +48,7 @@ async def start_seed():
     interview1 = {
         "id": "vsoSA7V72JFdBPMLJL29",
         "date": "03/04/2024", # MM/DD/YY
+        "timestamp": int(time.time() * 1000), # timestamp when interview was created in milliseconds since the epoch 
         "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 12-hour
         "duration": "5m 30s", # MMm SSs (not 0-padded)
         "feedback": {
@@ -91,6 +93,7 @@ async def start_seed():
     interview2 = {
         "id": "k8nLB9X23mRpTQXCZK44",
         "date": "05/12/2026", # MM/DD/YY
+        "timestamp": int(time.time() * 1000)+1, # timestamp when interview was created in milliseconds since the epoch (the +1 is for the seed data ONLY because the timestamps match when seeding the database which doesn't reflect realistic use)
         "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 12-hour
         "duration": "12m 15s", # MMm SSs (not 0-padded)
         "feedback": {
