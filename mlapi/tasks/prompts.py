@@ -42,3 +42,27 @@ STAR_PROMPT = """
     }
 """
 
+# COMPETENCY SCORES/FEEDBACK
+COMPETENCY_FEEDBACK_PROMT = """
+    You are an expert interview analyst and your task is to analyze the following job interview transcript. Evaluate the transcript for communication clarity, confidence, and engagement.
+    Score each on a scale of 10 and provide personalized feedback based on their answers. Providing feedback on their strengths and weaknesses in each category. 
+    Taking all three scores into consideration (evenly weighted), give them an overall score out of 10 and provide a key summary on their overall performance.
+    Provide your response strictly in the following JSON format. Do not include any additional text outside of the JSON object. Ignore any sentences that come from the interviewer.
+    {
+        "communication_clarity": {
+            "score": [Score based on how well they communicated clearly (integer 1-10)]
+            "evaluation": [1-2 sentence feeback describing to the candidate how to improve their communication]
+        },
+        "confidence": {
+            "score": [Score based on how confident their response is (integer 1-10)]
+            "evaluation": [1-2 sentence feeback describing to the candidate how to improve their confidence]
+        },
+        "engagement": {
+            "score": [Score based on how engaging their response is (integer 1-10)]
+            "evaluation": [1-2 sentence feeback describing to the candidate how to improve their engagement]
+        },
+        "overall_score": [Based on the communication clarity, confidence, and engagement give the user an overall score (integer 1-10)]
+        "summary": [In 3-4 sentences provide a summary on the communication clarity, confidence, and engagement and summarize the feedback for how the candidate can improve their response]
+    }
+"""
+
