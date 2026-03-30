@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from dotenv import load_dotenv
 from data.interviews import getTranscriptById
 from services.firebase_setup import get_firestore_client
+from tasks.prompts import SENTIMENT_ANALYSIS_PROMPT
 import json
 logger = get_logger(__name__)
 
@@ -41,23 +42,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
     model_messages = [
                 {
                     "role": "system",
-                    "content": 
-                    """
-                    You are an expert technical recruiter and behavioral analyst specializing in interviews. Your task is to analyze the following interview transcript and evaluate the candidate's sentiment, emotional intelligence, and communication skills.
-
-                    Please analyze any given transcripts line-by-line and provide your response strictly in the following JSON format. Ignore any sentences that come from the interviewer. Do not include any additional text outside of the JSON object. Note: "sentiment_analysis" is an array of your sentiment analysis on each line the user spoke.
-
-                    {
-                        "sentiment_analysis": [
-                            {
-                            "text": "[The sentence that your performing sentiment analysis on]",
-                            "sentiment": "[Sentiment for the sentence which must be 'POSITIVE', 'NEGATIVE', or 'NEUTRAL']",
-                            "confidence": [Your level of confidence between [0, 1]],
-                            },
-                        ],
-                    }
-
-                    """
+                    "content": SENTIMENT_ANALYSIS_PROMPT
                 },
                 {
                     "role": "user",
