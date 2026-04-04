@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import styles from "@App/styles/interview/Results.module.scss";
 import { IInterview } from "@App/lib/interview/models"
-import { Calendar, Clock, Star, BookOpenText, Crown, Heart, CirclePlus } from "lucide-react";
+import { Calendar, Clock, Star, BookOpenText, Crown, Heart, Sparkles } from "lucide-react";
 import Spinner from "@App/components/atoms/Spinner";
 import AuthGuard from "@App/lib/auth/AuthGuard";
 import { useParams } from "next/navigation";
@@ -84,6 +84,22 @@ export default function InterviewResults() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Overall Feedback */}
+                    <div className={styles.overallFeedback}>
+                        <div className={styles.feedbackHeader}>
+                            <Sparkles className={styles.feedbackIcon}/>
+                            <h2>Overall Feedback</h2>
+                        </div>
+                        <div className={styles.feedbackContent}>
+                            <p>
+                                {interview && interview.feedback.ai_feedback
+                                    ? interview.feedback.ai_feedback
+                                    : "No overall feedback for this interview."}
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Performance Metrics */}
                     <div className={styles.metricsGrid}>
                         {/* STAR Method */}
