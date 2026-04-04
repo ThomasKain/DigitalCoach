@@ -219,9 +219,9 @@ export default function ProgressPage() {
                 <p className={styles.statValue}>{interviews && calculateImprovement()}</p>
                 <div className={styles.stateLabelWrapper}>
                   <span className={styles.statLabel}>
-                    Improvement Over Time ({windowSize}IMA)
+                    Most Recent Improvement ({windowSize}-IMA)
                   </span>
-                  <Tooltip title={`Moving average of the overall scores from your ${windowSize} most recent interviews. Moving average will be equal to average score if there aren't enough interviews.`} placement="top">
+                  <Tooltip title={`${windowSize}-Interview Moving Average (3IMA) of the overall scores from your ${windowSize} most recent interviews. Moving average will be equal to average score if there aren't enough interviews.`} placement="top">
                     <IconButton size="small" className={styles.tooltipBtn}>
                       <HelpOutlineIcon fontSize="inherit" className={styles.tooltipIcon} />
                     </IconButton>
