@@ -7,13 +7,15 @@ import { Award, Target, TrendingUp, Calendar, Clock, ChevronRight } from "lucide
 import { IInterview } from "@App/lib/interview/models"
 import { useAuth } from "@App/lib/auth/AuthContextProvider";
 import Spinner from "@App/components/atoms/Spinner";
-
+import { Tooltip, IconButton } from "@mui/material";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 export default function ProgressPage() { 
   const [interviews, setInterviews] = useState<IInterview[]>([]); // stores an array of all the user's interviews (the data function we use returns the list in descending chronological order)
   const router = useRouter();
   const [isLoading, setLoading] = useState(true);
   const { user } = useAuth();
+  const windowSize = 3; // number of interviews that will contribute to SMA
 
   // Get user's analyzed interview from database 
   useEffect(() => {
@@ -44,33 +46,25 @@ export default function ProgressPage() {
   }, [user]);
 
   /**
-   * Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression. 
+   * Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression, exponential moving average (EMA).
    * 
-   * Currently we're returning the delta in the user's exponential moving average (EMA) where recent performance scores have more weight in computing the average which prioritizes the user's most recent capability to interview. 
+   * Currently we're returning the simple moving average (SMA) of the user's 3 most recent overall interview scores. This prioritizes the user's most recent capability to interview. 
    * 
-   * We can assume the interviews are in descending chronological order because of the implementation of the database function used to get the interviews. But EMA needs ascending chronological order.
+   * We can assume the interviews are in descending chronological order because of the implementation of the database function used to get the interviews.
    */
   const calculateImprovement = () => {
-    if (interviews.length) {
-      const revInterviews = interviews.toReversed(); // reverse the array from descending to ascending chronological order
-      let ema = revInterviews[0].metrics!.overall_score; // initialize ema to be the first value
-      let prevEMA = ema; // stores the previous EMA
-      const smoothing = 2; // exponential moving average has a smoothing factor where the larger the factor, the more weight recent interview scores have on the exponential moving average (a factor of 2 is commonly used)
-      const multiplier = smoothing / (revInterviews.length + 1); // compute the multiplier for EMA
-      
-      // iterate over remaining array to compute EMA
-      for (let i=1; i < revInterviews.length; i++) {
-        const interviewScore = revInterviews[i].metrics!.overall_score; // current interview's overall score
-        prevEMA = ema; // store ema before overwritting it
-        ema = (interviewScore * multiplier) + (ema * (1-multiplier)); // ema = (current interview score * multiplier) plus (previous ema * (1 - multiplier))
+    if (interviews.length === 0) return 0;
+    let currSMA = 0; 
+    // iterate over most recent interviews to compute SMA
+    const scoreWindow = interviews.slice(0, windowSize);
+
+    scoreWindow.forEach((interview) => {
+      if (interview.metrics && interview.metrics.overall_score) {
+        currSMA += interview.metrics.overall_score;
       }
-      
-      const delta = Math.trunc(ema-prevEMA) // return the change between the previous EMA and current EMA
-      if (delta >= 0) return `+${delta}`
-      else return delta 
-    } else { 
-      return 0;
-    }
+    });
+    
+    return Math.ceil(currSMA / scoreWindow.length); // divide by the number of interviews actually computed in case there aren't enough to fit the window size
   }
 
   /**
@@ -80,7 +74,6 @@ export default function ProgressPage() {
     if (interviews.length) {
       let sum = 0; 
       for (const interview of interviews) {
-        console.log(`interview=${interview.id}`)
         sum += interview.metrics!.overall_score
       }
       return Math.floor(sum / interviews.length);
@@ -224,7 +217,17 @@ export default function ProgressPage() {
               </div>
                 {/* how much the user has improved overtime  */}
                 <p className={styles.statValue}>{interviews && calculateImprovement()}</p>
-                <p className={styles.statLabel}>Improvement Over Time (EMA Δ)</p>
+                <div className={styles.stateLabelWrapper}>
+                  <span className={styles.statLabel}>
+                    Improvement Over Time ({windowSize}IMA)
+                  </span>
+                  <Tooltip title={`Moving average of the overall scores from your ${windowSize} most recent interviews. Moving average will be equal to average score if there aren't enough interviews.`} placement="top">
+                    <IconButton size="small" className={styles.tooltipBtn}>
+                      <HelpOutlineIcon fontSize="inherit" className={styles.tooltipIcon} />
+                    </IconButton>
+                  </Tooltip>
+
+                </div>
             </div>
           </div>
         )}
