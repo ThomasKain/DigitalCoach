@@ -160,9 +160,8 @@ models:
       - "--log-timestamps" # Enable timestamps in log messages
       - "--log-colors" # Enable colored logging
       - "--threads" # Number of CPU threads to use during generation (Docker can use both CPU and GPU but GPU-only is faster)
-      - "12"
+      - "4"
       - "--batch-size" # batch size for processing prompts (higher = faster processing of prompts, and you may comment this out if you're experiencing performance issues)
       - "1024"
-      # - "--ngl=20" # number of layers to offload to GPU (total number of layers depends on the model) Docker model runner can use both CPU and GPU of ngl < total number of layers. Lower --ngl if running out of VRAM. Increase --ngl if there's low GPU usage during inference."
-      - "--n-gpu-layers" # use this if you only want to use CPU (note that AI tasks will be slower) 
-      - "0"
+      - "--n-gpu-layers" # number of layers to offload to GPU (total number of layers depends on the model) Docker model runner can use both CPU and GPU of ngl < total number of layers. Lower --ngl if running out of VRAM. Increase --ngl if there's low GPU usage during inference."
+      - "20"

@@ -24,7 +24,7 @@ def get_worker(priorities=None):
     
     conn = get_redis_con()
 
-    return Worker(priorities, connection=conn, name=f"Emma Frost {uuid.uuid4().hex[:8]}") # create a worker instance that watches the given queue priorities, with in the given Redis server, and give them a custom name
+    return Worker(priorities, connection=conn, name=f"Emma_Frost {uuid.uuid4().hex[:8]}") # create a worker instance that watches the given queue priorities, with in the given Redis server, and give them a custom name
 
 
 if __name__ == "__main__":
