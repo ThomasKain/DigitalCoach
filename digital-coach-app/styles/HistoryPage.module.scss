@@ -66,6 +66,7 @@ $gradient-badge-bg: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255
   position: relative;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  text-align: center;
 
   // Adds a subtle glow effect in the top right corner of each card
   &::before {

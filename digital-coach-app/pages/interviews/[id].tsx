@@ -56,7 +56,7 @@ export default function InterviewResults() {
             <AuthGuard>
                 <Spinner message={isReady
                     ? "Getting interview..."
-                    : "Interview undergoing analysis, please come back later."}/>
+                    : "Interview undergoing analysis. Please come back later."}/>
             </AuthGuard>
         )
     }
@@ -69,7 +69,12 @@ export default function InterviewResults() {
                         <h1>Interview Performance</h1>
                         <div className={styles.scoreDisplay}>
                             <div className={styles.scoreValue}>
-                                {interview && interview.metrics!.overall_score}
+                                <p>
+                                    {interview && interview.metrics?.overall_score
+                                        ? interview.metrics?.overall_score
+                                        : NaN 
+                                    }
+                                </p>
                             </div>
                             <p className={styles.scoreLabel}>Overall Score</p>
                         </div>
@@ -93,9 +98,9 @@ export default function InterviewResults() {
                         </div>
                         <div className={styles.feedbackContent}>
                             <p>
-                                {interview && interview.feedback.ai_feedback
+                                {interview && interview.feedback?.ai_feedback
                                     ? interview.feedback.ai_feedback
-                                    : "No overall feedback for this interview."}
+                                    : "Feedback not available."}
                             </p>
                         </div>
                     </div>
@@ -116,11 +121,19 @@ export default function InterviewResults() {
 
                             <div className={styles.scoreBadge}>
                                 <span className={styles.scoreText}>
-                                    {interview && interview.feedback.overall_competency.star.score}
+                                    {interview && interview.feedback?.overall_competency.star.score
+                                        ? interview.feedback.overall_competency.star.score
+                                        : NaN
+                                    }
                                 </span>
                                 <p>/10</p>
                             </div>
-                            <p className={styles.feedbackText}>{interview && interview.feedback.overall_competency.star.summary}</p>
+                            <p className={styles.feedbackText}>
+                                {interview && interview.feedback?.overall_competency.star.summary
+                                    ? interview.feedback.overall_competency.star.summary
+                                    : "Feedback not available."
+                                }
+                            </p>
                         </div>
 
                         {/* Pacing Score */}
@@ -137,11 +150,19 @@ export default function InterviewResults() {
 
                             <div className={styles.scoreBadge}>
                                 <span className={styles.scoreText}>
-                                    {interview && interview.feedback.overall_competency.clarity.score}
+                                    {interview && interview.feedback?.overall_competency.clarity.score
+                                        ? interview.feedback.overall_competency.clarity.score
+                                        : NaN
+                                    }
                                 </span>
                                 <p>/10</p>
                             </div>
-                            <p className={styles.feedbackText}>{interview && interview.feedback.overall_competency.clarity.summary}</p>
+                            <p className={styles.feedbackText}>
+                                {interview && interview.feedback?.overall_competency.clarity.summary
+                                    ? interview.feedback.overall_competency.clarity.summary
+                                    : "Feedback not available."
+                                }
+                            </p>
                         </div>
 
                         {/* Filler Words */}
@@ -156,12 +177,19 @@ export default function InterviewResults() {
                                 </div>
                             </div>
                             <div className={styles.scoreBadge}>
-                                <div className={styles.scoreText}>{interview && interview.feedback.overall_competency.confidence.score}    
-                                </div>
+                                <span className={styles.scoreText}>
+                                    {interview && interview.feedback?.overall_competency.confidence.score
+                                        ? interview.feedback.overall_competency.confidence.score
+                                        : NaN
+                                    }    
+                                </span>
                                 <p>/10</p>
                             </div>
                             <p className={styles.feedbackText}>
-                                {interview && interview.feedback.overall_competency.confidence.summary}
+                                {interview && interview.feedback?.overall_competency.confidence.summary
+                                    ? interview.feedback.overall_competency.confidence.summary
+                                    : "Feedback not available."
+                                }
                             </p>
                         </div>
 
@@ -178,14 +206,25 @@ export default function InterviewResults() {
                             </div>
                             <div className={styles.scoreBadge}>
                                 <div className={styles.scoreText}>
-                                    {interview && interview.feedback.overall_competency.engagement.score}
+                                    {interview && interview.feedback?.overall_competency.engagement.score
+                                        ? interview.feedback.overall_competency.engagement.score
+                                        : NaN
+                                    }
                                 </div>
                                 <p>/10</p>
                                     
                             </div>
                             <p className={styles.feedbackText}>
-                                {interview && interview.feedback.overall_competency.engagement.summary}
-                                <p>Overall Sentiment: {interview && interview.sentiment}</p>
+                                {interview && interview.feedback?.overall_competency.engagement.summary
+                                    ? interview.feedback.overall_competency.engagement.summary
+                                    : "Feedback not available."
+                                }
+                                <p>Overall Sentiment: 
+                                    {interview && interview.sentiment
+                                        ? interview.sentiment.toString()
+                                        : NaN
+                                    }
+                                </p>
                             </p>
                         </div>
                     </div>

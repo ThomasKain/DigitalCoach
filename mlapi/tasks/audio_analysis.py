@@ -54,8 +54,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
                             "sentiment": "[Sentiment for the sentence which must be 'POSITIVE', 'NEGATIVE', or 'NEUTRAL']",
                             "confidence": [Your level of confidence between [0, 1]],
                             },
-                        ],
-                        "feedback": "[1-2 actionable tips for the candidate to improve their communication]"
+                        ]
                     }
 
                     """
@@ -97,4 +96,4 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
     except ValidationError as e:
         logger.error(f"LLM sentiment analysis on interview={interview_id} is in invalid shape. Reason: {e}")
         # return SentimentAnalysisResult(error=f"LLM sentiment analysis on interview={interview_id} is in invalid shape. Reason: {e}")
-        raise ValidationError(f"LLM sentiment analysis on interview={interview_id} is in invalid shape. Reason: {e}") # to make sure the RQ job returns a failed status, we must raise an exception
+        raise ValidationError(f"LLM sentiment analysis on interview={interview_id} is in invalid shape: {llm_response} Reason: {e}") # to make sure the RQ job returns a failed status, we must raise an exception
