@@ -80,7 +80,7 @@ To set up the AI model(s) on your host machine, do the following steps:
 
 Congratulations, you have a local LLM on your machine that the web application can use for ML tasks! You can also use it personally within Docker Desktop by selecting the “Models” tab in the left-hand side of the Docker Desktop navigation bar, and then selecting the AI model that you downloaded.
 
-We don’t recommend using a system that doesn’t have a GPU because as mentioned earlier, CPU inference is very slow.
+We don’t recommend using a system that doesn’t have a GPU because CPU inference is very slow.
 
 If you want to switch to a different model, Docker Hub has plenty of AI models to choose from. However, be mindful of the AI model’s size because if its too large and can’t fit in your GPU’s VRAM then AI inference will take much longer or fail. After you find a model, you must perform the following: 
 
