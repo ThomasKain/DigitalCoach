@@ -82,7 +82,7 @@ async def detect_audio_sentiment(user_id: str, interview_id: str) -> SentimentAn
         logger.info(f"Verifying LLM sentiment analysis on interview={interview_id}...")
 
         llm_response = response.choices[0].message.content # extract LLM's JSON response string
-        
+        logger.info(f"LLM response={llm_response}")
         # verify LLM JSON response is the correct shape 
         validated_data = SentimentAnalysisResult.model_validate_json(llm_response) # parses JSON string, checks if it fits our response schema and instantiates our schema if successful 
         logger.info(f"Sentiment Analysis on interview={interview_id} successful!")
