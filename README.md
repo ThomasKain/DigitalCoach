@@ -80,15 +80,13 @@ To set up the AI model(s) on your host machine, do the following steps:
 
 Congratulations, you have a local LLM on your machine that the web application can use for ML tasks! You can also use it personally within Docker Desktop by selecting the “Models” tab in the left-hand side of the Docker Desktop navigation bar, and then selecting the AI model that you downloaded.
 
-We don’t recommend using a system that doesn’t have a GPU because CPU inference is very slow.
-
 If you want to switch to a different model, Docker Hub has plenty of AI models to choose from. However, be mindful of the AI model’s size because if its too large and can’t fit in your GPU’s VRAM then AI inference will take much longer or fail. After you find a model, you must perform the following: 
 
 1. In `mlapi/.env`, change the environment variable `MODEL` to be `MODEL="ai/<model-name>"` where `<model-name>` can be found when you visit that specific AI model’s Docker Hub page under the “Variant” category and make sure to copy the entire name listed.
 2. In `/docker-compose.yml` in the top-level `models` section, change the `model` field to also be `model: ai/<model-name>`
 
 Notes: 
-
+- We don’t recommend using a system that doesn’t have a GPU because CPU inference is very slow.
 - As far as we know, if you have a GPU then there isn’t a way to set up DMR so that it only uses your CPU for inference. This shouldn’t be a problem and makes sense because GPU-bound inference is much faster than CPU-bound inference.
 - The model itself will be hosted on your host machine and NOT a container.
 - If you make changes the configuration of the model within `docker-compose.yml`, you may have to unload and then load the model back again for the configurations to take affect because DMR is separate from Docker Compose. Specifically, after closing the application with `docker-compose down`, unload the model with `docker model rm <model-name>` and then redownload it with `docker model pull <model-name>`.
