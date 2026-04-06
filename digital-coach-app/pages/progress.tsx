@@ -4,76 +4,82 @@ import styles from "@App/styles/HistoryPage.module.scss";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Award, Target, TrendingUp, Calendar, Clock, ChevronRight } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
 import { IInterview } from "@App/lib/interview/models"
-
+import { useAuth } from "@App/lib/auth/AuthContextProvider";
+import Spinner from "@App/components/atoms/Spinner";
+import { Tooltip, IconButton } from "@mui/material";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 export default function ProgressPage() { 
-  const [interviews, setInterviews] = useState<IInterview[]>([]); // stores an array of all the user's interviews
-  const [averageScore, setAverageScore] = useState<number>(100); // user's average score across all interview performances
-  const [improvement, setImprovement] = useState<number>(100); // how much the user has improved overtime
+  const [interviews, setInterviews] = useState<IInterview[]>([]); // stores an array of all the user's interviews (the data function we use returns the list in descending chronological order)
   const router = useRouter();
+  const [isLoading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const windowSize = 3; // number of interviews that will contribute to SMA
 
-  // THIS DATA IS TEMPORARY UNTIL WE IMPLEMENT THE FUNCTION TO READ THE INTERVIEWS FROM FIREBASE
-  const mockData = {
-      "id": "vsoSA7V72JFdBPMLJL29",
-      "date": "03/04/2024",
-      "timeStarted": "20:30",
-      "duration": "5m 30s",
-      "feedback": {
-          ai_feedback: "Your enthusiasm was evident, and you established a great rapport early on. You used the STAR method effectively for behavioral questions, but your technical answers were slightly vague. Next time, focus more on specific metrics to quantify your past achievements, and try to pause briefly before answering complex questions to gather your thoughts.",
-          overall_competency: {
-            clarity: {
-              score: 8,
-              summary: "Excellent pacing at 150 WPM; your delivery was very clear and easy to follow.",
-            },
-            confidence: {
-              score: 10,
-              summary: "You had approximately 10 filler words or hedge phrases per minute, but you projected strong confidence throughout your interview!",
-            },
-            engagement: {
-              score: 9,
-              summary: "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
-            },
-            star: {
-                score: 88,
-                summary: "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
-            }
-          }
-      },
-      "metrics": {
-          "filler_count": 2,
-          "overall_score": 99,
-          "wpm": 100,
-      },
-      "transcript": [],
-      "url": "google.com",
-  }
-
+  // Get user's analyzed interview from database 
   useEffect(() => {
-    setInterviews([...interviews, mockData, mockData])
-    alert("We haven't implemented the logic needed to retrieve interview data from the backend. Thus, the data seen here is mock data and doesn't reflect the actual interviews' data.")
-  }, [])
+    /**
+     *  Fetch all of the user's analyzed interviews using the Firebase Client SDK.
+     */
+    const getInterviews = async () => {
+      try {
+        const host = window ? "localhost:8000" : "api"; // if we're not in browser, user backend service name (currently 'api'), otherwise use localhost
+        const response = await fetch(`http://${host}/api/interview/${user?.uid}`);
+        if (response.ok) {
+          console.log("Successfully fetched interviews!");
+          const data = await response.json();
+          setInterviews(data);
+          setLoading(false);
+        } else {
+          throw `Error: ${response.statusText || "Something went wrong"}`;
+        }
+      } catch (e) {
+        throw `Error getting interviews: ${e}`;
+      }
+    };
+    // wait until user context is loaded before getting interviews
+    if (user) {
+      getInterviews();
+    }
+    
+  }, [user]);
 
   /**
-   * TODO: Fetch all of the user's interviews using the Firebase Client SDK.
-   */
-  const getInterviews = async () => {
-     
-  }
-
-  /**
-   * TODO: Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression. Currently using exponential moving average (EMA) where recent performance scores have more weight in computing the average which prioritizes the user's most recent capability to interview.
+   * Computes a user's improvement over time. This can be done in different ways, e.g. slope of linear regression, exponential moving average (EMA).
+   * 
+   * Currently we're returning the simple moving average (SMA) of the user's 3 most recent overall interview scores. This prioritizes the user's most recent capability to interview. 
+   * 
+   * We can assume the interviews are in descending chronological order because of the implementation of the database function used to get the interviews.
    */
   const calculateImprovement = () => {
+    if (interviews.length === 0) return 0;
+    let currSMA = 0; 
+    // iterate over most recent interviews to compute SMA
+    const scoreWindow = interviews.slice(0, windowSize);
 
+    scoreWindow.forEach((interview) => {
+      if (interview.metrics && interview.metrics.overall_score) {
+        currSMA += interview.metrics.overall_score;
+      }
+    });
+    
+    return Math.ceil(currSMA / scoreWindow.length); // divide by the number of interviews actually computed in case there aren't enough to fit the window size
   }
 
   /**
-   * TODO: Computes the user's average performance score.
+   * Compute the user's arithmetic average interview performance score.
    */
   const calculateAverage = () => {
-   
+    if (interviews.length) {
+      let sum = 0; 
+      for (const interview of interviews) {
+        sum += interview.metrics!.overall_score
+      }
+      return Math.floor(sum / interviews.length);
+    } else {
+      return 0;
+    }
   }
 
   /**
@@ -159,12 +165,19 @@ export default function ProgressPage() {
     return btn;
   }
   
+  if (isLoading) {
+    return (
+      <AuthGuard>
+        <Spinner message="Getting interviews..."/>
+      </AuthGuard>
+    ) 
+  }
   return (
     <AuthGuard>
       <div className={styles.ProgressPage}>
         <div className={styles.pageHeader}>
           <h1>Interview History</h1>
-          <p>Track your interview results and performance over time.</p>
+          <p>Track your interview results and performance over time. Some interviews may not appear as they're being analyzed.</p>
         </div>
 
         {/* Statistics */}
@@ -190,7 +203,8 @@ export default function ProgressPage() {
                 </div>
                 <h3>Average Score</h3>
               </div>
-              <p className={styles.statValue}>{averageScore}</p>
+              {/* user's average score across all interview performances */}
+              <p className={styles.statValue}>{interviews && calculateAverage()}</p>
             </div>
 
             {/* Overall Improvement */}
@@ -201,8 +215,19 @@ export default function ProgressPage() {
                 </div> 
                 <h3>Momentum</h3>
               </div>
-                <p className={styles.statValue}>{improvement}</p>
-                <p className={styles.statLabel}>Improvement over time</p>
+                {/* how much the user has improved overtime  */}
+                <p className={styles.statValue}>{interviews && calculateImprovement()}</p>
+                <div className={styles.stateLabelWrapper}>
+                  <span className={styles.statLabel}>
+                    Most Recent Improvement ({windowSize}-IMA)
+                  </span>
+                  <Tooltip title={`${windowSize}-Interview Moving Average (3IMA) of the overall scores from your ${windowSize} most recent interviews. Moving average will be equal to average score if there aren't enough interviews.`} placement="top">
+                    <IconButton size="small" className={styles.tooltipBtn}>
+                      <HelpOutlineIcon fontSize="inherit" className={styles.tooltipIcon} />
+                    </IconButton>
+                  </Tooltip>
+
+                </div>
             </div>
           </div>
         )}

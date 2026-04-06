@@ -31,15 +31,14 @@ class Feedback(BaseModel):
     """
     ai_feedback: str
     overall_competency: OverallCompetency 
-    sentiment: str
 
 class Metrics(BaseModel):
     """
     Metrics based on user's performance during the interview, e.g. how many filler words were detected
     """
-    filler_count: int # how many filler words were used
-    overall_score: int # overall interview performance score
-    wpm: int # user's words per minute (pacing)
+    filler_count: int | None # how many filler words were used
+    overall_score: int | None # overall interview performance score
+    wpm: int | None # user's words per minute (pacing)
 
 class SentimentPercents(BaseModel):
     """
@@ -57,6 +56,7 @@ class Interview(BaseModel):
     """
     id: str # id for the interview
     date: str # MM/DD/YYYY
+    timestamp: int # timestamp of when interview was created using milliseconds elapsed since the epoch (this is used as a way to sort interviews chronologically)
     timeStarted: str # HH:MM 12-hour
     duration: str # MMm SSs, e.g. 10m 43s not 0-padded
     feedback: Feedback | None = None
@@ -64,7 +64,7 @@ class Interview(BaseModel):
     transcript: list[str] | str | None = None # transcript may either be an array of dialogues from avatar and user or a single long string
     sentiment: str | SentimentPercents | None = None
     url: str | None = None # download for user's side of the interview
-
+    is_analyzed: bool = False # flag representing when an interview has completed their analysis
 
 class CreateInterviewRequest(BaseModel):
     """

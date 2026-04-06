@@ -4,7 +4,9 @@ Seed file used to populate Firebase services with mock data. This script is to b
 from services import firebase_setup 
 import requests
 from datetime import datetime
-import asyncio
+from schemas import Interview
+from pydantic import ValidationError
+import time
 
 def drop_emulator_data():
     """
@@ -46,6 +48,7 @@ async def start_seed():
     interview1 = {
         "id": "vsoSA7V72JFdBPMLJL29",
         "date": "03/04/2024", # MM/DD/YY
+        "timestamp": int(time.time() * 1000), # timestamp when interview was created in milliseconds since the epoch 
         "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 12-hour
         "duration": "5m 30s", # MMm SSs (not 0-padded)
         "feedback": {
@@ -64,7 +67,7 @@ async def start_seed():
                     "summary": "Great job varying your tone with 98% of your responses being expressive! You used 10 high-value keywords effectively in your responses.",
                 },
                 "star": {
-                    "score": 88,
+                    "score": 8,
                     "summary": "To elevate your solid foundation, focus on quantifying your 'Result' with concrete metrics and explicitly highlighting your individual contributions rather than just the team's effort during the 'Action' phase."
                 }
             },
@@ -86,7 +89,64 @@ async def start_seed():
         """,
         "sentiment": "POSITIVE",
         "url": "https://google.com",
+        "is_analyzed": True,
     }
+    interview2 = {
+        "id": "k8nLB9X23mRpTQXCZK44",
+        "date": "05/12/2026", # MM/DD/YY
+        "timestamp": int(time.time() * 1000)+1, # timestamp when interview was created in milliseconds since the epoch (the +1 is for the seed data ONLY because the timestamps match when seeding the database which doesn't reflect realistic use)
+        "timeStarted": datetime.now().strftime("%H:%M"), # HH:MM 12-hour
+        "duration": "12m 15s", # MMm SSs (not 0-padded)
+        "feedback": {
+            "ai_feedback": "You demonstrate a high level of technical authority and leadership. Your explanation of system architecture was top-tier. However, your answers tended to run long, which occasionally led to the interviewer cutting you off to stay on schedule. For future rounds, aim for 'Bluf' (Bottom Line Up Front) to ensure your main point isn't lost in the detail.",
+            "overall_competency": {
+                "clarity": {
+                    "score": 6,
+                    "summary": "Your WPM was high (175); while you are articulate, the speed made it difficult to digest complex architectural concepts.",
+                },
+                "confidence": {
+                    "score": 10,
+                    "summary": "Zero filler words detected. You maintained a steady, authoritative tone throughout the technical deep-dive.",
+                },
+                "engagement": {
+                    "score": 7,
+                    "summary": "You were highly expressive, but you dominated the conversation. Try to leave more 'white space' for the interviewer to interject.",
+                },
+                "star": {
+                    "score": 9,
+                    "summary": "Excellent use of the STAR method. Your 'Result' section included specific revenue impact (15% increase), which is exactly what hiring managers look for."
+                }
+            },
+        },
+        "metrics": {
+            "filler_count": 0,
+            "overall_score": 85,
+            "wpm": 175,
+        },
+        "transcript": 
+        """
+            Interviewer: Thanks for joining us, Mariza. Can you describe a time you had to lead a team through a significant technical pivot?
+
+            Mariza Bartalotti: Absolutely. Last year at CloudSync, we were halfway through a legacy migration when we realized our chosen microservices framework couldn't handle the projected concurrency spikes for Q4. It was a high-stakes moment. I called an emergency sync, presented the load-test data, and proposed a shift to a Go-based architecture for the edge services. 
+
+            Interviewer: That's a big shift mid-project. How did the team react to the change in stack?
+
+            Mariza Bartalotti: There was initial resistance because of the learning curve, but I organized a three-day 'internal boot camp' to get everyone up to speed. By leading the first few pull requests myself, I showed the team that the developer experience was actually better. We hit our Q4 targets with 99.99% uptime, and the pivot actually reduced our infrastructure costs by 15% due to better resource efficiency.
+        """,
+        "sentiment": "POSITIVE",
+        "url": "https://zoom.us/rec/example-id",
+        "is_analyzed": True,
+    }
+
+
+    # verify seed data follows the correct Pydantic schemas
+    try:
+        # verify interview data follows the interview pydantic schema
+        Interview.model_validate(interview1)
+        Interview.model_validate(interview2)
+    except ValidationError as e:
+        print(f"Seed data doesn't follow Pydantic schema(s): {e}")
+        raise Exception(f"Seed data doesn't follow Pydantic schema(s): {e}")
 
     data1 = { 
         "avatarUrl": "https://picsum.photos/200",
@@ -100,11 +160,9 @@ async def start_seed():
         "registrationCompletedAt": datetime.now().strftime("%m/%d/%Y"),
     }
     await db.collection("users").document(f"{user1.uid}").set(data1) # add user
-    await db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1) # add interview to user's account
     
+    # add interviews to user's account
+    await db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview1["id"]).set(interview1)
+    await db.collection("users").document(f"{user1.uid}").collection("interviews").document(interview2["id"]).set(interview2)
 
     print(f"Created user with authentication id={user1.uid}")
-
-print("Seeding Firebase...")
-asyncio.run(start_seed())
-print("Done seeding Firebase!")

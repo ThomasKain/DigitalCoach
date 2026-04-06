@@ -134,6 +134,53 @@ $gradient-card: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
 }
 
 // ==========================================
+// Overall AI Feedback Section
+// ==========================================
+
+.overallFeedback {
+  background: $white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border-left: 6px solid $orange; // Ties into your gradient-orange accents
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(10, 25, 47, 0.08);
+  }
+}
+
+.feedbackHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: $navy-blue;
+    font-weight: 700;
+  }
+}
+
+.feedbackIcon {
+  color: $orange;
+  width: 24px;
+  height: 24px;
+}
+
+.feedbackContent {
+  p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: $text-dark;
+    margin: 0;
+  }
+}
+
+
+// ==========================================
 // Middle Section: 4 Metrics Horizontally
 // ==========================================
 .metricsGrid {

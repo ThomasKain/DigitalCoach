@@ -66,6 +66,7 @@ $gradient-badge-bg: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255
   position: relative;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  text-align: center;
 
   // Adds a subtle glow effect in the top right corner of each card
   &::before {
@@ -129,6 +130,27 @@ $gradient-badge-bg: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255
   margin: 0.25rem 0 0 0;
   position: relative;
   z-index: 1;
+}
+
+.statLabelWrapper {
+  display: flex;
+  align-items: center; // Vertically centers the text and the icon
+  justify-content: center; // Adjust to flex-start if your card content is left-aligned
+  gap: 4px; // Adds a nice small space between the text and icon
+  margin-top: 0.5rem;
+}
+
+.tooltipBtn {
+  padding-top: 3.5px !important;
+  font-size: 1.1rem; // Controls the actual size of the icon
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05); // Keeps the hover effect subtle
+  }
+}
+
+.tooltipIcon {
+  color: #94a3b8;
 }
 
 // ==========================================
