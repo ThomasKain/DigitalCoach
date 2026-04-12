@@ -1,17 +1,20 @@
 """
 Seed file used to populate Firebase services with mock data. This script is to be run within the backend's Docker container because it uses the Firebase Admin SDK.
 """
-from services import firebase_setup 
+from services import firebase_init
 import requests
 from datetime import datetime
 from schemas import Interview
 from pydantic import ValidationError
+from dotenv import load_dotenv
 import time
+import os
 
 def drop_emulator_data():
     """
-    Removes all data from Firebase emulators.
+    Deletes the data from Firebase Emulators, i.e. Authentication and Firestore 
     """
+
     print("Dropping emulator data...")
     PROJECT_ID = "demo-digital-coach"    
     # clear firestore
@@ -30,18 +33,44 @@ def drop_emulator_data():
     except Exception as e:
         print(f"Failed to clear Authentication data: {e}")
 
+async def drop_data():
+    """
+    Deletes the data from Firebase Cloud Services, i.e. Authentication and Firestore 
+    """
+
+    print("Recursively deleting Firestore data...")
+    db = firebase_init.get_firestore_client() # get Firestore instance
+    users_ref = db.collection("users") # get user collection reference
+    await db.recursive_delete(users_ref)
+    print("Firestore data cleared!")
+
+    print("Deleting Authentication data...")
+    auth = firebase_init.get_auth_client() # get Authentication instance
+    seed_users = ["testuser1"] # list of all user ids for the seeded users 
+    auth.delete_users(seed_users) # delete all seeded users (deletions could fail for individual users but we assume they won't)
+    print("Authentication data cleared!")
+
 async def start_seed():
     """
     Seeds Firebase Services with data, e.g. add users.
     """
-    auth = firebase_setup.get_auth_client()
-    db = firebase_setup.get_firestore_client()
+    auth = firebase_init.get_auth_client()
+    db = firebase_init.get_firestore_client()
     
     # clear out current data
-    drop_emulator_data()
+    load_dotenv()
+
+    # check if we're seeding emulators or the cloud services
+    use_emulators = os.getenv("FIREBASE_USE_EMULATORS") 
+    
+    if (use_emulators == "true"):
+        await drop_emulator_data()
+    else:
+        await drop_data()
 
     # add new data
     user1 = auth.create_user(
+        uid = "testuser1",
         email="marzia@talon.com",
         password="Vendetta@29",
     )

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from utils.logger_config import get_logger
 from schemas import CreateUserResponse, CreateUserRequest, GetUserRequest, GetUserResponse
-from services.firebase_setup import get_firestore_client
+from mlapi.services.firebase_init import get_firestore_client
 
 logger = get_logger(__name__) # create a logger instance to log messages
 

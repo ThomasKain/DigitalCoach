@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from services.firebase_setup import initialize_firebase # initialize Firebase connection when backend starts
+from services.firebase_init import initialize_firebase # initialize Firebase connection when backend starts
 from rq_dashboard_fast import RedisQueueDashboard
 from tasks.seed import start_seed
 
@@ -67,7 +67,7 @@ async def seed():
         }
     except Exception as e: 
         return {
-            "message": f"Error seeding Firebase: {e}. Please try seeding again."
+            "message": f"Error seeding Firebase: {e} Please try seeding again."
         }
 
 
