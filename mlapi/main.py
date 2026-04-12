@@ -5,6 +5,7 @@ from rq_dashboard_fast import RedisQueueDashboard
 from tasks.seed import start_seed
 
 from routes import (
+    user,
     jobs,
     create_answer,
     star_feedback,
@@ -77,6 +78,7 @@ dashboard = RedisQueueDashboard("redis://redis:6379/", "/rq")
 app.mount("/rq", dashboard)
 
 # Add routes here
+app.include_router(user.router)
 app.include_router(jobs.router)
 app.include_router(create_answer.router)
 app.include_router(star_feedback.router)

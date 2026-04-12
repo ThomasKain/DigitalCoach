@@ -15,6 +15,7 @@ const nextConfig = {
     emotion: true,
   },
   images: {
+    domains: ["res.cloudinary.com"],
     remotePatterns: [
       {
         protocol: "http",
