@@ -96,7 +96,7 @@ export function AuthProvider({ children }: {children: ReactNode}) {
                 setUserData(userData as IUser);
 
             } catch (e) {
-                console.error("Error fetching user profile", e);
+                console.error(`Error fetching user profile: ${e}`);
             }
         } else {
             // not logged in
@@ -138,7 +138,7 @@ export function AuthProvider({ children }: {children: ReactNode}) {
         // onAuthStateChanged will handle updating userData
     } catch (e: any) {
         setError(getAuthErrorMessage(e));
-        throw getAuthErrorMessage(e);
+        throw `Error signing up: ${getAuthErrorMessage(e)}`;
     }
   };
 

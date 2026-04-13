@@ -37,27 +37,27 @@ services:
       - app-network # use the shared network to communicate with the backend
 
   # Firebase Emulator Suite for local development
-  # firebase:
-  #   # use pre-built image with firebase tools
-  #   image: andreysenov/firebase-tools:latest-node-22-slim
-  #   environment:
-  #     - FUNCTIONS_EMULATOR_TIMEOUT_SECONDS=180
-  #   user: root
-  #   volumes:
-  #     # mount frontend as it contains firebase config and rules
-  #     - ./digital-coach-app:/home/node/app
-  #   working_dir: /home/node/app # set working directory to non-root user's home
-  #   # expose the necessary ports for the emulators
-  #   ports:
-  #     - "9099:9099" # Auth Emulator
-  #     - "8080:8080" # Firestore Emulator
-  #     - "9199:9199" # Storage Emulator
-  #     - "4000:4000" # Firebase UI
-  #     - "5001:5001" # Functions Emulator
-  #   # Start the emulators (that are needed) with the specified config file
-  #   command: firebase emulators:start --inspect-functions --only auth,firestore,storage,functions --project=demo-digital-coach --debug
-  #   networks:
-  #     - app-network # use the shared network to the communicate with the frontend and backend
+  firebase:
+    # use pre-built image with firebase tools
+    image: andreysenov/firebase-tools:latest-node-22-slim
+    environment:
+      - FUNCTIONS_EMULATOR_TIMEOUT_SECONDS=180
+    user: root
+    volumes:
+      # mount frontend as it contains firebase config and rules
+      - ./digital-coach-app:/home/node/app
+    working_dir: /home/node/app # set working directory to non-root user's home
+    # expose the necessary ports for the emulators
+    ports:
+      - "9099:9099" # Auth Emulator
+      - "8080:8080" # Firestore Emulator
+      - "9199:9199" # Storage Emulator
+      - "4000:4000" # Firebase UI
+      - "5001:5001" # Functions Emulator
+    # Start the emulators (that are needed) with the specified config file
+    command: firebase emulators:start --inspect-functions --only auth,firestore,storage,functions --project=demo-digital-coach --debug
+    networks:
+      - app-network # use the shared network to the communicate with the frontend and backend
 
   # --- Backend Services ---
   # API service 
@@ -65,14 +65,10 @@ services:
     build: ./mlapi # Path to backend Dockerfile
     ports:
       - "8000:8000" # Expose port 8000 for the API
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Comment out these emulator variables if you want to use the real services
-      # - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      # - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      # - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-
-      - GCLOUD_PROJECT=digital-coach-77110 # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services (emulator id: demo-digital-coach)
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:
@@ -82,7 +78,7 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000 # Start the API for development, use --reload for auto-reload but its CPU intensive. This overrides the default CMD in the Dockerfile which is meant for production.
     depends_on:
       - redis # Ensure Redis is started before the API
-      # - firebase # Ensure firebase starts before the backend tries to connect to it
+      - firebase # Ensure firebase starts before the backend tries to connect to it
     networks:
       - app-network # Use the shared network to communicate with the other services
 
@@ -103,14 +99,10 @@ services:
     command: python -m redisStore.worker high
     depends_on:
       - redis
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Comment out these emulator variables if you want to use the real services
-      # - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      # - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      # - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-
-      - GCLOUD_PROJECT=digital-coach-77110 # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services (emulator id: demo-digital-coach)
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:
@@ -128,14 +120,10 @@ services:
     command: python -m redisStore.worker default
     depends_on:
       - redis
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Comment out these emulator variables if you want to use the real services
-      # - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      # - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      # - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-
-      - GCLOUD_PROJECT=digital-coach-77110 # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services (emulator id: demo-digital-coach)
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:

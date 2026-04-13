@@ -18,8 +18,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase app 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase app
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0]; // if an instance of Firebase already exists, return thats
 
 // Initialize Firebase services
 const auth = getAuth(app) // Firebase Authentication
@@ -35,7 +35,7 @@ const storage = getStorage(app); // Firebase Storage
 // Check emulator flag set in .env
 const useEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true"; 
 if (useEmulator) {
-  console.log("Use Firebase Emulator services.")
+  console.log("Using Firebase Emulator services.")
   // Determine host (browser or Docker) if we're in the browser (window exists), use localhost and if we're in a Docker container, use the service name 'firebase'.
   const emulatorHost = typeof window !== "undefined" ? "localhost" : "firebase";
 

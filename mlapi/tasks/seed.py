@@ -64,9 +64,11 @@ async def start_seed():
     use_emulators = os.getenv("FIREBASE_USE_EMULATORS") 
     
     if (use_emulators == "true"):
-        await drop_emulator_data()
+        drop_emulator_data()
+        print("Seeding Emulators...")
     else:
         await drop_data()
+        print("Seeding Cloud Firebase Services...")
 
     # add new data
     user1 = auth.create_user(

@@ -5,7 +5,7 @@ service cloud.firestore {
     // Secure the users collection
     match /users/{userId} {
       // Only allow operations if the user is signed in and their authentication UID matches the document ID
-      allow read, write: if request.auth != null && request.auth.uid == userId
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     // Additional match blocks for other collections can be placed here 
