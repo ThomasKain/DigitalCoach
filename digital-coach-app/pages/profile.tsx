@@ -115,8 +115,8 @@ function ProfilePage() {
       <h1>Your Profile</h1>
 
       <div className={styles.ProfilePage_avatarWrapper}>
-        {userData?.avatarUrl && (
-          <Avatar size={125} src={userData?.avatarUrl} />
+        {userData?.avatarURL && (
+          <Avatar size={125} src={userData?.avatarURL} alt="Profile Picture"/>
         )}
       </div>
 

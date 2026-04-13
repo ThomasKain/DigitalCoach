@@ -178,7 +178,7 @@ async def start_seed():
         raise Exception(f"Seed data doesn't follow Pydantic schema(s): {e}")
 
     data1 = { 
-        "avatarUrl": "https://picsum.photos/200",
+        "avatarURL": "https://picsum.photos/200",
         "concentration": "Technology",
         "createdAt": datetime.now().strftime("%m/%d/%Y"),
         "email": "marzia@talon.com",

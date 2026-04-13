@@ -138,6 +138,7 @@ export function AuthProvider({ children }: {children: ReactNode}) {
         // onAuthStateChanged will handle updating userData
     } catch (e: any) {
         setError(getAuthErrorMessage(e));
+        throw getAuthErrorMessage(e);
     }
   };
 
