@@ -10,7 +10,7 @@ import {
 export default class UserBuilder extends BaseBuilder<IUser> {
   private name = "Jon Bellion";
   private email = "jonny@test.com";
-  private avatarUrl = "";
+  private avatarURL = "";
   private concentration =
     Object.values(EUserConcentrations)[
       getRandomInt(Object.values(EUserConcentrations).length - 1)
@@ -27,7 +27,7 @@ export default class UserBuilder extends BaseBuilder<IUser> {
     return {
       name: this.name,
       email: this.email,
-      avatarUrl: this.avatarUrl,
+      avatarURL: this.avatarURL,
       concentration: this.concentration,
       proficiency: this.proficiency,
       createdAt: this.createdAt,

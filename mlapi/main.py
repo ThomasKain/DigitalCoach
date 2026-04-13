@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from services.firebase_setup import initialize_firebase # initialize Firebase connection when backend starts
+from services.firebase_init import initialize_firebase # initialize Firebase connection when backend starts
 from rq_dashboard_fast import RedisQueueDashboard
 from tasks.seed import start_seed
 
 from routes import (
+    user,
     jobs,
     create_answer,
     star_feedback,
@@ -67,7 +68,7 @@ async def seed():
         }
     except Exception as e: 
         return {
-            "message": f"Error seeding Firebase: {e}. Please try seeding again."
+            "message": f"Error seeding Firebase: {e} Please try seeding again."
         }
 
 
@@ -77,6 +78,7 @@ dashboard = RedisQueueDashboard("redis://redis:6379/", "/rq")
 app.mount("/rq", dashboard)
 
 # Add routes here
+app.include_router(user.router)
 app.include_router(jobs.router)
 app.include_router(create_answer.router)
 app.include_router(star_feedback.router)

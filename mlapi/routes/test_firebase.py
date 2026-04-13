@@ -1,4 +1,4 @@
-from services.firebase_setup import get_firestore_client
+from services.firebase_init import get_firestore_client
 from fastapi import APIRouter
 from utils.logger_config import get_logger
 

@@ -7,7 +7,7 @@ from openai import OpenAI
 from pydantic import ValidationError
 from dotenv import load_dotenv
 from data.interviews import getTranscriptById
-from services.firebase_setup import get_firestore_client
+from services.firebase_init import get_firestore_client
 from tasks.prompts import SENTIMENT_ANALYSIS_PROMPT
 import json
 logger = get_logger(__name__)

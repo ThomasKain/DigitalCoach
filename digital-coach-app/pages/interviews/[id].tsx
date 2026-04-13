@@ -32,7 +32,6 @@ export default function InterviewResults() {
                     const { interview } = data;
                     // check if interview is done being analyzed
                     if (interview.is_analyzed) {
-                        console.log(interview)
                         setInterview(interview);
                         setLoading(false);
                         setReady(true)
@@ -219,12 +218,12 @@ export default function InterviewResults() {
                                     ? interview.feedback.overall_competency.engagement.summary
                                     : "Feedback not available."
                                 }
-                                <p>Overall Sentiment: 
-                                    {interview && interview.sentiment
-                                        ? interview.sentiment.toString()
-                                        : NaN
-                                    }
-                                </p>
+                            </p>
+                            <p>Overall Sentiment:  
+                                {interview && interview.sentiment
+                                    ? ` ${interview.sentiment.toString()}`
+                                    : NaN
+                                }
                             </p>
                         </div>
                     </div>

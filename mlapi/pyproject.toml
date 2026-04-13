@@ -20,4 +20,5 @@ dependencies = [
     "firebase-admin>=7.1.0",
     "openai>=2.29.0",
     "rq-dashboard-fast>=0.8.1",
+    "cloudinary>=1.44.1",
 ]

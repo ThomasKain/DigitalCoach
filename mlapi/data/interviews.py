@@ -2,7 +2,7 @@
 Data functions related to interviews.
 """
 
-from services.firebase_setup import get_firestore_client
+from services.firebase_init import get_firestore_client
 from utils.logger_config import get_logger
 from schemas.interview import (
     Interview,

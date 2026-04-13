@@ -1,7 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status, Request
 from utils.logger_config import get_logger
 from schemas import CreateUserResponse, CreateUserRequest, GetUserRequest, GetUserResponse
-from services.firebase_setup import get_firestore_client
+from services.firebase_init import get_firestore_client
+import cloudinary
+from dotenv import load_dotenv
+import os
+import time
 
 logger = get_logger(__name__) # create a logger instance to log messages
 
@@ -47,3 +51,41 @@ async def get_user(request: GetUserRequest):
     except Exception as e:
         logger.info(f"Failed to retrieve user: {e}")
         return GetUserResponse(user=None)
+
+# GET /api/user/profilePic
+@router.get(
+    "/profilePic",
+    summary="Return the signature and timestamp needed for secure uploads to Cloudinary.",
+    description="Creates a signature and timestamp for the client to make a signed (secure) image upload to Cloudinary."
+)
+async def get_signature():
+    logger.info("Creating signature and timestamp...")  
+    load_dotenv()
+    try:
+        api_secret = os.getenv("CLOUDINARY_API_SECRET")
+        if not api_secret:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Missing API Secret"
+            )
+        
+        # generate signature and timestamp required by Cloudinary for signed uploads
+        timestamp = int(time.time()) # timestamp in seconds
+        signature = cloudinary.utils.api_sign_request(
+            {
+                "timestamp": timestamp,
+                # "upload_preset": "ml_default" (optional for signed uploads and must match NEXT_PUBLIC_UPLOAD_PRESET in digital-coach-app/.env)
+            },
+            api_secret
+        )
+        logger.info("Signature and timestamp created!")
+        return {"signature": signature, "timestamp": timestamp}
+    except HTTPException:
+        logger.error(f"Can't get signature")
+        raise
+    except Exception as e:
+        logger.error(f"Can't get signature: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error occurred uploading image."
+        )

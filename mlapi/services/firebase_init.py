@@ -2,7 +2,7 @@
 Handles setting the connection to Firebase services either emulators or production.
 """
 import firebase_admin
-from firebase_admin import firestore, firestore_async, credentials, auth
+from firebase_admin import firestore_async, credentials, auth
 import os
 from dotenv import load_dotenv
 from utils.logger_config import get_logger

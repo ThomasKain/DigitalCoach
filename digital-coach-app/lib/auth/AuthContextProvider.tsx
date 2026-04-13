@@ -96,7 +96,7 @@ export function AuthProvider({ children }: {children: ReactNode}) {
                 setUserData(userData as IUser);
 
             } catch (e) {
-                console.error("Error fetching user profile", e);
+                console.error(`Error fetching user profile: ${e}`);
             }
         } else {
             // not logged in
@@ -133,12 +133,12 @@ export function AuthProvider({ children }: {children: ReactNode}) {
         email = email.trim();
         pass = pass.trim();
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        // create new user in Firestore
-        await createUser(cred.user);
+        await createUser(cred.user); // create user document and add it to Firestore database
 
         // onAuthStateChanged will handle updating userData
     } catch (e: any) {
         setError(getAuthErrorMessage(e));
+        throw `Error signing up: ${getAuthErrorMessage(e)}`;
     }
   };
 

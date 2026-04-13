@@ -6,6 +6,8 @@ import styles from "@App/styles/Home.module.scss";
 import Card from "@App/components/atoms/Card";
 import IssuesChart from "@App/components/molecules/IssuesChart";
 import { TrendingUp, Award, Target, Video, History } from "lucide-react";
+import Spinner from "@App/components/atoms/Spinner";
+
 // import ScoreChart from "@App/components/molecules/ScoreChart";
 import PracticeCalendar from "@App/components/molecules/PracticeCalendar";
 // import useGetFeaturedQuestionSets from "@App/lib/questionSets/useGetFeaturedQuestionSets";
@@ -16,7 +18,7 @@ import Link from "next/link";
 // import seed from "@App/pages/api/seed";
 
 const Home: NextPage = () => {
-  const { user, userData } = useAuth();
+  const { userData } = useAuth();
 
   // const {
   //   data: questionSets,
@@ -117,7 +119,6 @@ const Home: NextPage = () => {
                 <span>Start Mock Interview</span>
               </Link>
               <Link href="/progress" className={styles.secondaryCta}>
-              {/* TODO: Add a link to the interview history page */}
                 <History size={20} />
                 <span>View Interview History</span>
               </Link>

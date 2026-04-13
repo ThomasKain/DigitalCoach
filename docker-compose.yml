@@ -4,16 +4,16 @@ services:
     build:
       context: ./digital-coach-app # Path to frontend Dockerfile
       target: deps # For development, build up to the 'deps' stage
-      args:
-        # Pass the environment variables as arguments for build-time use (make sure the names match from .env, Dockerfile, and here)
-        # Currently, these are null because the env file needs to be consolidated to the root folder first. However, this shouldn't be a problem for now we're using firebase emulators for local development.
-        - NEXT_PUBLIC_FIREBASE_API_KEY
-        - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-        - NEXT_PUBLIC_FIREBASE_PROJECT_ID
-        - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-        - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-        - NEXT_PUBLIC_FIREBASE_APP_ID
-        - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+      # args:
+      #   # Pass the environment variables as arguments for build-time use (make sure the names match from .env, Dockerfile, and here)
+      #   # Currently, these are null because the env file needs to be consolidated to the root folder first. However, this shouldn't be a problem for now we're using firebase emulators for local development.
+      #   - NEXT_PUBLIC_FIREBASE_API_KEY
+      #   - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+      #   - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+      #   - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+      #   - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+      #   - NEXT_PUBLIC_FIREBASE_APP_ID
+      #   - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     # Put secrets in the container environment as they're for runtime use
     environment:
       - NODE_ENV=development # Set Node environment to development to do things like enable emulators
@@ -65,13 +65,10 @@ services:
     build: ./mlapi # Path to backend Dockerfile
     ports:
       - "8000:8000" # Expose port 8000 for the API
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Remove these emulator variables if you want to use the real services
-      - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-      - GCLOUD_PROJECT=demo-digital-coach # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:
@@ -102,13 +99,10 @@ services:
     command: python -m redisStore.worker high
     depends_on:
       - redis
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Remove these emulator variables if you want to use the real services
-      - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-      - GCLOUD_PROJECT=demo-digital-coach # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:
@@ -126,13 +120,10 @@ services:
     command: python -m redisStore.worker default
     depends_on:
       - redis
+    env_file:
+      - ./mlapi/.env # load the environment variables before starting container
     environment:  
       - WORKERS_COUNT=3
-      # Remove these emulator variables if you want to use the real services
-      - FIRESTORE_EMULATOR_HOST=firebase:8080 # connect to Firestore emulator
-      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099 # connect Authentication emulator
-      - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199 # connect to Storage emulator
-      - GCLOUD_PROJECT=demo-digital-coach # allows admin SDK to communicate with the emulators shared by the other containers, use the actual project id for real services
       - ENVIRONMENT=development # used when connecting to Firebase to switch between emulators and real services
       - GOOGLE_APPLICATION_CREDENTIALS=/app/digital-coach-firebase-adminsdk.json # directory for firebase admin key
     volumes:

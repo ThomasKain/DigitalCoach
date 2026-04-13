@@ -37,7 +37,7 @@ export async function createUser(user: FirebaseUser) {
     id: user.uid,
     email: user.email || "",
     name: "",
-    avatarUrl: "",
+    avatarURL: "",
     concentration: null,
     proficiency: null,
     registrationCompletedAt: null,

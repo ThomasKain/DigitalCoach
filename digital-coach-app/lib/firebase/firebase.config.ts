@@ -1,5 +1,5 @@
 /**
- * Frontend's Connection to Firebase Services
+ * Client's Connection to Firebase Services
  */
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
@@ -18,10 +18,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase app but check if it's already initialized 
-if (getApps().length === 0) {
-  var app = initializeApp(firebaseConfig)
-}
+// Initialize Firebase app
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0]; // if an instance of Firebase already exists, return thats
 
 // Initialize Firebase services
 const auth = getAuth(app) // Firebase Authentication
@@ -29,13 +27,15 @@ const db = getFirestore(app); // Firebase Firestore
 const storage = getStorage(app); // Firebase Storage
 
 // Analytics (client-side only)
-if (typeof window !== "undefined" && "measurementId" in firebaseConfig) {
-  getAnalytics(app);
-}
-// Connect emulators for development only. NODE_ENV will be 'development' automatically due to docker-compose.yml setting 
-// Check emulator flag set by next.config.js which is based on NODE_ENV 
+// if (typeof window !== "undefined" && "measurementId" in firebaseConfig) {
+//   var analytics = getAnalytics(app);
+// }
+
+// Connect emulators for development.
+// Check emulator flag set in .env
 const useEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true"; 
 if (useEmulator) {
+  console.log("Using Firebase Emulator services.")
   // Determine host (browser or Docker) if we're in the browser (window exists), use localhost and if we're in a Docker container, use the service name 'firebase'.
   const emulatorHost = typeof window !== "undefined" ? "localhost" : "firebase";
 

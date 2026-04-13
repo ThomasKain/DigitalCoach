@@ -60,7 +60,7 @@ export default function SignUpPage() {
     // signup(email, password);
     try {
       await signup(email, password);
-      clearError();
+      // clearError();
       // navigate to register page after signup
       router.push("/auth/register");
     } catch (error) {
